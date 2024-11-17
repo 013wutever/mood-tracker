@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --app-height: 100%;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  min-height: var(--app-height);
+  background: linear-gradient(135deg, rgba(252,182,218,0.9) 0%, rgba(187,154,247,0.9) 100%);
+}
+
+body {
+  @apply antialiased text-white;
+  -webkit-tap-highlight-color: transparent;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.content-wrapper {
+  @apply max-h-[calc(100vh-4rem)] overflow-y-auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.glassmorphic {
+  @apply bg-white/10 backdrop-blur-lg border border-white/20;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -1px rgba(0, 0, 0, 0.06),
+              inset 0 0 80px rgba(255, 255, 255, 0.1);
+}
+
+.glassmorphic-hover {
+  @apply transition-all duration-300;
+}
+
+.glassmorphic-hover:hover {
+  @apply bg-white/15;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+              0 4px 6px -2px rgba(0, 0, 0, 0.05),
+              inset 0 0 80px rgba(255, 255, 255, 0.2);
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  html {
+    height: -webkit-fill-available;
+  }
+
+  body {
+    min-height: -webkit-fill-available;
+  }
+
+  .content-wrapper {
+    max-height: calc(100vh - 4rem);
+    height: calc(var(--app-height) - 4rem);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-white/20 rounded-full;
+}
+
+/* iOS-specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .min-h-screen {
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* Prevent text selection */
+.no-select {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
