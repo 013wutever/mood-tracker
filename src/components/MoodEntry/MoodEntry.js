@@ -5,14 +5,20 @@ import {
   Meh,
   Frown,
   Heart,
-  Clock
+  Clock,
+  Loader,
+  CheckCircle,
+  XCircle
 } from 'lucide-react';
+import googleSheetsService from '../../services/googleSheets';
 
-const MoodEntry = ({ language = 'el' }) => {
+const MoodEntry = ({ language = 'el', userEmail }) => {
   const [selectedMood, setSelectedMood] = useState(null);
   const [selectedEmotions, setSelectedEmotions] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [notes, setNotes] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null); // 'success' | 'error' | null
 
   const translations = {
     el: {
@@ -32,7 +38,11 @@ const MoodEntry = ({ language = 'el' }) => {
       notes: 'Σημειώσεις',
       notesPlaceholder: 'Προσθέστε τις σκέψεις σας...',
       submit: 'Καταχώρηση',
-      maxEmotionsWarning: 'Μπορείτε να επιλέξετε έως 3 συναισθήματα'
+      submitting: 'Γίνεται καταχώρηση...',
+      success: 'Η καταχώρηση ολοκληρώθηκε!',
+      error: 'Κάτι πήγε στραβά. Προσπαθήστε ξανά.',
+      maxEmotionsWarning: 'Μπορείτε να επιλέξετε έως 3 συναισθήματα',
+      validationError: 'Παρακαλώ συμπληρώστε όλα τα απαραίτητα πεδία'
     },
     en: {
       title: 'How are you feeling today?',
@@ -51,7 +61,11 @@ const MoodEntry = ({ language = 'el' }) => {
       notes: 'Notes',
       notesPlaceholder: 'Add your thoughts...',
       submit: 'Submit',
-      maxEmotionsWarning: 'You can select up to 3 emotions'
+      submitting: 'Submitting...',
+      success: 'Entry submitted successfully!',
+      error: 'Something went wrong. Please try again.',
+      maxEmotionsWarning: 'You can select up to 3 emotions',
+      validationError: 'Please fill in all required fields'
     }
   };
 
@@ -78,8 +92,82 @@ const MoodEntry = ({ language = 'el' }) => {
     }[id]
   }));
 
+  const emotions = [
+    { name: "Χαρά", value: "joy", type: "positive" },
+    { name: "Άγχος", value: "anxiety", type: "negative" },
+    { name: "Ηρεμία", value: "calmness", type: "positive" },
+    { name: "Απογοήτευση", value: "disappointment", type: "negative" },
+    { name: "Θυμός", value: "anger", type: "negative" },
+    { name: "Ευγνωμοσύνη", value: "gratitude", type: "positive" },
+    { name: "Ζήλια", value: "jealousy", type: "negative" },
+    { name: "Ανασφάλεια", value: "insecurity", type: "negative" },
+    { name: "Ενθουσιασμός", value: "enthusiasm", type: "positive" },
+    { name: "Ντροπή", value: "shame", type: "negative" },
+    { name: "Περηφάνια", value: "pride", type: "positive" },
+    { name: "Αγάπη", value: "love", type: "positive" },
+    { name: "Φόβος", value: "fear", type: "negative" },
+    { name: "Έκπληξη", value: "surprise", type: "neutral" },
+    { name: "Ανακούφιση", value: "relief", type: "positive" }
+  ];
+
+  const resetForm = () => {
+    setSelectedMood(null);
+    setSelectedEmotions([]);
+    setSelectedCategory(null);
+    setNotes('');
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedMood || !selectedCategory) {
+      setSubmitStatus('error');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+
+    try {
+      const result = await googleSheetsService.addMoodEntry({
+        userEmail,
+        category: selectedCategory,
+        moodEmoji: selectedMood,
+        emotions: selectedEmotions,
+        notes
+      });
+
+      if (result.success) {
+        setSubmitStatus('success');
+        setTimeout(() => {
+          resetForm();
+          setSubmitStatus(null);
+        }, 2000);
+      } else {
+        setSubmitStatus('error');
+      }
+    } catch (error) {
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
+      {/* Status Messages */}
+      {submitStatus && (
+        <div className={`fixed top-4 right-4 p-4 rounded-xl glassmorphic flex items-center gap-2
+          ${submitStatus === 'success' ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
+          {submitStatus === 'success' ? (
+            <CheckCircle className="w-5 h-5" />
+          ) : (
+            <XCircle className="w-5 h-5" />
+          )}
+          <span>
+            {translations[language][submitStatus === 'success' ? 'success' : 'error']}
+          </span>
+        </div>
+      )}
+
       {/* Moods */}
       <div>
         <h2 className="text-xl mb-4">{translations[language].title}</h2>
@@ -119,6 +207,38 @@ const MoodEntry = ({ language = 'el' }) => {
         </div>
       </div>
 
+      {/* Emotions */}
+      <div>
+        <h2 className="text-xl mb-4">{translations[language].selectEmotions}</h2>
+        <div className="flex flex-wrap gap-2">
+          {emotions.map((emotion) => (
+            <button
+              key={emotion.value}
+              onClick={() => {
+                if (selectedEmotions.includes(emotion.value)) {
+                  setSelectedEmotions(prev => prev.filter(e => e !== emotion.value));
+                } else if (selectedEmotions.length < 3) {
+                  setSelectedEmotions(prev => [...prev, emotion.value]);
+                }
+              }}
+              className={`${
+                selectedEmotions.includes(emotion.value) 
+                  ? emotion.type === 'positive' 
+                    ? 'bg-green-500/20 border-green-500' 
+                    : emotion.type === 'negative'
+                    ? 'bg-red-500/20 border-red-500'
+                    : 'bg-yellow-500/20 border-yellow-500'
+                  : 'bg-white/5'
+              } ${
+                selectedEmotions.includes(emotion.value) ? 'border-2' : 'border-transparent border-2'
+              } glassmorphic px-4 py-2 rounded-full text-sm transition-all hover:-translate-y-1`}
+            >
+              {emotion.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Notes */}
       <div>
         <h2 className="text-xl mb-4">{translations[language].notes}</h2>
@@ -136,10 +256,19 @@ const MoodEntry = ({ language = 'el' }) => {
 
       {/* Submit Button */}
       <button
-        onClick={() => console.log('Submit:', { selectedMood, selectedCategory, notes })}
-        className="w-full glassmorphic bg-white/20 hover:bg-white/30 py-3 rounded-xl transition-all"
+        onClick={handleSubmit}
+        disabled={isSubmitting}
+        className={`w-full glassmorphic py-3 rounded-xl transition-all flex items-center justify-center gap-2
+          ${isSubmitting ? 'bg-white/10' : 'bg-white/20 hover:bg-white/30'}`}
       >
-        {translations[language].submit}
+        {isSubmitting ? (
+          <>
+            <Loader className="w-5 h-5 animate-spin" />
+            {translations[language].submitting}
+          </>
+        ) : (
+          translations[language].submit
+        )}
       </button>
 
       {/* Timestamp */}
