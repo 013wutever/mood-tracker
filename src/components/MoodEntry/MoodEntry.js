@@ -1,14 +1,10 @@
-import React, { useState } from 'react';
 import { 
-  Smile, 
-  LaughingIcon, 
+  Smile,
+  Laugh,  // αντί για LaughingIcon
   Meh,
   Frown,
   Heart,
-  Clock,
-  Loader,
-  CheckCircle,
-  XCircle
+  Clock
 } from 'lucide-react';
 import googleSheetsService from '../../services/googleSheets';
 
@@ -70,12 +66,12 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
   };
 
   const moods = [
-    { id: 'very-positive', icon: LaughingIcon, color: 'bg-[#7FCDCD]/20', borderColor: 'border-[#7FCDCD]' },
+    { id: 'very-positive', icon: Laugh, color: 'bg-[#7FCDCD]/20', borderColor: 'border-[#7FCDCD]' },
     { id: 'positive', icon: Smile, color: 'bg-[#98FB98]/20', borderColor: 'border-[#98FB98]' },
     { id: 'neutral', icon: Meh, color: 'bg-[#D4E157]/20', borderColor: 'border-[#D4E157]' },
     { id: 'negative', icon: Frown, color: 'bg-[#FFB347]/20', borderColor: 'border-[#FFB347]' },
     { id: 'very-negative', icon: Heart, color: 'bg-[#FF9999]/20', borderColor: 'border-[#FF9999]' }
-  ];
+];
 
   const categories = Object.entries(translations[language].categories).map(([id, name]) => ({
     id,
