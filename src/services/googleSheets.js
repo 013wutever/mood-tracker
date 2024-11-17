@@ -41,19 +41,61 @@ class GoogleSheetsService {
     }
   }
 
-  async getUserStats(userEmail) {
-    const entries = await this.getUserEntries(userEmail);
-    
+  async getUserStats(userEmail, timeFilter = 'week') {
+    try {
+      const entries = await this.getUserEntries(userEmail);
+      if (!entries.length) return this.getEmptyStats();
+
+      const filteredEntries = this.filterEntriesByTime(entries, timeFilter);
+      
+      return {
+        totalEntries: entries.length,
+        weeklyCompletion: this.calculateWeeklyCompletion(filteredEntries),
+        moodDistribution: this.calculateMoodDistribution(filteredEntries),
+        categoryBreakdown: this.calculateCategoryBreakdown(filteredEntries),
+        emotions: this.calculateEmotions(filteredEntries),
+        timeOfDay: this.calculateTimeOfDay(filteredEntries),
+        positivityRatio: this.calculatePositivityRatio(filteredEntries)
+      };
+    } catch (error) {
+      console.error('Error getting user stats:', error);
+      return this.getEmptyStats();
+    }
+  }
+
+  getEmptyStats() {
     return {
-      totalEntries: entries.length,
-      weeklyCompletion: this.calculateWeeklyCompletion(entries),
-      moodDistribution: this.calculateMoodDistribution(entries),
-      categoryBreakdown: this.calculateCategoryBreakdown(entries),
-      streak: this.calculateStreak(entries)
+      totalEntries: 0,
+      weeklyCompletion: 0,
+      moodDistribution: [],
+      categoryBreakdown: [],
+      emotions: [],
+      timeOfDay: [],
+      positivityRatio: []
     };
   }
 
-  // Helper methods remain the same
+  filterEntriesByTime(entries, timeFilter) {
+    const now = new Date();
+    const filterDate = new Date();
+
+    switch (timeFilter) {
+      case 'week':
+        filterDate.setDate(now.getDate() - 7);
+        break;
+      case 'month':
+        filterDate.setMonth(now.getMonth() - 1);
+        break;
+      case 'year':
+        filterDate.setFullYear(now.getFullYear() - 1);
+        break;
+      default:
+        return entries;
+    }
+
+    return entries.filter(entry => new Date(entry[0]) >= filterDate);
+  }
+
   calculateWeeklyCompletion(entries) {
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
@@ -67,52 +109,106 @@ class GoogleSheetsService {
 
   calculateMoodDistribution(entries) {
     const distribution = entries.reduce((acc, entry) => {
-      acc[entry[3]] = (acc[entry[3]] || 0) + 1;
+      const mood = entry[3];
+      acc[mood] = (acc[mood] || 0) + 1;
       return acc;
     }, {});
 
     return Object.entries(distribution).map(([name, value]) => ({
       name,
-      value
+      originalName: name,
+      value: Math.round((value / entries.length) * 100)
     }));
+  }
+
+  calculateEmotions(entries) {
+    const emotions = entries.reduce((acc, entry) => {
+      const entryEmotions = entry[4].split(',');
+      entryEmotions.forEach(emotion => {
+        acc[emotion] = (acc[emotion] || 0) + 1;
+      });
+      return acc;
+    }, {});
+
+    return Object.entries(emotions).map(([name, value]) => ({
+      name,
+      value,
+      type: this.getEmotionType(name)
+    }));
+  }
+
+  getEmotionType(emotion) {
+    const positiveEmotions = [
+      'joy', 'calm', 'gratitude', 'enthusiasm', 'optimism',
+      'satisfaction', 'pride', 'love', 'relief', 'serenity'
+    ];
+    return positiveEmotions.includes(emotion) ? 'positive' : 'negative';
+  }
+
+  calculateTimeOfDay(entries) {
+    const getTimeCategory = (date) => {
+      const hour = new Date(date).getHours();
+      if (hour >= 5 && hour < 12) return 'morning';
+      if (hour >= 12 && hour < 17) return 'noon';
+      if (hour >= 17 && hour < 21) return 'afternoon';
+      return 'evening';
+    };
+
+    const distribution = entries.reduce((acc, entry) => {
+      const timeCategory = getTimeCategory(entry[0]);
+      acc[timeCategory] = (acc[timeCategory] || 0) + 1;
+      return acc;
+    }, {});
+
+    return Object.entries(distribution).map(([name, value]) => ({
+      name,
+      value: Math.round((value / entries.length) * 100)
+    }));
+  }
+
+  calculatePositivityRatio(entries) {
+    const positiveCount = entries.filter(entry => 
+      ['very-positive', 'positive'].includes(entry[3])
+    ).length;
+
+    const negativeCount = entries.filter(entry => 
+      ['very-negative', 'negative'].includes(entry[3])
+    ).length;
+
+    const total = entries.length;
+
+    return [
+      { name: 'Θετικά', value: Math.round((positiveCount / total) * 100) },
+      { name: 'Αρνητικά', value: Math.round((negativeCount / total) * 100) }
+    ];
   }
 
   calculateCategoryBreakdown(entries) {
     const breakdown = entries.reduce((acc, entry) => {
-      acc[entry[2]] = (acc[entry[2]] || 0) + 1;
+      const category = entry[2];
+      acc[category] = (acc[category] || 0) + 1;
       return acc;
     }, {});
 
-    return Object.entries(breakdown).map(([name, value]) => ({
-      name,
-      value
+    return Object.entries(breakdown).map(([id, value]) => ({
+      id,
+      name: this.getCategoryName(id),
+      value: Math.round((value / entries.length) * 100)
     }));
   }
 
-  calculateStreak(entries) {
-    if (!entries.length) return 0;
-
-    entries.sort((a, b) => new Date(b[0]) - new Date(a[0]));
-    
-    let streak = 1;
-    let currentDate = new Date(entries[0][0]);
-    currentDate.setHours(0, 0, 0, 0);
-
-    for (let i = 1; i < entries.length; i++) {
-      const entryDate = new Date(entries[i][0]);
-      entryDate.setHours(0, 0, 0, 0);
-
-      const diffDays = Math.round((currentDate - entryDate) / (1000 * 60 * 60 * 24));
-      
-      if (diffDays === 1) {
-        streak++;
-        currentDate = entryDate;
-      } else {
-        break;
-      }
-    }
-
-    return streak;
+  getCategoryName(id) {
+    const categories = {
+      personal: 'Προσωπικά',
+      friends: 'Φίλοι',
+      family: 'Οικογένεια',
+      work: 'Επαγγελματικά',
+      studies: 'Σπουδές',
+      health: 'Υγεία',
+      finances: 'Οικονομικά',
+      entertainment: 'Ψυχαγωγία'
+    };
+    return categories[id] || id;
   }
 
   async verifyUser(email, hashedPassword) {
