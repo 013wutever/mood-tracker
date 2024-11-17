@@ -5,6 +5,7 @@ import {
   Info,
   Languages
 } from 'lucide-react';
+import MoodEntry from './components/MoodEntry/MoodEntry';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('mood-entry');
@@ -28,6 +29,33 @@ const App = () => {
     { id: 'progress', icon: LineChart },
     { id: 'info', icon: Info }
   ];
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'mood-entry':
+        return <MoodEntry language={language} />;
+      case 'progress':
+        return (
+          <div className="text-center py-12">
+            <h1 className="text-2xl font-semibold mb-6">
+              {translations[language]['progress']}
+            </h1>
+            {/* Progress component will go here */}
+          </div>
+        );
+      case 'info':
+        return (
+          <div className="text-center py-12">
+            <h1 className="text-2xl font-semibold mb-6">
+              {translations[language]['info']}
+            </h1>
+            {/* Info component will go here */}
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="min-h-screen w-full overflow-hidden">
@@ -56,38 +84,17 @@ const App = () => {
           className="glassmorphic p-2 rounded-full hover:bg-white/20"
         >
           <Languages className="w-6 h-6" />
-          <span className="sr-only">Change Language</span>
+          <span className="sr-only">
+            {language === 'el' ? 'Switch to English' : 'Αλλαγή σε Ελληνικά'}
+          </span>
         </button>
       </nav>
 
       {/* Main content area */}
-      <main className="pt-20 px-4 pb-4 min-h-screen">
-        {activeTab === 'mood-entry' && (
-          <div className="glassmorphic rounded-2xl p-6 max-w-2xl mx-auto">
-            <h1 className="text-2xl font-semibold mb-6">
-              {translations[language]['mood-entry']}
-            </h1>
-            {/* Mood entry content will go here */}
-          </div>
-        )}
-
-        {activeTab === 'progress' && (
-          <div className="glassmorphic rounded-2xl p-6 max-w-4xl mx-auto">
-            <h1 className="text-2xl font-semibold mb-6">
-              {translations[language]['progress']}
-            </h1>
-            {/* Progress content will go here */}
-          </div>
-        )}
-
-        {activeTab === 'info' && (
-          <div className="glassmorphic rounded-2xl p-6 max-w-2xl mx-auto">
-            <h1 className="text-2xl font-semibold mb-6">
-              {translations[language]['info']}
-            </h1>
-            {/* Info content will go here */}
-          </div>
-        )}
+      <main className="container mx-auto pt-20 px-4 pb-4 min-h-screen">
+        <div className="glassmorphic rounded-2xl p-6 max-w-2xl mx-auto">
+          {renderContent()}
+        </div>
       </main>
     </div>
   );
