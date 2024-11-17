@@ -1,58 +1,76 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-:root {
-  --app-height: 100%;
+.content-wrapper {
+  @apply max-h-[calc(100vh-4rem)] overflow-y-auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-html, body {
-  @apply m-0 p-0 min-h-screen;
-  height: var(--app-height);
+.glassmorphic-hover {
+  @apply transition-all duration-300;
 }
 
-body {
-  @apply antialiased text-white bg-gradient-to-br from-pink-200/80 to-purple-300/80;
-  -webkit-tap-highlight-color: transparent;
+.glassmorphic-hover:hover {
+  @apply bg-white/15;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+              0 4px 6px -2px rgba(0, 0, 0, 0.05),
+              inset 0 0 80px rgba(255, 255, 255, 0.2);
 }
 
-/* Glassmorphic card base styles */
-.glassmorphic {
-  @apply bg-glassmorphic-medium backdrop-blur-lg border border-white/20;
-}
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .content-wrapper {
+    height: calc(var(--app-height) - 4rem);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* Βελτίωση εμφάνισης εικονιδίων στο mobile */
+  .icon-wrapper {
+    @apply relative inline-flex items-center justify-center;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-white/20 rounded-full;
-}
-
-/* Mobile-specific styles */
-@supports (-webkit-touch-callout: none) {
-  .min-h-screen {
-    min-height: -webkit-fill-available;
+  /* Διόρθωση για το landscape mode */
+  @media (orientation: landscape) {
+    .content-wrapper {
+      height: auto;
+      min-height: calc(var(--app-height) - 4rem);
+    }
   }
 }
 
-/* Prevent text selection */
-.no-select {
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+/* Βελτιωμένο glassmorphic effect */
+.glassmorphic {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -1px rgba(0, 0, 0, 0.06),
+              inset 0 0 80px rgba(255, 255, 255, 0.1);
 }
 
-/* Smooth transitions */
-* {
-  @apply transition-all duration-300 ease-in-out;
+/* Πιο σκούρο background */
+body {
+  background: linear-gradient(135deg, 
+    rgba(252,182,218,0.95) 0%, 
+    rgba(187,154,247,0.95) 100%
+  );
+}
+
+/* Βελτίωση εμφάνισης κουμπιών */
+button {
+  @apply relative overflow-hidden;
+}
+
+button::before {
+  content: '';
+  @apply absolute inset-0 opacity-0 transition-opacity duration-300;
+  background: radial-gradient(circle at center, 
+    rgba(255,255,255,0.2) 0%, 
+    transparent 70%
+  );
+}
+
+button:hover::before {
+  @apply opacity-100;
+}
+
+/* Βελτιωμένο active state για κουμπιά */
+button:active {
+  transform: scale(0.98);
 }
