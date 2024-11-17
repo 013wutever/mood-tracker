@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --app-height: 100%;
+}
+
+html, body {
+  @apply m-0 p-0 min-h-screen;
+  height: var(--app-height);
+}
+
+body {
+  @apply antialiased text-white bg-gradient-to-br from-pink-200/80 to-purple-300/80;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Glassmorphic card base styles */
+.glassmorphic {
+  @apply bg-glassmorphic-medium backdrop-blur-lg border border-white/20;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-white/20 rounded-full;
+}
+
+/* Mobile-specific styles */
+@supports (-webkit-touch-callout: none) {
+  .min-h-screen {
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* Prevent text selection */
+.no-select {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Smooth transitions */
+* {
+  @apply transition-all duration-300 ease-in-out;
+}
