@@ -47,11 +47,76 @@ export default async function handler(req, res) {
           .filter(row => row[1] === data.userEmail);
         return res.status(200).json({ success: true, data: filteredEntries });
 
+      case 'verifyUser':
+        const users = await sheets.spreadsheets.values.get({
+          spreadsheetId: process.env.REACT_APP_GOOGLE_SHEETS_ID,
+          range: 'UserAccounts!A2:D'
+        });
+        
+        const userRows = users.data.values || [];
+        const user = userRows.find(row => 
+          row[0] === data.email && row[1] === data.hashedPassword
+        );
+
+        if (user) {
+          const userRowIndex = userRows.indexOf(user) + 2;
+          // Update last login
+          await sheets.spreadsheets.values.update({
+            spreadsheetId: process.env.REACT_APP_GOOGLE_SHEETS_ID,
+            range: `UserAccounts!D${userRowIndex}`,
+            valueInputOption: 'USER_ENTERED',
+            resource: {
+              values: [[new Date().toISOString()]]
+            }
+          });
+          return res.status(200).json({ success: true });
+        }
+        return res.status(401).json({ success: false, error: 'Invalid credentials' });
+
+      case 'addUser':
+        // Check if user already exists
+        const existingUsers = await sheets.spreadsheets.values.get({
+          spreadsheetId: process.env.REACT_APP_GOOGLE_SHEETS_ID,
+          range: 'UserAccounts!A2:D'
+        });
+        
+        const exists = (existingUsers.data.values || [])
+          .some(row => row[0] === data.email);
+
+        if (exists) {
+          return res.status(400).json({ 
+            success: false, 
+            error: 'User already exists' 
+          });
+        }
+
+        // Add new user
+        await sheets.spreadsheets.values.append({
+          spreadsheetId: process.env.REACT_APP_GOOGLE_SHEETS_ID,
+          range: 'UserAccounts!A2:D',
+          valueInputOption: 'USER_ENTERED',
+          resource: {
+            values: [[
+              data.email,
+              data.hashedPassword,
+              new Date().toISOString(),
+              new Date().toISOString()
+            ]]
+          }
+        });
+        return res.status(200).json({ success: true });
+
       default:
-        return res.status(400).json({ success: false, error: 'Invalid action' });
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Invalid action' 
+        });
     }
   } catch (error) {
     console.error('API Error:', error);
-    return res.status(500).json({ success: false, error: error.message });
+    return res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
   }
 }
