@@ -1,10 +1,14 @@
+import React, { useState } from 'react';  // Προσθήκη useState
 import { 
   Smile,
-  Laugh,  // αντί για LaughingIcon
+  Laugh,
   Meh,
   Frown,
   Heart,
-  Clock
+  Clock,
+  CheckCircle,  // Προσθήκη CheckCircle
+  XCircle,      // Προσθήκη XCircle
+  Loader        // Προσθήκη Loader
 } from 'lucide-react';
 import googleSheetsService from '../../services/googleSheets';
 
@@ -14,7 +18,7 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null); // 'success' | 'error' | null
+  const [submitStatus, setSubmitStatus] = useState(null);
 
   const translations = {
     el: {
