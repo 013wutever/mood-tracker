@@ -1,4 +1,4 @@
-import React, { useState } from 'react';  // Προσθήκη useState
+import React, { useState } from 'react';
 import { 
   Smile,
   Laugh,
@@ -6,11 +6,10 @@ import {
   Frown,
   Heart,
   Clock,
-  CheckCircle,  // Προσθήκη CheckCircle
-  XCircle,      // Προσθήκη XCircle
-  Loader        // Προσθήκη Loader
+  CheckCircle,
+  XCircle,
+  Loader
 } from 'lucide-react';
-import googleSheetsService from '../../services/googleSheets';
 
 const MoodEntry = ({ language = 'el', userEmail }) => {
   const [selectedMood, setSelectedMood] = useState(null);
@@ -20,139 +19,88 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
 
-  const translations = {
-    el: {
-      title: 'Πώς νιώθετε σήμερα;',
-      categories: {
-        personal: 'Προσωπικά',
-        friends: 'Φίλοι',
-        family: 'Οικογένεια',
-        work: 'Επαγγελματικά',
-        studies: 'Σπουδές',
-        health: 'Υγεία',
-        finances: 'Οικονομικά',
-        entertainment: 'Ψυχαγωγία'
-      },
-      selectCategory: 'Επιλέξτε κατηγορία',
-      selectEmotions: 'Επιλέξτε έως 3 συναισθήματα',
-      notes: 'Σημειώσεις',
-      notesPlaceholder: 'Προσθέστε τις σκέψεις σας...',
-      submit: 'Καταχώρηση',
-      submitting: 'Γίνεται καταχώρηση...',
-      success: 'Η καταχώρηση ολοκληρώθηκε!',
-      error: 'Κάτι πήγε στραβά. Προσπαθήστε ξανά.',
-      maxEmotionsWarning: 'Μπορείτε να επιλέξετε έως 3 συναισθήματα',
-      validationError: 'Παρακαλώ συμπληρώστε όλα τα απαραίτητα πεδία'
-    },
-    en: {
-      title: 'How are you feeling today?',
-      categories: {
-        personal: 'Personal',
-        friends: 'Friends',
-        family: 'Family',
-        work: 'Work',
-        studies: 'Studies',
-        health: 'Health',
-        finances: 'Finances',
-        entertainment: 'Entertainment'
-      },
-      selectCategory: 'Select category',
-      selectEmotions: 'Select up to 3 emotions',
-      notes: 'Notes',
-      notesPlaceholder: 'Add your thoughts...',
-      submit: 'Submit',
-      submitting: 'Submitting...',
-      success: 'Entry submitted successfully!',
-      error: 'Something went wrong. Please try again.',
-      maxEmotionsWarning: 'You can select up to 3 emotions',
-      validationError: 'Please fill in all required fields'
-    }
-  };
-
   const moods = [
-    { id: 'very-positive', icon: Laugh, color: 'bg-[#7FCDCD]/20', borderColor: 'border-[#7FCDCD]' },
-    { id: 'positive', icon: Smile, color: 'bg-[#98FB98]/20', borderColor: 'border-[#98FB98]' },
-    { id: 'neutral', icon: Meh, color: 'bg-[#D4E157]/20', borderColor: 'border-[#D4E157]' },
-    { id: 'negative', icon: Frown, color: 'bg-[#FFB347]/20', borderColor: 'border-[#FFB347]' },
-    { id: 'very-negative', icon: Heart, color: 'bg-[#FF9999]/20', borderColor: 'border-[#FF9999]' }
-];
-
-  const categories = Object.entries(translations[language].categories).map(([id, name]) => ({
-    id,
-    name,
-    color: {
-      personal: 'bg-purple-300/20 border-purple-300',
-      friends: 'bg-green-300/20 border-green-300',
-      family: 'bg-blue-300/20 border-blue-300',
-      work: 'bg-orange-300/20 border-orange-300',
-      studies: 'bg-yellow-300/20 border-yellow-300',
-      health: 'bg-pink-300/20 border-pink-300',
-      finances: 'bg-gray-300/20 border-gray-300',
-      entertainment: 'bg-teal-300/20 border-teal-300'
-    }[id]
-  }));
-
-  const emotions = [
-    { name: "Χαρά", value: "joy", type: "positive" },
-    { name: "Άγχος", value: "anxiety", type: "negative" },
-    { name: "Ηρεμία", value: "calmness", type: "positive" },
-    { name: "Απογοήτευση", value: "disappointment", type: "negative" },
-    { name: "Θυμός", value: "anger", type: "negative" },
-    { name: "Ευγνωμοσύνη", value: "gratitude", type: "positive" },
-    { name: "Ζήλια", value: "jealousy", type: "negative" },
-    { name: "Ανασφάλεια", value: "insecurity", type: "negative" },
-    { name: "Ενθουσιασμός", value: "enthusiasm", type: "positive" },
-    { name: "Ντροπή", value: "shame", type: "negative" },
-    { name: "Περηφάνια", value: "pride", type: "positive" },
-    { name: "Αγάπη", value: "love", type: "positive" },
-    { name: "Φόβος", value: "fear", type: "negative" },
-    { name: "Έκπληξη", value: "surprise", type: "neutral" },
-    { name: "Ανακούφιση", value: "relief", type: "positive" }
+    { 
+      id: 'very-negative', 
+      icon: Frown, 
+      color: 'bg-red-200/40',
+      activeColor: 'bg-red-200/60',
+      glowColor: 'shadow-red-200/30',
+      label: 'Πολύ αρνητικός'
+    },
+    { 
+      id: 'negative', 
+      icon: Frown, 
+      color: 'bg-orange-200/40',
+      activeColor: 'bg-orange-200/60',
+      glowColor: 'shadow-orange-200/30',
+      label: 'Αρνητικός'
+    },
+    { 
+      id: 'neutral', 
+      icon: Meh, 
+      color: 'bg-yellow-200/40',
+      activeColor: 'bg-yellow-200/60',
+      glowColor: 'shadow-yellow-200/30',
+      label: 'Ουδέτερος'
+    },
+    { 
+      id: 'positive', 
+      icon: Smile, 
+      color: 'bg-green-200/40',
+      activeColor: 'bg-green-200/60',
+      glowColor: 'shadow-green-200/30',
+      label: 'Θετικός'
+    },
+    { 
+      id: 'very-positive', 
+      icon: Laugh, 
+      color: 'bg-cyan-200/40',
+      activeColor: 'bg-cyan-200/60',
+      glowColor: 'shadow-cyan-200/30',
+      label: 'Πολύ θετικός'
+    }
   ];
 
-  const resetForm = () => {
-    setSelectedMood(null);
-    setSelectedEmotions([]);
-    setSelectedCategory(null);
-    setNotes('');
-  };
+  const emotions = [
+    // Θετικά
+    { name: "Χαρά", value: "joy", type: "positive" },
+    { name: "Ηρεμία", value: "calm", type: "positive" },
+    { name: "Ευγνωμοσύνη", value: "gratitude", type: "positive" },
+    { name: "Ενθουσιασμός", value: "enthusiasm", type: "positive" },
+    { name: "Αισιοδοξία", value: "optimism", type: "positive" },
+    { name: "Ικανοποίηση", value: "satisfaction", type: "positive" },
+    { name: "Περηφάνια", value: "pride", type: "positive" },
+    { name: "Αγάπη", value: "love", type: "positive" },
+    { name: "Ανακούφιση", value: "relief", type: "positive" },
+    { name: "Γαλήνη", value: "serenity", type: "positive" },
+    
+    // Αρνητικά
+    { name: "Άγχος", value: "anxiety", type: "negative" },
+    { name: "Θυμός", value: "anger", type: "negative" },
+    { name: "Λύπη", value: "sadness", type: "negative" },
+    { name: "Απογοήτευση", value: "disappointment", type: "negative" },
+    { name: "Ανησυχία", value: "worry", type: "negative" },
+    { name: "Ματαίωση", value: "frustration", type: "negative" },
+    { name: "Ντροπή", value: "shame", type: "negative" },
+    { name: "Μοναξιά", value: "loneliness", type: "negative" },
+    { name: "Φόβος", value: "fear", type: "negative" },
+    { name: "Ανασφάλεια", value: "insecurity", type: "negative" }
+  ];
 
-  const handleSubmit = async () => {
-    if (!selectedMood || !selectedCategory) {
-      setSubmitStatus('error');
-      return;
-    }
-
-    setIsSubmitting(true);
-    setSubmitStatus(null);
-
-    try {
-      const result = await googleSheetsService.addMoodEntry({
-        userEmail,
-        category: selectedCategory,
-        moodEmoji: selectedMood,
-        emotions: selectedEmotions,
-        notes
-      });
-
-      if (result.success) {
-        setSubmitStatus('success');
-        setTimeout(() => {
-          resetForm();
-          setSubmitStatus(null);
-        }, 2000);
-      } else {
-        setSubmitStatus('error');
-      }
-    } catch (error) {
-      setSubmitStatus('error');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const categories = [
+    { id: 'personal', name: 'Προσωπικά', color: 'bg-purple-300/20 hover:bg-purple-300/30' },
+    { id: 'friends', name: 'Φίλοι', color: 'bg-green-300/20 hover:bg-green-300/30' },
+    { id: 'family', name: 'Οικογένεια', color: 'bg-blue-300/20 hover:bg-blue-300/30' },
+    { id: 'work', name: 'Επαγγελματικά', color: 'bg-orange-300/20 hover:bg-orange-300/30' },
+    { id: 'studies', name: 'Σπουδές', color: 'bg-yellow-300/20 hover:bg-yellow-300/30' },
+    { id: 'health', name: 'Υγεία', color: 'bg-pink-300/20 hover:bg-pink-300/30' },
+    { id: 'finances', name: 'Οικονομικά', color: 'bg-gray-300/20 hover:bg-gray-300/30' },
+    { id: 'entertainment', name: 'Ψυχαγωγία', color: 'bg-teal-300/20 hover:bg-teal-300/30' }
+  ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 content-wrapper">
       {/* Status Messages */}
       {submitStatus && (
         <div className={`fixed top-4 right-4 p-4 rounded-xl glassmorphic flex items-center gap-2
@@ -163,14 +111,14 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
             <XCircle className="w-5 h-5" />
           )}
           <span>
-            {translations[language][submitStatus === 'success' ? 'success' : 'error']}
+            {submitStatus === 'success' ? 'Η καταχώρηση ολοκληρώθηκε!' : 'Κάτι πήγε στραβά. Προσπαθήστε ξανά.'}
           </span>
         </div>
       )}
 
       {/* Moods */}
       <div>
-        <h2 className="text-xl mb-4">{translations[language].title}</h2>
+        <h2 className="text-xl mb-4 text-white">Πώς νιώθετε σήμερα;</h2>
         <div className="flex flex-wrap gap-4 justify-center">
           {moods.map((mood) => {
             const MoodIcon = mood.icon;
@@ -178,9 +126,18 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
               <button
                 key={mood.id}
                 onClick={() => setSelectedMood(mood.id)}
-                className={`${mood.color} ${
-                  selectedMood === mood.id ? `${mood.borderColor} border-2` : 'border-transparent border-2'
-                } glassmorphic p-4 rounded-full transition-transform hover:-translate-y-1`}
+                className={`
+                  transition-all duration-300
+                  p-4 rounded-full
+                  ${mood.color}
+                  hover:scale-110
+                  hover:shadow-lg
+                  ${selectedMood === mood.id 
+                    ? `${mood.activeColor} shadow-lg ${mood.glowColor} scale-110` 
+                    : ''
+                  }
+                `}
+                title={mood.label}
               >
                 <MoodIcon className="w-8 h-8" />
               </button>
@@ -191,15 +148,23 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
 
       {/* Categories */}
       <div>
-        <h2 className="text-xl mb-4">{translations[language].selectCategory}</h2>
+        <h2 className="text-xl mb-4 text-white">Επιλέξτε κατηγορία</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {categories.map((category) => (
             <button
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}
-              className={`${category.color} ${
-                selectedCategory === category.id ? 'border-2' : 'border-transparent border-2'
-              } glassmorphic p-3 rounded-xl text-sm transition-transform hover:-translate-y-1`}
+              className={`
+                p-3 rounded-xl text-sm
+                transition-all duration-300
+                ${category.color}
+                hover:scale-105
+                hover:shadow-lg
+                ${selectedCategory === category.id 
+                  ? 'scale-105 shadow-lg border-2 border-white/30' 
+                  : ''
+                }
+              `}
             >
               {category.name}
             </button>
@@ -209,7 +174,7 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
 
       {/* Emotions */}
       <div>
-        <h2 className="text-xl mb-4">{translations[language].selectEmotions}</h2>
+        <h2 className="text-xl mb-4 text-white">Επιλέξτε έως 3 συναισθήματα</h2>
         <div className="flex flex-wrap gap-2">
           {emotions.map((emotion) => (
             <button
@@ -221,17 +186,27 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
                   setSelectedEmotions(prev => [...prev, emotion.value]);
                 }
               }}
-              className={`${
-                selectedEmotions.includes(emotion.value) 
-                  ? emotion.type === 'positive' 
-                    ? 'bg-green-500/20 border-green-500' 
-                    : emotion.type === 'negative'
-                    ? 'bg-red-500/20 border-red-500'
-                    : 'bg-yellow-500/20 border-yellow-500'
-                  : 'bg-white/5'
-              } ${
-                selectedEmotions.includes(emotion.value) ? 'border-2' : 'border-transparent border-2'
-              } glassmorphic px-4 py-2 rounded-full text-sm transition-all hover:-translate-y-1`}
+              disabled={selectedEmotions.length >= 3 && !selectedEmotions.includes(emotion.value)}
+              className={`
+                px-4 py-2 rounded-full text-sm
+                transition-all duration-300
+                ${emotion.type === 'positive' 
+                  ? 'bg-green-200/20 hover:bg-green-200/30' 
+                  : 'bg-red-200/20 hover:bg-red-200/30'
+                }
+                ${selectedEmotions.includes(emotion.value)
+                  ? `scale-110 shadow-lg ${
+                      emotion.type === 'positive'
+                        ? 'bg-green-200/40 border-2 border-green-200/60'
+                        : 'bg-red-200/40 border-2 border-red-200/60'
+                    }`
+                  : ''
+                }
+                ${selectedEmotions.length >= 3 && !selectedEmotions.includes(emotion.value)
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'hover:scale-105'
+                }
+              `}
             >
               {emotion.name}
             </button>
@@ -241,12 +216,14 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
 
       {/* Notes */}
       <div>
-        <h2 className="text-xl mb-4">{translations[language].notes}</h2>
+        <h2 className="text-xl mb-4 text-white">Σημειώσεις</h2>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder={translations[language].notesPlaceholder}
-          className="w-full h-32 glassmorphic bg-white/10 rounded-xl p-4 placeholder-white/50 resize-none"
+          placeholder="Προσθέστε τις σκέψεις σας..."
+          className="w-full h-32 glassmorphic bg-white/10 rounded-xl p-4 
+                    placeholder-white/50 resize-none focus:ring-2 
+                    focus:ring-white/30 focus:outline-none"
           maxLength={500}
         />
         <div className="text-right text-sm text-white/50">
@@ -258,23 +235,30 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
       <button
         onClick={handleSubmit}
         disabled={isSubmitting}
-        className={`w-full glassmorphic py-3 rounded-xl transition-all flex items-center justify-center gap-2
-          ${isSubmitting ? 'bg-white/10' : 'bg-white/20 hover:bg-white/30'}`}
+        className={`
+          w-full py-3 rounded-xl
+          transition-all duration-300
+          glassmorphic
+          ${isSubmitting 
+            ? 'bg-white/10 cursor-not-allowed' 
+            : 'bg-white/20 hover:bg-white/30 hover:shadow-lg'
+          }
+        `}
       >
         {isSubmitting ? (
           <>
-            <Loader className="w-5 h-5 animate-spin" />
-            {translations[language].submitting}
+            <Loader className="w-5 h-5 animate-spin inline-block mr-2" />
+            Γίνεται καταχώρηση...
           </>
         ) : (
-          translations[language].submit
+          'Καταχώρηση'
         )}
       </button>
 
       {/* Timestamp */}
       <div className="text-center text-sm text-white/50 flex items-center justify-center gap-2">
         <Clock className="w-4 h-4" />
-        {new Date().toLocaleTimeString(language === 'el' ? 'el-GR' : 'en-US')}
+        {new Date().toLocaleTimeString('el-GR')}
       </div>
     </div>
   );
