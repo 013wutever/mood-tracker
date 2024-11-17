@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
 import './styles/globals.css';
 import App from './App';
 
@@ -31,7 +30,7 @@ root.render(
   window.addEventListener('resize', setMobileHeight);
   
   // Prevent bounce effect on iOS
-  document.body.addEventListener('touchmove', function(e) {
+ document.body.addEventListener('touchmove', function(e) {
     if (e.target.closest('.scroll-container')) return;
     e.preventDefault();
   }, { passive: false });
