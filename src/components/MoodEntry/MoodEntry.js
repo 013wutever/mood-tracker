@@ -10,6 +10,7 @@ import {
   XCircle,
   Loader
 } from 'lucide-react';
+import googleSheetsService from '../../services/googleSheets';
 
 const MoodEntry = ({ language = 'el', userEmail }) => {
   const [selectedMood, setSelectedMood] = useState(null);
@@ -98,41 +99,49 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
     { id: 'finances', name: 'Οικονομικά', color: 'bg-gray-300/20 hover:bg-gray-300/30' },
     { id: 'entertainment', name: 'Ψυχαγωγία', color: 'bg-teal-300/20 hover:bg-teal-300/30' }
   ];
-const handleSubmit = async () => {
-  // Validation
-  if (!selectedMood || !selectedCategory) {
-    setSubmitStatus('error');
-    return;
-  }
 
-  setIsSubmitting(true);
-  setSubmitStatus(null);
+  const resetForm = () => {
+    setSelectedMood(null);
+    setSelectedEmotions([]);
+    setSelectedCategory(null);
+    setNotes('');
+  };
 
-  try {
-    const result = await googleSheetsService.addMoodEntry({
-      userEmail,
-      category: selectedCategory,
-      moodEmoji: selectedMood,
-      emotions: selectedEmotions,
-      notes
-    });
-
-    if (result.success) {
-      setSubmitStatus('success');
-      // Reset form after 2 seconds
-      setTimeout(() => {
-        resetForm();
-        setSubmitStatus(null);
-      }, 2000);
-    } else {
+  const handleSubmit = async () => {
+    // Validation
+    if (!selectedMood || !selectedCategory) {
       setSubmitStatus('error');
+      return;
     }
-  } catch (error) {
-    setSubmitStatus('error');
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+
+    try {
+      const result = await googleSheetsService.addMoodEntry({
+        userEmail,
+        category: selectedCategory,
+        moodEmoji: selectedMood,
+        emotions: selectedEmotions,
+        notes
+      });
+
+      if (result.success) {
+        setSubmitStatus('success');
+        // Reset form after 2 seconds
+        setTimeout(() => {
+          resetForm();
+          setSubmitStatus(null);
+        }, 2000);
+      } else {
+        setSubmitStatus('error');
+      }
+    } catch (error) {
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <div className="space-y-8 content-wrapper">
       {/* Status Messages */}
