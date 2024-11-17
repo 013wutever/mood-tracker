@@ -1,44 +1,19 @@
-import { google } from 'googleapis';
-
-const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
-
 class GoogleSheetsService {
-  constructor() {
-    this.auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: process.env.REACT_APP_GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        private_key: process.env.REACT_APP_GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-        project_id: "mood-tracker-app-441922"
-      },
-      scopes: SCOPES,
-    });
-
-    this.sheets = google.sheets({ version: 'v4', auth: this.auth });
-    this.spreadsheetId = process.env.REACT_APP_GOOGLE_SHEETS_ID;
-  }
-
   async addMoodEntry(data) {
     try {
-      const row = [
-        new Date().toISOString(),
-        data.userEmail,
-        data.category,
-        data.moodEmoji,
-        data.emotions.join(','),
-        data.notes,
-        this.generateUniqueId()
-      ];
-
-      await this.sheets.spreadsheets.values.append({
-        spreadsheetId: this.spreadsheetId,
-        range: 'TrackerData1!A2:G',
-        valueInputOption: 'USER_ENTERED',
-        resource: {
-          values: [row]
-        }
+      const response = await fetch('/api/sheets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'addEntry',
+          data
+        })
       });
 
-      return { success: true };
+      const result = await response.json();
+      return { success: result.success };
     } catch (error) {
       console.error('Error adding mood entry:', error);
       return { success: false, error: error.message };
@@ -47,13 +22,19 @@ class GoogleSheetsService {
 
   async getUserEntries(userEmail) {
     try {
-      const response = await this.sheets.spreadsheets.values.get({
-        spreadsheetId: this.spreadsheetId,
-        range: 'TrackerData1!A2:G'
+      const response = await fetch('/api/sheets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'getEntries',
+          data: { userEmail }
+        })
       });
 
-      const rows = response.data.values || [];
-      return rows.filter(row => row[1] === userEmail);
+      const result = await response.json();
+      return result.data || [];
     } catch (error) {
       console.error('Error getting user entries:', error);
       return [];
@@ -72,11 +53,7 @@ class GoogleSheetsService {
     };
   }
 
-  // Helper methods
-  generateUniqueId() {
-    return `MT-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  }
-
+  // Helper methods remain the same
   calculateWeeklyCompletion(entries) {
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
@@ -140,29 +117,19 @@ class GoogleSheetsService {
 
   async verifyUser(email, hashedPassword) {
     try {
-      const response = await this.sheets.spreadsheets.values.get({
-        spreadsheetId: this.spreadsheetId,
-        range: 'UserAccounts!A2:D'
+      const response = await fetch('/api/sheets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'verifyUser',
+          data: { email, hashedPassword }
+        })
       });
 
-      const rows = response.data.values || [];
-      const user = rows.find(row => row[0] === email && row[1] === hashedPassword);
-
-      if (user) {
-        const userRow = rows.indexOf(user) + 2;
-        await this.sheets.spreadsheets.values.update({
-          spreadsheetId: this.spreadsheetId,
-          range: `UserAccounts!D${userRow}`,
-          valueInputOption: 'USER_ENTERED',
-          resource: {
-            values: [[new Date().toISOString()]]
-          }
-        });
-
-        return { success: true };
-      }
-
-      return { success: false, error: 'Invalid credentials' };
+      const result = await response.json();
+      return { success: result.success };
     } catch (error) {
       console.error('Error verifying user:', error);
       return { success: false, error: error.message };
@@ -171,23 +138,19 @@ class GoogleSheetsService {
 
   async addUser(email, hashedPassword) {
     try {
-      const row = [
-        email,
-        hashedPassword,
-        new Date().toISOString(),
-        new Date().toISOString()
-      ];
-
-      await this.sheets.spreadsheets.values.append({
-        spreadsheetId: this.spreadsheetId,
-        range: 'UserAccounts!A2:D',
-        valueInputOption: 'USER_ENTERED',
-        resource: {
-          values: [row]
-        }
+      const response = await fetch('/api/sheets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'addUser',
+          data: { email, hashedPassword }
+        })
       });
 
-      return { success: true };
+      const result = await response.json();
+      return { success: result.success };
     } catch (error) {
       console.error('Error adding user:', error);
       return { success: false, error: error.message };
