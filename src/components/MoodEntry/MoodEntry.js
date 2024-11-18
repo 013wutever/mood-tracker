@@ -64,29 +64,25 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
   ];
 
   const emotions = [
-    // Θετικά
-    { name: "Χαρά", value: "joy", type: "positive" },
-    { name: "Ηρεμία", value: "calm", type: "positive" },
-    { name: "Ευγνωμοσύνη", value: "gratitude", type: "positive" },
-    { name: "Ενθουσιασμός", value: "enthusiasm", type: "positive" },
-    { name: "Αισιοδοξία", value: "optimism", type: "positive" },
-    { name: "Ικανοποίηση", value: "satisfaction", type: "positive" },
-    { name: "Περηφάνια", value: "pride", type: "positive" },
-    { name: "Αγάπη", value: "love", type: "positive" },
-    { name: "Ανακούφιση", value: "relief", type: "positive" },
-    { name: "Γαλήνη", value: "serenity", type: "positive" },
-    
-    // Αρνητικά
-    { name: "Άγχος", value: "anxiety", type: "negative" },
-    { name: "Θυμός", value: "anger", type: "negative" },
-    { name: "Λύπη", value: "sadness", type: "negative" },
-    { name: "Απογοήτευση", value: "disappointment", type: "negative" },
-    { name: "Ανησυχία", value: "worry", type: "negative" },
-    { name: "Ματαίωση", value: "frustration", type: "negative" },
-    { name: "Ντροπή", value: "shame", type: "negative" },
-    { name: "Μοναξιά", value: "loneliness", type: "negative" },
-    { name: "Φόβος", value: "fear", type: "negative" },
-    { name: "Ανασφάλεια", value: "insecurity", type: "negative" }
+    { name: "Χαρά", value: "χαρά", type: "positive" },
+    { name: "Ενθουσιασμός", value: "ενθουσιασμός", type: "positive" },
+    { name: "Αγάπη", value: "αγάπη", type: "positive" },
+    { name: "Ηρεμία", value: "ηρεμία", type: "positive" },
+    { name: "Ικανοποίηση", value: "ικανοποίηση", type: "positive" },
+    { name: "Άγχος", value: "άγχος", type: "negative" },
+    { name: "Φόβος", value: "φόβος", type: "negative" },
+    { name: "Θυμός", value: "θυμός", type: "negative" },
+    { name: "Λύπη", value: "λύπη", type: "negative" },
+    { name: "Απογοήτευση", value: "απογοήτευση", type: "negative" },
+    { name: "Ανακούφιση", value: "ανακούφιση", type: "positive" },
+    { name: "Περηφάνια", value: "περηφάνια", type: "positive" },
+    { name: "Ευγνωμοσύνη", value: "ευγνωμοσύνη", type: "positive" },
+    { name: "Ζήλια", value: "ζήλια", type: "negative" },
+    { name: "Ντροπή", value: "ντροπή", type: "negative" },
+    { name: "Ενοχή", value: "ενοχή", type: "negative" },
+    { name: "Σύγχυση", value: "σύγχυση", type: "negative" },
+    { name: "Έκπληξη", value: "έκπληξη", type: "neutral" },
+    { name: "Ελπίδα", value: "ελπίδα", type: "positive" }
   ];
 
   const categories = [
@@ -108,7 +104,6 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
   };
 
   const handleSubmit = async () => {
-    // Validation
     if (!selectedMood || !selectedCategory) {
       setSubmitStatus('error');
       return;
@@ -128,7 +123,6 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
 
       if (result.success) {
         setSubmitStatus('success');
-        // Reset form after 2 seconds
         setTimeout(() => {
           resetForm();
           setSubmitStatus(null);
@@ -142,8 +136,9 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
       setIsSubmitting(false);
     }
   };
+
   return (
-    <div className="space-y-8 content-wrapper">
+    <div className="space-y-8 content-wrapper p-4">
       {/* Status Messages */}
       {submitStatus && (
         <div className={`fixed top-4 right-4 p-4 rounded-xl glassmorphic flex items-center gap-2
@@ -198,7 +193,7 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}
               className={`
-                p-3 rounded-xl text-sm
+                p-3 rounded-xl text-sm glassmorphic
                 transition-all duration-300
                 ${category.color}
                 hover:scale-105
@@ -231,18 +226,9 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
               }}
               disabled={selectedEmotions.length >= 3 && !selectedEmotions.includes(emotion.value)}
               className={`
-                px-4 py-2 rounded-full text-sm
-                transition-all duration-300
-                ${emotion.type === 'positive' 
-                  ? 'bg-green-200/20 hover:bg-green-200/30' 
-                  : 'bg-red-200/20 hover:bg-red-200/30'
-                }
+                emotion-pill emotion-${emotion.value}
                 ${selectedEmotions.includes(emotion.value)
-                  ? `scale-110 shadow-lg ${
-                      emotion.type === 'positive'
-                        ? 'bg-green-200/40 border-2 border-green-200/60'
-                        : 'bg-red-200/40 border-2 border-red-200/60'
-                    }`
+                  ? 'scale-110 shadow-lg ring-2 ring-white/30' 
                   : ''
                 }
                 ${selectedEmotions.length >= 3 && !selectedEmotions.includes(emotion.value)
