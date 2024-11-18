@@ -4,7 +4,28 @@
 
 /* Root Variables */
 :root {
-  --app-height: 100%;
+  --app-height: 100vh;
+  
+  /* Emotion Colors */
+  --emotion-χαρά: rgba(255, 243, 224, 0.75);
+  --emotion-ενθουσιασμός: rgba(255, 218, 224, 0.75);
+  --emotion-αγάπη: rgba(255, 209, 220, 0.75);
+  --emotion-ηρεμία: rgba(209, 233, 255, 0.75);
+  --emotion-ικανοποίηση: rgba(220, 255, 228, 0.75);
+  --emotion-άγχος: rgba(230, 218, 255, 0.75);
+  --emotion-φόβος: rgba(218, 224, 255, 0.75);
+  --emotion-θυμός: rgba(255, 218, 218, 0.75);
+  --emotion-λύπη: rgba(218, 224, 232, 0.75);
+  --emotion-απογοήτευση: rgba(232, 224, 224, 0.75);
+  --emotion-ανακούφιση: rgba(224, 255, 243, 0.75);
+  --emotion-περηφάνια: rgba(255, 235, 209, 0.75);
+  --emotion-ευγνωμοσύνη: rgba(224, 255, 224, 0.75);
+  --emotion-ζήλια: rgba(232, 232, 232, 0.75);
+  --emotion-ντροπή: rgba(255, 218, 235, 0.75);
+  --emotion-ενοχή: rgba(230, 218, 255, 0.75);
+  --emotion-σύγχυση: rgba(255, 255, 209, 0.75);
+  --emotion-έκπληξη: rgba(209, 247, 255, 0.75);
+  --emotion-ελπίδα: rgba(209, 235, 255, 0.75);
 }
 
 /* Base Styles */
@@ -14,8 +35,8 @@ html, body {
   min-height: 100vh;
   min-height: var(--app-height);
   background: linear-gradient(135deg, 
-    rgba(187,154,247,0.90) 0%,
-    rgba(147,112,219,0.90) 100%
+    rgba(147,112,219,0.95) 0%,
+    rgba(103,58,183,0.95) 100%
   );
   overflow-x: hidden;
 }
@@ -23,17 +44,17 @@ html, body {
 body {
   @apply antialiased text-white;
   -webkit-tap-highlight-color: transparent;
-  overflow-y: auto;
+  position: static !important;
+  overflow-y: auto !important;
   -webkit-overflow-scrolling: touch;
-  position: relative;
 }
 
 /* Content Wrapper */
 .content-wrapper {
-  @apply max-h-[calc(100vh-4rem)] overflow-y-auto;
+  @apply min-h-screen pb-20;
+  overflow-y: auto !important;
   -webkit-overflow-scrolling: touch;
-  height: 100%;
-  padding-bottom: 100px;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* Glassmorphic Effects */
@@ -60,26 +81,39 @@ body {
   @apply px-4 py-2 rounded-full text-sm transition-all duration-300;
 }
 
-/* Emotion Colors - New Pastel Colors */
-.emotion-χαρά { background: rgba(255, 243, 224, 0.75); }
-.emotion-ενθουσιασμός { background: rgba(255, 218, 224, 0.75); }
-.emotion-αγάπη { background: rgba(255, 209, 220, 0.75); }
-.emotion-ηρεμία { background: rgba(209, 233, 255, 0.75); }
-.emotion-ικανοποίηση { background: rgba(220, 255, 228, 0.75); }
-.emotion-άγχος { background: rgba(230, 218, 255, 0.75); }
-.emotion-φόβος { background: rgba(218, 224, 255, 0.75); }
-.emotion-θυμός { background: rgba(255, 218, 218, 0.75); }
-.emotion-λύπη { background: rgba(218, 224, 232, 0.75); }
-.emotion-απογοήτευση { background: rgba(232, 224, 224, 0.75); }
-.emotion-ανακούφιση { background: rgba(224, 255, 243, 0.75); }
-.emotion-περηφάνια { background: rgba(255, 235, 209, 0.75); }
-.emotion-ευγνωμοσύνη { background: rgba(224, 255, 224, 0.75); }
-.emotion-ζήλια { background: rgba(232, 232, 232, 0.75); }
-.emotion-ντροπή { background: rgba(255, 218, 235, 0.75); }
-.emotion-ενοχή { background: rgba(230, 218, 255, 0.75); }
-.emotion-σύγχυση { background: rgba(255, 255, 209, 0.75); }
-.emotion-έκπληξη { background: rgba(209, 247, 255, 0.75); }
-.emotion-ελπίδα { background: rgba(209, 235, 255, 0.75); }
+/* Emotion Colors */
+.emotion-χαρά { background: var(--emotion-χαρά); }
+.emotion-ενθουσιασμός { background: var(--emotion-ενθουσιασμός); }
+.emotion-αγάπη { background: var(--emotion-αγάπη); }
+.emotion-ηρεμία { background: var(--emotion-ηρεμία); }
+.emotion-ικανοποίηση { background: var(--emotion-ικανοποίηση); }
+.emotion-άγχος { background: var(--emotion-άγχος); }
+.emotion-φόβος { background: var(--emotion-φόβος); }
+.emotion-θυμός { background: var(--emotion-θυμός); }
+.emotion-λύπη { background: var(--emotion-λύπη); }
+.emotion-απογοήτευση { background: var(--emotion-απογοήτευση); }
+.emotion-ανακούφιση { background: var(--emotion-ανακούφιση); }
+.emotion-περηφάνια { background: var(--emotion-περηφάνια); }
+.emotion-ευγνωμοσύνη { background: var(--emotion-ευγνωμοσύνη); }
+.emotion-ζήλια { background: var(--emotion-ζήλια); }
+.emotion-ντροπή { background: var(--emotion-ντροπή); }
+.emotion-ενοχή { background: var(--emotion-ενοχή); }
+.emotion-σύγχυση { background: var(--emotion-σύγχυση); }
+.emotion-έκπληξη { background: var(--emotion-έκπληξη); }
+.emotion-ελπίδα { background: var(--emotion-ελπίδα); }
+
+/* Chart Customizations */
+.recharts-pie-sector {
+  opacity: 0.75;
+}
+
+.recharts-legend-item {
+  @apply text-white/80;
+}
+
+.recharts-tooltip {
+  @apply bg-white/10 backdrop-blur-lg rounded-lg border border-white/20 !important;
+}
 
 /* Mobile Optimizations */
 @media (max-width: 768px) {
@@ -87,36 +121,49 @@ body {
     height: -webkit-fill-available;
   }
   
-  body {
-    position: fixed;
-    width: 100%;
-    height: 100%;
+  html, body, #root {
+    height: 100% !important;
     min-height: -webkit-fill-available;
-  }
-  
-  #root {
-    height: 100%;
-    overflow-y: auto;
+    overflow-y: auto !important;
+    position: relative !important;
     -webkit-overflow-scrolling: touch;
   }
   
   .content-wrapper {
-    height: calc(var(--app-height) - 4rem);
-    padding-bottom: env(safe-area-inset-bottom);
+    height: auto !important;
+    min-height: 100% !important;
+    overflow-y: auto !important;
+    padding-bottom: 100px;
   }
 
-  /* Mobile Icon Improvements */
+  /* Icon Improvements */
   .icon-wrapper {
     @apply relative inline-flex items-center justify-center;
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
   }
 
+  /* Fix για τα glassmorphic elements στο mobile */
+  .glassmorphic {
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    background-color: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  /* Βελτιωμένη εμφάνιση των mood buttons */
+  .mood-button {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
+
   /* Landscape Mode Fix */
   @media (orientation: landscape) {
     .content-wrapper {
-      height: auto;
-      min-height: calc(var(--app-height) - 4rem);
+      height: auto !important;
+      min-height: 100% !important;
     }
   }
 }
@@ -135,7 +182,7 @@ body {
   @apply bg-white/20 rounded-full;
 }
 
-/* iOS Specific Fixes */
+/* iOS Fixes */
 @supports (-webkit-touch-callout: none) {
   .min-h-screen {
     min-height: -webkit-fill-available;
@@ -177,17 +224,4 @@ button:active {
 /* Smooth Transitions */
 * {
   @apply transition-all duration-300 ease-in-out;
-}
-
-/* Chart Customizations */
-.recharts-pie-sector {
-  opacity: 0.75;
-}
-
-.recharts-legend-item {
-  @apply text-white/80;
-}
-
-.recharts-tooltip {
-  @apply bg-white/10 backdrop-blur-lg rounded-lg border border-white/20 !important;
 }
