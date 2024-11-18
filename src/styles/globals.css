@@ -2,19 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Root Variables */
 :root {
   --app-height: 100%;
 }
 
+/* Base Styles */
 html, body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
   min-height: var(--app-height);
   background: linear-gradient(135deg, 
-    rgba(230,190,255,0.90) 0%, 
-    rgba(187,154,247,0.90) 100%
+    rgba(187,154,247,0.90) 0%,
+    rgba(147,112,219,0.90) 100%
   );
+  overflow-x: hidden;
 }
 
 body {
@@ -22,8 +25,10 @@ body {
   -webkit-tap-highlight-color: transparent;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  position: relative;
 }
 
+/* Content Wrapper */
 .content-wrapper {
   @apply max-h-[calc(100vh-4rem)] overflow-y-auto;
   -webkit-overflow-scrolling: touch;
@@ -31,6 +36,7 @@ body {
   padding-bottom: 100px;
 }
 
+/* Glassmorphic Effects */
 .glassmorphic {
   @apply bg-white/10 backdrop-blur-lg border border-white/20;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
@@ -49,19 +55,45 @@ body {
               inset 0 0 80px rgba(255, 255, 255, 0.2);
 }
 
-/* Mobile optimizations */
+/* Emotion Pills */
+.emotion-pill {
+  @apply px-4 py-2 rounded-full text-sm transition-all duration-300;
+}
+
+/* Emotion Colors - New Pastel Colors */
+.emotion-χαρά { background: rgba(255, 243, 224, 0.75); }
+.emotion-ενθουσιασμός { background: rgba(255, 218, 224, 0.75); }
+.emotion-αγάπη { background: rgba(255, 209, 220, 0.75); }
+.emotion-ηρεμία { background: rgba(209, 233, 255, 0.75); }
+.emotion-ικανοποίηση { background: rgba(220, 255, 228, 0.75); }
+.emotion-άγχος { background: rgba(230, 218, 255, 0.75); }
+.emotion-φόβος { background: rgba(218, 224, 255, 0.75); }
+.emotion-θυμός { background: rgba(255, 218, 218, 0.75); }
+.emotion-λύπη { background: rgba(218, 224, 232, 0.75); }
+.emotion-απογοήτευση { background: rgba(232, 224, 224, 0.75); }
+.emotion-ανακούφιση { background: rgba(224, 255, 243, 0.75); }
+.emotion-περηφάνια { background: rgba(255, 235, 209, 0.75); }
+.emotion-ευγνωμοσύνη { background: rgba(224, 255, 224, 0.75); }
+.emotion-ζήλια { background: rgba(232, 232, 232, 0.75); }
+.emotion-ντροπή { background: rgba(255, 218, 235, 0.75); }
+.emotion-ενοχή { background: rgba(230, 218, 255, 0.75); }
+.emotion-σύγχυση { background: rgba(255, 255, 209, 0.75); }
+.emotion-έκπληξη { background: rgba(209, 247, 255, 0.75); }
+.emotion-ελπίδα { background: rgba(209, 235, 255, 0.75); }
+
+/* Mobile Optimizations */
 @media (max-width: 768px) {
   html {
     height: -webkit-fill-available;
   }
-
+  
   body {
     position: fixed;
     width: 100%;
     height: 100%;
     min-height: -webkit-fill-available;
   }
-
+  
   #root {
     height: 100%;
     overflow-y: auto;
@@ -73,14 +105,14 @@ body {
     padding-bottom: env(safe-area-inset-bottom);
   }
 
-  /* Βελτίωση εμφάνισης εικονιδίων στο mobile */
+  /* Mobile Icon Improvements */
   .icon-wrapper {
     @apply relative inline-flex items-center justify-center;
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
   }
 
-  /* Διόρθωση για το landscape mode */
+  /* Landscape Mode Fix */
   @media (orientation: landscape) {
     .content-wrapper {
       height: auto;
@@ -89,7 +121,7 @@ body {
   }
 }
 
-/* Scrollbar styling */
+/* Scrollbar Styling */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -103,14 +135,14 @@ body {
   @apply bg-white/20 rounded-full;
 }
 
-/* iOS-specific fixes */
+/* iOS Specific Fixes */
 @supports (-webkit-touch-callout: none) {
   .min-h-screen {
     min-height: -webkit-fill-available;
   }
 }
 
-/* Prevent text selection */
+/* Prevent Text Selection */
 .no-select {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -120,7 +152,7 @@ body {
   user-select: none;
 }
 
-/* Βελτίωση εμφάνισης κουμπιών */
+/* Button Improvements */
 button {
   @apply relative overflow-hidden;
 }
@@ -138,17 +170,16 @@ button:hover::before {
   @apply opacity-100;
 }
 
-/* Βελτιωμένο active state για κουμπιά */
 button:active {
   transform: scale(0.98);
 }
 
-/* Smooth transitions */
+/* Smooth Transitions */
 * {
   @apply transition-all duration-300 ease-in-out;
 }
 
-/* Chart customizations */
+/* Chart Customizations */
 .recharts-pie-sector {
   opacity: 0.75;
 }
