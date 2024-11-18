@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
+  Calendar, 
   Filter, 
   Download,
   Activity,
@@ -49,37 +50,84 @@ const Progress = ({ language = 'el', userEmail }) => {
         emotions: 'Συναισθήματα',
         mood: 'Διάθεση',
         category: 'Κατηγορία',
-        timeOfDay: 'Ώρα ημέρας',
-        positivityRatio: 'Θετικότητα/Αρνητικότητα'
-      }
+        timeOfDay: 'Ώρα ημέρας'
+      },
+      loading: 'Φόρτωση...',
+      error: 'Σφάλμα φόρτωσης δεδομένων',
+      retry: 'Δοκιμάστε ξανά'
     },
     en: {
       // ... English translations ...
     }
   };
 
-  const COLORS = {
-    'very-positive': '#7FCDCD',  // γαλαζοπράσινο
-    'positive': '#98FB98',       // πράσινο ανοιχτό
-    'neutral': '#D4E157',        // κίτρινο απαλό
-    'negative': '#FFB347',       // πορτοκαλί ανοιχτό
-    'very-negative': '#FF9999',  // κόκκινο απαλό
-    personal: '#9C27B0',
-    friends: '#4CAF50',
-    family: '#2196F3',
-    work: '#FF9800',
-    studies: '#FFEB3B',
-    health: '#E91E63',
-    finances: '#9E9E9E',
-    entertainment: '#009688'
+  const EMOTION_LABELS = {
+    // Θετικά συναισθήματα
+    "joy": "Χαρά",
+    "calm": "Ηρεμία",
+    "gratitude": "Ευγνωμοσύνη",
+    "enthusiasm": "Ενθουσιασμός",
+    "optimism": "Αισιοδοξία",
+    "satisfaction": "Ικανοποίηση",
+    "pride": "Περηφάνια",
+    "love": "Αγάπη",
+    "relief": "Ανακούφιση",
+    "serenity": "Γαλήνη",
+    
+    // Αρνητικά συναισθήματα
+    "anxiety": "Άγχος",
+    "anger": "Θυμός",
+    "sadness": "Λύπη",
+    "disappointment": "Απογοήτευση",
+    "worry": "Ανησυχία",
+    "frustration": "Ματαίωση",
+    "shame": "Ντροπή",
+    "loneliness": "Μοναξιά",
+    "fear": "Φόβος",
+    "insecurity": "Ανασφάλεια"
   };
 
-  const MOOD_LABELS = {
-    'very-positive': 'Πολύ θετική',
-    'positive': 'Θετική',
-    'neutral': 'Ουδέτερη',
-    'negative': 'Αρνητική',
-    'very-negative': 'Πολύ αρνητική'
+  const COLORS = {
+    // Θετικά συναισθήματα (φωτεινά παστέλ)
+    "joy": "rgba(255, 196, 196, 0.75)",      // Ροζ
+    "calm": "rgba(182, 232, 255, 0.75)",     // Γαλάζιο
+    "gratitude": "rgba(196, 255, 196, 0.75)", // Πράσινο
+    "enthusiasm": "rgba(255, 223, 186, 0.75)", // Πορτοκαλί
+    "optimism": "rgba(255, 255, 186, 0.75)",  // Κίτρινο
+    "satisfaction": "rgba(186, 255, 223, 0.75)", // Τιρκουάζ
+    "pride": "rgba(223, 186, 255, 0.75)",    // Μωβ ανοιχτό
+    "love": "rgba(255, 186, 223, 0.75)",     // Ροζ ανοιχτό
+    "relief": "rgba(186, 223, 255, 0.75)",   // Γαλάζιο ανοιχτό
+    "serenity": "rgba(186, 255, 255, 0.75)", // Τιρκουάζ ανοιχτό
+    
+    // Αρνητικά συναισθήματα (μουντά παστέλ)
+    "anxiety": "rgba(169, 169, 169, 0.75)",   // Γκρι
+    "anger": "rgba(205, 147, 147, 0.75)",     // Κόκκινο-γκρι
+    "sadness": "rgba(147, 147, 205, 0.75)",   // Μπλε-γκρι
+    "disappointment": "rgba(186, 158, 158, 0.75)", // Καφέ-γκρι
+    "worry": "rgba(169, 186, 169, 0.75)",     // Πράσινο-γκρι
+    "frustration": "rgba(186, 169, 158, 0.75)", // Πορτοκαλί-γκρι
+    "shame": "rgba(186, 158, 186, 0.75)",     // Μωβ-γκρι
+    "loneliness": "rgba(158, 158, 186, 0.75)", // Μπλε-γκρι ανοιχτό
+    "fear": "rgba(186, 169, 169, 0.75)",      // Κόκκινο-γκρι ανοιχτό
+    "insecurity": "rgba(169, 169, 186, 0.75)", // Μωβ-γκρι ανοιχτό
+
+    // Διάθεση
+    'very-positive': 'rgba(127,205,205,0.75)', // Γαλαζοπράσινο
+    'positive': 'rgba(152,251,152,0.75)',      // Πράσινο ανοιχτό
+    'neutral': 'rgba(212,225,87,0.75)',        // Κίτρινο απαλό
+    'negative': 'rgba(255,179,71,0.75)',       // Πορτοκαλί ανοιχτό
+    'very-negative': 'rgba(255,153,153,0.75)', // Κόκκινο απαλό
+
+    // Κατηγορίες
+    personal: 'rgba(156,39,176,0.75)',       // Μωβ
+    friends: 'rgba(76,175,80,0.75)',         // Πράσινο
+    family: 'rgba(33,150,243,0.75)',         // Μπλε
+    work: 'rgba(255,152,0,0.75)',            // Πορτοκαλί
+    studies: 'rgba(255,235,59,0.75)',        // Κίτρινο
+    health: 'rgba(233,30,99,0.75)',          // Ροζ
+    finances: 'rgba(158,158,158,0.75)',      // Γκρι
+    entertainment: 'rgba(0,150,136,0.75)'    // Τιρκουάζ
   };
 
   const TIME_LABELS = {
@@ -99,16 +147,16 @@ const Progress = ({ language = 'el', userEmail }) => {
     try {
       const data = await googleSheetsService.getUserStats(userEmail, timeFilter);
       if (data) {
-        // Μετατροπή των δεδομένων για τα γραφήματα
+        // Μετατροπή των δεδομένων με ελληνικά labels
         const formattedData = {
           ...data,
-          moodDistribution: data.moodDistribution.map(item => ({
-            ...item,
-            name: MOOD_LABELS[item.name] || item.name
+          emotions: data.emotions.map(emotion => ({
+            ...emotion,
+            name: EMOTION_LABELS[emotion.name] || emotion.name
           })),
-          timeOfDay: data.timeOfDay.map(item => ({
-            ...item,
-            name: TIME_LABELS[item.name] || item.name
+          timeOfDay: data.timeOfDay.map(entry => ({
+            ...entry,
+            name: TIME_LABELS[entry.name] || entry.name
           }))
         };
         setStats(formattedData);
@@ -119,7 +167,6 @@ const Progress = ({ language = 'el', userEmail }) => {
       setIsLoading(false);
     }
   };
-
   return (
     <div className="space-y-8 content-wrapper">
       {/* Header with filters */}
@@ -201,17 +248,23 @@ const Progress = ({ language = 'el', userEmail }) => {
                       cx="50%"
                       cy="50%"
                       outerRadius="70%"
-                      fill="#8884d8"
                       label
                     >
                       {stats.emotions.map((entry, index) => (
                         <Cell 
                           key={`cell-${index}`} 
-                          fill={entry.type === 'positive' ? COLORS.positive : COLORS.negative} 
+                          fill={COLORS[entry.originalName] || COLORS[entry.type === 'positive' ? 'positive' : 'negative']} 
                         />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        borderRadius: '8px'
+                      }}
+                    />
                     <Legend />
                   </PieChart>
                 </ResponsiveContainer>
@@ -233,14 +286,20 @@ const Progress = ({ language = 'el', userEmail }) => {
                       cx="50%"
                       cy="50%"
                       outerRadius="70%"
-                      fill="#8884d8"
                       label
                     >
                       {stats.moodDistribution.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[entry.originalName]} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        borderRadius: '8px'
+                      }}
+                    />
                     <Legend />
                   </PieChart>
                 </ResponsiveContainer>
@@ -262,14 +321,20 @@ const Progress = ({ language = 'el', userEmail }) => {
                       cx="50%"
                       cy="50%"
                       outerRadius="70%"
-                      fill="#8884d8"
                       label
                     >
                       {stats.categoryBreakdown.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[entry.id]} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        borderRadius: '8px'
+                      }}
+                    />
                     <Legend />
                   </PieChart>
                 </ResponsiveContainer>
@@ -292,17 +357,28 @@ const Progress = ({ language = 'el', userEmail }) => {
                       cy="50%"
                       innerRadius="40%"
                       outerRadius="70%"
-                      fill="#8884d8"
                       label
                     >
                       {stats.timeOfDay.map((entry, index) => (
                         <Cell 
                           key={`cell-${index}`} 
-                          fill={['#B39DDB', '#90CAF9', '#FFB74D', '#4DB6AC'][index % 4]} 
+                          fill={[
+                            'rgba(179,229,252,0.75)', // Πρωί - ανοιχτό γαλάζιο
+                            'rgba(255,236,179,0.75)', // Μεσημέρι - ανοιχτό κίτρινο
+                            'rgba(255,204,188,0.75)', // Απόγευμα - ανοιχτό πορτοκαλί
+                            'rgba(179,157,219,0.75)'  // Βράδυ - ανοιχτό μωβ
+                          ][index % 4]} 
                         />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        borderRadius: '8px'
+                      }}
+                    />
                     <Legend />
                   </PieChart>
                 </ResponsiveContainer>
