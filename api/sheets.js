@@ -6,6 +6,13 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Validate environment variables
+    if (!process.env.REACT_APP_GOOGLE_SERVICE_ACCOUNT_EMAIL || 
+        !process.env.REACT_APP_GOOGLE_PRIVATE_KEY || 
+        !process.env.REACT_APP_GOOGLE_SHEETS_ID) {
+      throw new Error('Missing required environment variables');
+    }
+
     const auth = new google.auth.GoogleAuth({
       credentials: {
         client_email: process.env.REACT_APP_GOOGLE_SERVICE_ACCOUNT_EMAIL,
@@ -30,6 +37,9 @@ export default async function handler(req, res) {
           });
         }
 
+        const timestamp = new Date().toISOString();
+        const uniqueId = `MT-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
         const response = await sheets.spreadsheets.values.append({
           spreadsheetId: process.env.REACT_APP_GOOGLE_SHEETS_ID,
           range: 'TrackerData1!A2:G',
@@ -37,34 +47,47 @@ export default async function handler(req, res) {
           insertDataOption: 'INSERT_ROWS',
           resource: {
             values: [[
-              new Date().toISOString(), // Timestamp
+              timestamp,
               data.userEmail,
               data.category,
               data.moodEmoji,
               Array.isArray(data.emotions) ? data.emotions.join(',') : data.emotions,
               data.notes || '',
-              `MT-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+              uniqueId
             ]]
           }
         });
 
-        console.log('Add Entry Response:', response.data); // Debug log
-        return res.status(200).json({ success: true, data: response.data });
+        console.log('Add Entry Response:', response.data);
+        return res.status(200).json({ 
+          success: true, 
+          data: { 
+            ...response.data,
+            id: uniqueId,
+            timestamp
+          } 
+        });
       }
 
-      case 'getEntries': {
-        console.log('Getting entries for user:', data.userEmail); // Debug log
+      case 'getEntries':
+      case 'getCalendarEntries': {
+        console.log('Getting entries for user:', data.userEmail);
 
+        // Get all entries
         const entriesResponse = await sheets.spreadsheets.values.get({
           spreadsheetId: process.env.REACT_APP_GOOGLE_SHEETS_ID,
-          range: 'TrackerData1!A2:G'
+          range: 'TrackerData1!A2:G',
+          valueRenderOption: 'FORMATTED_VALUE',
+          dateTimeRenderOption: 'FORMATTED_STRING'
         });
 
         let entries = entriesResponse.data.values || [];
-        
+        console.log('Total entries found:', entries.length);
+
         // Filter by user email
         if (data.userEmail) {
           entries = entries.filter(row => row[1] === data.userEmail);
+          console.log('Entries after user filter:', entries.length);
         }
 
         // Apply time filter if provided
@@ -82,7 +105,6 @@ export default async function handler(req, res) {
             case 'year':
               cutoffDate.setFullYear(now.getFullYear() - 1);
               break;
-            // 'all' - no filtering needed
           }
 
           if (data.timeFilter !== 'all') {
@@ -91,10 +113,11 @@ export default async function handler(req, res) {
                 const entryDate = new Date(row[0]);
                 return entryDate >= cutoffDate;
               } catch (error) {
-                console.error('Error parsing date:', row[0], error);
+                console.error('Error parsing date:', row[0]);
                 return false;
               }
             });
+            console.log('Entries after time filter:', entries.length);
           }
         }
 
@@ -108,14 +131,17 @@ export default async function handler(req, res) {
               const entryDate = new Date(row[0]);
               return entryDate >= startDate && entryDate <= endDate;
             } catch (error) {
-              console.error('Error parsing date:', row[0], error);
+              console.error('Error parsing date:', row[0]);
               return false;
             }
           });
+          console.log('Entries after date range filter:', entries.length);
         }
 
-        console.log('Filtered entries count:', entries.length); // Debug log
-        return res.status(200).json({ success: true, data: entries });
+        return res.status(200).json({ 
+          success: true, 
+          data: entries 
+        });
       }
 
       case 'verifyUser': {
@@ -182,10 +208,11 @@ export default async function handler(req, res) {
 
         // Add new user
         const now = new Date().toISOString();
-        await sheets.spreadsheets.values.append({
+        const response = await sheets.spreadsheets.values.append({
           spreadsheetId: process.env.REACT_APP_GOOGLE_SHEETS_ID,
           range: 'UserAccounts!A2:D',
           valueInputOption: 'USER_ENTERED',
+          insertDataOption: 'INSERT_ROWS',
           resource: {
             values: [[
               data.email,
