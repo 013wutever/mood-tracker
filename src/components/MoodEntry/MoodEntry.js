@@ -10,7 +10,8 @@ import {
   XCircle,
   Loader
 } from 'lucide-react';
-import googleSheetsService from '../../services/googleSheets';
+import { getTranslation } from '../utils/translations';
+import googleSheetsService from '../services/googleSheets';
 
 const MoodEntry = ({ language = 'el', userEmail }) => {
   const [selectedMood, setSelectedMood] = useState(null);
@@ -20,98 +21,61 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
 
+  const t = (path) => getTranslation(language, path);
+
   const moods = [
     { 
-      id: 'very-negative', 
-      icon: Frown, 
-      color: 'var(--mood-very-negative)',
-      label: 'Πολύ Αρνητική'
-    },
-    { 
-      id: 'negative', 
-      icon: Frown, 
-      color: 'var(--mood-negative)',
-      label: 'Αρνητική'
-    },
-    { 
-      id: 'neutral', 
-      icon: Meh, 
-      color: 'var(--mood-neutral)',
-      label: 'Ουδέτερη'
+      id: 'very-positive', 
+      icon: Laugh, 
+      color: 'var(--mood-very-positive)',
+      label: t('moodEntry.moods.veryPositive')
     },
     { 
       id: 'positive', 
       icon: Smile, 
       color: 'var(--mood-positive)',
-      label: 'Θετική'
+      label: t('moodEntry.moods.positive')
     },
     { 
-      id: 'very-positive', 
-      icon: Laugh, 
-      color: 'var(--mood-very-positive)',
-      label: 'Πολύ Θετική'
+      id: 'neutral', 
+      icon: Meh, 
+      color: 'var(--mood-neutral)',
+      label: t('moodEntry.moods.neutral')
+    },
+    { 
+      id: 'negative', 
+      icon: Frown, 
+      color: 'var(--mood-negative)',
+      label: t('moodEntry.moods.negative')
+    },
+    { 
+      id: 'very-negative', 
+      icon: Frown, 
+      color: 'var(--mood-very-negative)',
+      label: t('moodEntry.moods.veryNegative')
     }
-  ];
-
-  const emotions = [
-    { name: "Χαρά", value: "χαρά", type: "positive" },
-    { name: "Ενθουσιασμός", value: "ενθουσιασμός", type: "positive" },
-    { name: "Αγάπη", value: "αγάπη", type: "positive" },
-    { name: "Ηρεμία", value: "ηρεμία", type: "positive" },
-    { name: "Ικανοποίηση", value: "ικανοποίηση", type: "positive" },
-    { name: "Άγχος", value: "άγχος", type: "negative" },
-    { name: "Φόβος", value: "φόβος", type: "negative" },
-    { name: "Θυμός", value: "θυμός", type: "negative" },
-    { name: "Λύπη", value: "λύπη", type: "negative" },
-    { name: "Απογοήτευση", value: "απογοήτευση", type: "negative" },
-    { name: "Ανακούφιση", value: "ανακούφιση", type: "positive" },
-    { name: "Περηφάνια", value: "περηφάνια", type: "positive" },
-    { name: "Ευγνωμοσύνη", value: "ευγνωμοσύνη", type: "positive" },
-    { name: "Ζήλια", value: "ζήλια", type: "negative" },
-    { name: "Ντροπή", value: "ντροπή", type: "negative" },
-    { name: "Ενοχή", value: "ενοχή", type: "negative" },
-    { name: "Σύγχυση", value: "σύγχυση", type: "negative" },
-    { name: "Έκπληξη", value: "έκπληξη", type: "neutral" },
-    { name: "Ελπίδα", value: "ελπίδα", type: "positive" }
   ];
 
   const categories = [
-    { id: 'personal', name: 'Προσωπικά', color: 'var(--category-personal)' },
-    { id: 'friends', name: 'Φίλοι', color: 'var(--category-friends)' },
-    { id: 'family', name: 'Οικογένεια', color: 'var(--category-family)' },
-    { id: 'work', name: 'Επαγγελματικά', color: 'var(--category-work)' },
-    { id: 'studies', name: 'Σπουδές', color: 'var(--category-studies)' },
-    { id: 'health', name: 'Υγεία', color: 'var(--category-health)' },
-    { id: 'finances', name: 'Οικονομικά', color: 'var(--category-finances)' },
-    { id: 'entertainment', name: 'Ψυχαγωγία', color: 'var(--category-entertainment)' }
+    { id: 'personal', name: t('moodEntry.categories.personal'), color: 'bg-purple-300/20' },
+    { id: 'friends', name: t('moodEntry.categories.friends'), color: 'bg-green-300/20' },
+    { id: 'family', name: t('moodEntry.categories.family'), color: 'bg-blue-300/20' },
+    { id: 'work', name: t('moodEntry.categories.work'), color: 'bg-orange-300/20' },
+    { id: 'studies', name: t('moodEntry.categories.studies'), color: 'bg-yellow-300/20' },
+    { id: 'health', name: t('moodEntry.categories.health'), color: 'bg-pink-300/20' },
+    { id: 'finances', name: t('moodEntry.categories.finances'), color: 'bg-gray-300/20' },
+    { id: 'entertainment', name: t('moodEntry.categories.entertainment'), color: 'bg-teal-300/20' }
   ];
 
-  const translations = {
-    el: {
-      title: 'Πώς νιώθετε σήμερα;',
-      categories: 'Επιλέξτε κατηγορία',
-      emotions: 'Επιλέξτε έως 3 συναισθήματα',
-      notes: 'Σημειώσεις',
-      addNotes: 'Προσθέστε τις σκέψεις σας...',
-      submit: 'Καταχώρηση',
-      submitting: 'Γίνεται καταχώρηση...',
-      success: 'Η καταχώρηση ολοκληρώθηκε!',
-      error: 'Κάτι πήγε στραβά. Προσπαθήστε ξανά.'
-    },
-    en: {
-      title: 'How are you feeling today?',
-      categories: 'Select category',
-      emotions: 'Select up to 3 emotions',
-      notes: 'Notes',
-      addNotes: 'Add your thoughts...',
-      submit: 'Submit',
-      submitting: 'Submitting...',
-      success: 'Entry submitted successfully!',
-      error: 'Something went wrong. Please try again.'
-    }
-  };
-
-  const t = translations[language];
+  const emotions = Object.entries(t('moodEntry.emotions')).filter(([key]) => 
+    key !== 'title'
+  ).map(([value, name]) => ({
+    name,
+    value,
+    type: value in emotionTypes ? 
+      emotionTypes[value] : 
+      'neutral'
+  }));
 
   const resetForm = () => {
     setSelectedMood(null);
@@ -166,15 +130,19 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
             <XCircle className="w-5 h-5" />
           )}
           <span>
-            {submitStatus === 'success' ? t.success : t.error}
+            {submitStatus === 'success' ? 
+              t('moodEntry.success') : 
+              t('moodEntry.error')}
           </span>
         </div>
       )}
 
       {/* Moods */}
       <div>
-        <h2 className="text-xl mb-4 text-white">{t.title}</h2>
-        <div className="flex flex-wrap gap-4 justify-center">
+        <h2 className="text-xl mb-4">
+          {t('moodEntry.title')}
+        </h2>
+        <div className="flex flex-wrap gap-4 justify-center mood-grid">
           {moods.map((mood) => {
             const MoodIcon = mood.icon;
             return (
@@ -183,17 +151,18 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
                 onClick={() => setSelectedMood(mood.id)}
                 className={`
                   transition-all duration-300
-                  p-4 rounded-full glassmorphic
-                  hover:scale-110 hover:shadow-lg
-                  ${selectedMood === mood.id 
-                    ? 'scale-110 shadow-lg ring-2 ring-white/30' 
-                    : ''
-                  }
+                  p-4 rounded-full
+                  glassmorphic-hover
+                  hover:scale-110
+                  hover:shadow-lg
+                  ${selectedMood === mood.id ? 'active' : ''}
                 `}
                 style={{
-                  backgroundColor: mood.color,
+                  '--mood-color': mood.color,
+                  backgroundColor: selectedMood === mood.id ? mood.color : 'rgba(255, 255, 255, 0.1)'
                 }}
                 title={mood.label}
+                data-active={selectedMood === mood.id}
               >
                 <MoodIcon className="w-8 h-8" />
               </button>
@@ -204,24 +173,21 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
 
       {/* Categories */}
       <div>
-        <h2 className="text-xl mb-4 text-white">{t.categories}</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <h2 className="text-xl mb-4">
+          {t('moodEntry.categories.title')}
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 category-grid">
           {categories.map((category) => (
             <button
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}
               className={`
-                p-3 rounded-xl text-sm glassmorphic
+                p-3 rounded-xl text-sm glassmorphic-hover
                 transition-all duration-300
-                hover:scale-105 hover:shadow-lg
-                ${selectedCategory === category.id 
-                  ? 'scale-105 shadow-lg ring-2 ring-white/30' 
-                  : ''
-                }
+                hover:scale-105
+                ${selectedCategory === category.id ? 'active' : ''}
               `}
-              style={{
-                backgroundColor: category.color,
-              }}
+              data-active={selectedCategory === category.id}
             >
               {category.name}
             </button>
@@ -231,7 +197,9 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
 
       {/* Emotions */}
       <div>
-        <h2 className="text-xl mb-4 text-white">{t.emotions}</h2>
+        <h2 className="text-xl mb-4">
+          {t('moodEntry.emotions.title')}
+        </h2>
         <div className="flex flex-wrap gap-2">
           {emotions.map((emotion) => (
             <button
@@ -245,20 +213,15 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
               }}
               disabled={selectedEmotions.length >= 3 && !selectedEmotions.includes(emotion.value)}
               className={`
-                px-4 py-2 rounded-full glassmorphic
-                transition-all duration-300
-                ${selectedEmotions.includes(emotion.value)
-                  ? 'scale-105 shadow-lg ring-2 ring-white/30' 
-                  : ''
-                }
+                emotion-pill emotion-${emotion.value}
+                glassmorphic-hover
+                ${selectedEmotions.includes(emotion.value) ? 'active' : ''}
                 ${selectedEmotions.length >= 3 && !selectedEmotions.includes(emotion.value)
                   ? 'opacity-50 cursor-not-allowed'
-                  : 'hover:scale-105 hover:shadow-lg'
+                  : 'hover:scale-105'
                 }
               `}
-              style={{
-                backgroundColor: `var(--emotion-${emotion.value})`
-              }}
+              data-active={selectedEmotions.includes(emotion.value)}
             >
               {emotion.name}
             </button>
@@ -268,18 +231,20 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
 
       {/* Notes */}
       <div>
-        <h2 className="text-xl mb-4 text-white">{t.notes}</h2>
+        <h2 className="text-xl mb-4">
+          {t('moodEntry.notes.title')}
+        </h2>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder={t.addNotes}
-          className="w-full h-32 glassmorphic rounded-xl p-4 
-                    placeholder-white/50 resize-none 
-                    focus:ring-2 focus:ring-white/30 focus:outline-none"
+          placeholder={t('moodEntry.notes.placeholder')}
+          className="w-full h-32 glassmorphic bg-white/10 rounded-xl p-4 
+                    placeholder-white/50 resize-none focus:ring-2 
+                    focus:ring-white/30 focus:outline-none"
           maxLength={500}
         />
         <div className="text-right text-sm text-white/50">
-          {notes.length}/500
+          {`${notes.length}/500 ${t('moodEntry.notes.charCount')}`}
         </div>
       </div>
 
@@ -288,7 +253,7 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
         onClick={handleSubmit}
         disabled={isSubmitting}
         className={`
-          w-full py-3 rounded-xl glassmorphic
+          w-full py-3 rounded-xl glassmorphic-hover
           transition-all duration-300
           ${isSubmitting 
             ? 'bg-white/10 cursor-not-allowed' 
@@ -299,10 +264,10 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
         {isSubmitting ? (
           <>
             <Loader className="w-5 h-5 animate-spin inline-block mr-2" />
-            {t.submitting}
+            {t('moodEntry.submitting')}
           </>
         ) : (
-          t.submit
+          t('moodEntry.submit')
         )}
       </button>
 
