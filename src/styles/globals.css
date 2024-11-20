@@ -6,14 +6,24 @@
 :root {
   --app-height: 100vh;
   
-  /* Mood Colors */
-  --mood-very-positive: rgba(72, 187, 255, 0.8);
-  --mood-positive: rgba(100, 223, 223, 0.8);
-  --mood-neutral: rgba(255, 233, 155, 0.8);
-  --mood-negative: rgba(255, 169, 135, 0.8);
-  --mood-very-negative: rgba(255, 130, 130, 0.8);
+  /* Mood Colors - Using the same colors from mood selection */
+  --mood-very-positive: rgba(72, 187, 255, 0.8);  /* Bright blue */
+  --mood-positive: rgba(100, 223, 223, 0.8);      /* Turquoise */
+  --mood-neutral: rgba(255, 233, 155, 0.8);       /* Warm yellow */
+  --mood-negative: rgba(255, 169, 135, 0.8);      /* Coral */
+  --mood-very-negative: rgba(255, 130, 130, 0.8); /* Soft red */
+
+  /* Chart Colors for consistency */
+  --chart-positive: rgba(144, 238, 144, 0.8);     /* Pastel green */
+  --chart-negative: rgba(255, 178, 107, 0.8);     /* Pastel orange */
+
+  /* Time of Day Colors - Warm to cool transition */
+  --time-morning: rgba(255, 220, 155, 0.8);       /* Warm yellow */
+  --time-noon: rgba(255, 178, 107, 0.8);          /* Warm orange */
+  --time-afternoon: rgba(255, 155, 155, 0.8);     /* Warm red */
+  --time-evening: rgba(155, 175, 255, 0.8);       /* Cool blue */
   
-  /* Emotion Colors - Pastel with 70% transparency */
+  /* Emotions with 70% transparency */
   --emotion-χαρά: rgba(255, 223, 186, 0.7);
   --emotion-ενθουσιασμός: rgba(255, 186, 186, 0.7);
   --emotion-αγάπη: rgba(255, 186, 213, 0.7);
@@ -33,19 +43,9 @@
   --emotion-σύγχυση: rgba(255, 255, 186, 0.7);
   --emotion-έκπληξη: rgba(186, 255, 255, 0.7);
   --emotion-ελπίδα: rgba(186, 213, 255, 0.7);
-
-  /* Chart Colors */
-  --chart-positive: rgba(144, 238, 144, 0.8);  /* Light green */
-  --chart-negative: rgba(255, 178, 107, 0.8);  /* Light orange */
-  
-  /* Time of Day Colors */
-  --time-morning: rgba(255, 220, 155, 0.8);    /* Warm yellow */
-  --time-noon: rgba(255, 178, 107, 0.8);       /* Warm orange */
-  --time-afternoon: rgba(255, 155, 155, 0.8);   /* Warm red */
-  --time-evening: rgba(155, 175, 255, 0.8);     /* Cool blue */
 }
 
-/* Base Styles */
+/* Base Layout */
 html, body {
   margin: 0;
   padding: 0;
@@ -67,7 +67,7 @@ html, body {
               inset 0 0 80px rgba(255, 255, 255, 0.1);
 }
 
-/* Enhanced Hover Effects */
+/* Enhanced Hover Effects with persistent active state */
 .glassmorphic-hover {
   @apply transition-all duration-300;
 }
@@ -80,34 +80,11 @@ html, body {
               0 0 20px rgba(255, 255, 255, 0.3);
 }
 
-/* Active State with Glow */
-.glassmorphic-hover:active,
-.glassmorphic-hover[data-active="true"] {
+.glassmorphic-hover[data-active="true"],
+.glassmorphic-hover.active {
   @apply bg-white/20 scale-110;
   box-shadow: 0 0 30px rgba(255, 255, 255, 0.4),
               inset 0 0 100px rgba(255, 255, 255, 0.3);
-}
-
-/* Emotion Pills */
-.emotion-pill {
-  @apply px-4 py-2 rounded-full text-sm transition-all duration-300;
-}
-
-/* Chart Styles */
-.recharts-wrapper {
-  @apply mx-auto;
-}
-
-.recharts-legend-wrapper {
-  @apply !bottom-0 !left-1/2 -translate-x-1/2 !text-center;
-}
-
-.recharts-pie-sector {
-  @apply transition-all duration-300;
-}
-
-.recharts-pie-sector:hover {
-  @apply opacity-90 cursor-pointer;
 }
 
 /* Calendar Styles */
@@ -120,6 +97,23 @@ html, body {
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
+/* Chart Customizations */
+.recharts-wrapper {
+  @apply mx-auto;
+}
+
+.recharts-legend-wrapper {
+  @apply !bottom-0 !left-1/2 -translate-x-1/2 !text-center;
+}
+
+.recharts-pie-label-text {
+  @apply fill-white font-medium;
+}
+
+.recharts-bar {
+  @apply rounded-lg overflow-hidden;
+}
+
 /* Mobile Optimizations */
 @media (max-width: 768px) {
   /* Better Touch Targets */
@@ -129,24 +123,17 @@ html, body {
     @apply min-h-[44px] min-w-[44px];
   }
 
-  /* Improved Spacing */
-  .container {
-    @apply px-4;
-  }
-
   /* Full Page Scroll */
   .content-wrapper {
-    height: calc(100vh - 4rem);
-    @apply overflow-y-auto pb-20;
+    @apply min-h-screen overflow-y-auto pb-20;
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Mood Grid */
+  /* Improved Grid Layouts */
   .mood-grid {
     @apply grid-cols-3 gap-4;
   }
 
-  /* Category Grid */
   .category-grid {
     @apply grid-cols-2 gap-4;
   }
@@ -156,27 +143,15 @@ html, body {
     @apply w-full mb-8;
   }
 
-  /* Calendar Adjustments */
-  .calendar-grid {
-    @apply grid-cols-7 gap-2;
-  }
-
-  /* Simplified Animations */
+  /* Simplified Hover Effects */
   .glassmorphic-hover:hover {
     @apply scale-100;
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
   }
 
-  /* Enhanced Touch Feedback */
+  /* Better Touch Feedback */
   .glassmorphic-hover:active {
     @apply scale-95 bg-white/25;
-  }
-
-  /* Better Visibility */
-  .emotion-pill,
-  .category-button,
-  .mood-button {
-    @apply bg-opacity-90;
   }
 }
 
@@ -202,43 +177,4 @@ html, body {
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-white/30;
-}
-
-/* Emotion Colors */
-.emotion-χαρά { background: var(--emotion-χαρά); }
-.emotion-ενθουσιασμός { background: var(--emotion-ενθουσιασμός); }
-.emotion-αγάπη { background: var(--emotion-αγάπη); }
-.emotion-ηρεμία { background: var(--emotion-ηρεμία); }
-.emotion-ικανοποίηση { background: var(--emotion-ικανοποίηση); }
-.emotion-άγχος { background: var(--emotion-άγχος); }
-.emotion-φόβος { background: var(--emotion-φόβος); }
-.emotion-θυμός { background: var(--emotion-θυμός); }
-.emotion-λύπη { background: var(--emotion-λύπη); }
-.emotion-απογοήτευση { background: var(--emotion-απογοήτευση); }
-.emotion-ανακούφιση { background: var(--emotion-ανακούφιση); }
-.emotion-περηφάνια { background: var(--emotion-περηφάνια); }
-.emotion-ευγνωμοσύνη { background: var(--emotion-ευγνωμοσύνη); }
-.emotion-ζήλια { background: var(--emotion-ζήλια); }
-.emotion-ντροπή { background: var(--emotion-ντροπή); }
-.emotion-ενοχή { background: var(--emotion-ενοχή); }
-.emotion-σύγχυση { background: var(--emotion-σύγχυση); }
-.emotion-έκπληξη { background: var(--emotion-έκπληξη); }
-.emotion-ελπίδα { background: var(--emotion-ελπίδα); }
-
-/* Chart Customizations */
-.recharts-pie-label-text {
-  @apply fill-white font-medium;
-}
-
-.recharts-label {
-  @apply fill-white;
-}
-
-.recharts-text {
-  @apply fill-white/90;
-}
-
-/* Loading States */
-.loading-shimmer {
-  @apply animate-pulse bg-white/10 rounded-lg;
 }
