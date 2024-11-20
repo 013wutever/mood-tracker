@@ -39,6 +39,7 @@ export default async function handler(req, res) {
 
         const timestamp = new Date().toISOString();
         const uniqueId = `MT-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const emotionsString = Array.isArray(data.emotions) ? data.emotions.join(',') : data.emotions;
 
         const response = await sheets.spreadsheets.values.append({
           spreadsheetId: process.env.REACT_APP_GOOGLE_SHEETS_ID,
@@ -51,14 +52,14 @@ export default async function handler(req, res) {
               data.userEmail,
               data.category,
               data.moodEmoji,
-              Array.isArray(data.emotions) ? data.emotions.join(',') : data.emotions,
+              emotionsString,
               data.notes || '',
               uniqueId
             ]]
           }
         });
 
-        console.log('Add Entry Response:', response.data);
+        console.log('Entry added:', response.data);
         return res.status(200).json({ 
           success: true, 
           data: { 
@@ -71,9 +72,8 @@ export default async function handler(req, res) {
 
       case 'getEntries':
       case 'getCalendarEntries': {
-        console.log('Getting entries for user:', data.userEmail);
+        console.log('Fetching entries for:', data.userEmail);
 
-        // Get all entries
         const entriesResponse = await sheets.spreadsheets.values.get({
           spreadsheetId: process.env.REACT_APP_GOOGLE_SHEETS_ID,
           range: 'TrackerData1!A2:G',
@@ -90,7 +90,7 @@ export default async function handler(req, res) {
           console.log('Entries after user filter:', entries.length);
         }
 
-        // Apply time filter if provided
+        // Apply time filter
         if (data.timeFilter) {
           const now = new Date();
           let cutoffDate = new Date();
@@ -105,6 +105,7 @@ export default async function handler(req, res) {
             case 'year':
               cutoffDate.setFullYear(now.getFullYear() - 1);
               break;
+            // 'all' - no filtering needed
           }
 
           if (data.timeFilter !== 'all') {
@@ -121,7 +122,7 @@ export default async function handler(req, res) {
           }
         }
 
-        // Apply date range filter if provided
+        // Apply date range filter
         if (data.timeRange) {
           const startDate = new Date(data.timeRange.start);
           const endDate = new Date(data.timeRange.end);
@@ -138,9 +139,27 @@ export default async function handler(req, res) {
           console.log('Entries after date range filter:', entries.length);
         }
 
-        return res.status(200).json({ 
-          success: true, 
-          data: entries 
+        // Format entries based on action type
+        if (action === 'getCalendarEntries') {
+          const formattedEntries = entries.map(entry => ({
+            date: entry[0],
+            userEmail: entry[1],
+            category: entry[2],
+            mood: entry[3],
+            emotions: entry[4].split(',').map(e => e.trim()),
+            notes: entry[5],
+            id: entry[6]
+          }));
+
+          return res.status(200).json({
+            success: true,
+            data: formattedEntries
+          });
+        }
+
+        return res.status(200).json({
+          success: true,
+          data: entries
         });
       }
 
@@ -163,8 +182,8 @@ export default async function handler(req, res) {
         );
 
         if (user) {
-          const userRowIndex = users.indexOf(user) + 2;
           // Update last login
+          const userRowIndex = users.indexOf(user) + 2;
           await sheets.spreadsheets.values.update({
             spreadsheetId: process.env.REACT_APP_GOOGLE_SHEETS_ID,
             range: `UserAccounts!D${userRowIndex}`,
@@ -176,9 +195,9 @@ export default async function handler(req, res) {
           return res.status(200).json({ success: true });
         }
 
-        return res.status(401).json({ 
-          success: false, 
-          error: 'Invalid credentials' 
+        return res.status(401).json({
+          success: false,
+          error: 'Invalid credentials'
         });
       }
 
@@ -200,9 +219,9 @@ export default async function handler(req, res) {
         const userExists = existingUsers.some(row => row[0] === data.email);
 
         if (userExists) {
-          return res.status(400).json({ 
-            success: false, 
-            error: 'User already exists' 
+          return res.status(400).json({
+            success: false,
+            error: 'User already exists'
           });
         }
 
@@ -227,15 +246,15 @@ export default async function handler(req, res) {
       }
 
       default:
-        return res.status(400).json({ 
-          success: false, 
-          error: 'Invalid action' 
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid action'
         });
     }
   } catch (error) {
     console.error('API Error:', error);
-    return res.status(500).json({ 
-      success: false, 
+    return res.status(500).json({
+      success: false,
       error: error.message || 'Internal server error'
     });
   }
