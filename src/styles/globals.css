@@ -6,26 +6,33 @@
 :root {
   --app-height: 100vh;
   
-  /* Emotion Colors */
-  --emotion-χαρά: rgba(255, 243, 224, 0.75);
-  --emotion-ενθουσιασμός: rgba(255, 218, 224, 0.75);
-  --emotion-αγάπη: rgba(255, 209, 220, 0.75);
-  --emotion-ηρεμία: rgba(209, 233, 255, 0.75);
-  --emotion-ικανοποίηση: rgba(220, 255, 228, 0.75);
-  --emotion-άγχος: rgba(230, 218, 255, 0.75);
-  --emotion-φόβος: rgba(218, 224, 255, 0.75);
-  --emotion-θυμός: rgba(255, 218, 218, 0.75);
-  --emotion-λύπη: rgba(218, 224, 232, 0.75);
-  --emotion-απογοήτευση: rgba(232, 224, 224, 0.75);
-  --emotion-ανακούφιση: rgba(224, 255, 243, 0.75);
-  --emotion-περηφάνια: rgba(255, 235, 209, 0.75);
-  --emotion-ευγνωμοσύνη: rgba(224, 255, 224, 0.75);
-  --emotion-ζήλια: rgba(232, 232, 232, 0.75);
-  --emotion-ντροπή: rgba(255, 218, 235, 0.75);
-  --emotion-ενοχή: rgba(230, 218, 255, 0.75);
-  --emotion-σύγχυση: rgba(255, 255, 209, 0.75);
-  --emotion-έκπληξη: rgba(209, 247, 255, 0.75);
-  --emotion-ελπίδα: rgba(209, 235, 255, 0.75);
+  /* Updated Emotion Colors with Pastel Purple Theme */
+  --emotion-χαρά: rgba(230, 220, 255, 0.75);
+  --emotion-ενθουσιασμός: rgba(220, 200, 255, 0.75);
+  --emotion-αγάπη: rgba(210, 190, 255, 0.75);
+  --emotion-ηρεμία: rgba(200, 180, 255, 0.75);
+  --emotion-ικανοποίηση: rgba(190, 170, 255, 0.75);
+  --emotion-άγχος: rgba(180, 160, 255, 0.75);
+  --emotion-φόβος: rgba(170, 150, 255, 0.75);
+  --emotion-θυμός: rgba(160, 140, 255, 0.75);
+  --emotion-λύπη: rgba(150, 130, 255, 0.75);
+  --emotion-απογοήτευση: rgba(140, 120, 255, 0.75);
+  --emotion-ανακούφιση: rgba(130, 110, 255, 0.75);
+  --emotion-περηφάνια: rgba(120, 100, 255, 0.75);
+  --emotion-ευγνωμοσύνη: rgba(110, 90, 255, 0.75);
+  --emotion-ζήλια: rgba(100, 80, 255, 0.75);
+  --emotion-ντροπή: rgba(90, 70, 255, 0.75);
+  --emotion-ενοχή: rgba(80, 60, 255, 0.75);
+  --emotion-σύγχυση: rgba(70, 50, 255, 0.75);
+  --emotion-έκπληξη: rgba(60, 40, 255, 0.75);
+  --emotion-ελπίδα: rgba(50, 30, 255, 0.75);
+
+  /* Mood Colors */
+  --mood-very-negative: rgba(254, 202, 202, 0.4);
+  --mood-negative: rgba(254, 215, 170, 0.4);
+  --mood-neutral: rgba(254, 240, 138, 0.4);
+  --mood-positive: rgba(187, 247, 208, 0.4);
+  --mood-very-positive: rgba(186, 230, 253, 0.4);
 }
 
 /* Base Styles */
@@ -60,9 +67,10 @@ body {
 /* Glassmorphic Effects */
 .glassmorphic {
   @apply bg-white/10 backdrop-blur-lg border border-white/20;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-              0 2px 4px -1px rgba(0, 0, 0, 0.06),
-              inset 0 0 80px rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    inset 0 0 80px rgba(255, 255, 255, 0.1);
 }
 
 .glassmorphic-hover {
@@ -71,9 +79,28 @@ body {
 
 .glassmorphic-hover:hover {
   @apply bg-white/15;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-              0 4px 6px -2px rgba(0, 0, 0, 0.05),
-              inset 0 0 80px rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05),
+    inset 0 0 80px rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Calendar Styles */
+.calendar-day {
+  @apply aspect-square rounded-xl p-2 relative transition-all duration-300;
+}
+
+.calendar-day.has-entries {
+  @apply ring-1 ring-white/30;
+}
+
+.calendar-day.selected {
+  @apply ring-2 ring-white/50 shadow-lg;
+}
+
+.calendar-day:hover:not(.empty) {
+  @apply bg-white/10;
 }
 
 /* Emotion Pills */
@@ -81,7 +108,7 @@ body {
   @apply px-4 py-2 rounded-full text-sm transition-all duration-300;
 }
 
-/* Emotion Colors */
+/* Dynamic Emotion Classes */
 .emotion-χαρά { background: var(--emotion-χαρά); }
 .emotion-ενθουσιασμός { background: var(--emotion-ενθουσιασμός); }
 .emotion-αγάπη { background: var(--emotion-αγάπη); }
@@ -104,15 +131,22 @@ body {
 
 /* Chart Customizations */
 .recharts-pie-sector {
-  opacity: 0.75;
+  opacity: 0.85;
 }
 
-.recharts-legend-item {
-  @apply text-white/80;
+.recharts-text {
+  fill: rgba(255, 255, 255, 0.8);
 }
 
-.recharts-tooltip {
-  @apply bg-white/10 backdrop-blur-lg rounded-lg border border-white/20 !important;
+.recharts-legend-item-text {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(12px);
+  border-radius: 0.75rem;
 }
 
 /* Mobile Optimizations */
@@ -168,20 +202,6 @@ body {
   }
 }
 
-/* Scrollbar Styling */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-white/20 rounded-full;
-}
-
 /* iOS Fixes */
 @supports (-webkit-touch-callout: none) {
   .min-h-screen {
@@ -224,4 +244,36 @@ button:active {
 /* Smooth Transitions */
 * {
   @apply transition-all duration-300 ease-in-out;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-white/20 rounded-full;
+}
+
+/* Form Element Styling */
+input, textarea {
+  @apply bg-white/5 border-white/20 focus:border-white/30 focus:ring-white/20;
+}
+
+/* Toast Notifications */
+.toast {
+  @apply glassmorphic fixed top-4 right-4 p-4 rounded-xl flex items-center gap-2;
+}
+
+.toast-success {
+  @apply bg-green-500/20;
+}
+
+.toast-error {
+  @apply bg-red-500/20;
 }
