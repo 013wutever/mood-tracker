@@ -152,7 +152,100 @@ const Progress = ({ language = 'el', userEmail }) => {
     
     return Math.round((weekEntries.length / 7) * 100);
   };
+// Προσθήκη πριν τη συνάρτηση calculateDailyMoodTrend
 
+const calculateMoodDistribution = (entries) => {
+  const moodCounts = entries.reduce((acc, entry) => {
+    const mood = entry[3];  // moodEmoji στήλη
+    acc[mood] = (acc[mood] || 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.entries(moodCounts).map(([name, count]) => ({
+    name,
+    value: Math.round((count / entries.length) * 100)
+  }));
+};
+
+const calculateCategoryBreakdown = (entries) => {
+  const categoryCounts = entries.reduce((acc, entry) => {
+    const category = entry[2];  // category στήλη
+    acc[category] = (acc[category] || 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.entries(categoryCounts).map(([name, count]) => ({
+    name,
+    value: Math.round((count / entries.length) * 100)
+  }));
+};
+
+const calculateEmotionsStats = (entries) => {
+  const allEmotions = entries.flatMap(entry => entry[4].split(','));  // emotions στήλη
+  const emotionCounts = allEmotions.reduce((acc, emotion) => {
+    acc[emotion] = (acc[emotion] || 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.entries(emotionCounts).map(([name, count]) => ({
+    name,
+    value: Math.round((count / allEmotions.length) * 100)
+  }));
+};
+
+const calculateTimeOfDayStats = (entries) => {
+  const timeSlots = entries.map(entry => {
+    const hour = parseDateString(entry[0]).getHours();
+    if (hour < 12) return 'morning';
+    if (hour < 17) return 'afternoon';
+    if (hour < 20) return 'evening';
+    return 'night';
+  });
+
+  const timeCounts = timeSlots.reduce((acc, time) => {
+    acc[time] = (acc[time] || 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.entries(timeCounts).map(([name, count]) => ({
+    name,
+    value: Math.round((count / timeSlots.length) * 100)
+  }));
+};
+
+const calculatePositivityRatio = (entries) => {
+  const positiveCount = entries.filter(entry => 
+    ['positive', 'very-positive'].includes(entry[3])
+  ).length;
+  
+  return Math.round((positiveCount / entries.length) * 100);
+};
+
+const calculatePositiveEmotions = (entries) => {
+  const positiveEmotions = ['χαρά', 'ενθουσιασμός', 'αγάπη', 'ηρεμία', 'ικανοποίηση', 
+                           'ανακούφιση', 'περηφάνια', 'ευγνωμοσύνη', 'ελπίδα'];
+  
+  return entries
+    .flatMap(entry => entry[4].split(','))
+    .filter(emotion => positiveEmotions.includes(emotion))
+    .reduce((acc, emotion) => {
+      acc[emotion] = (acc[emotion] || 0) + 1;
+      return acc;
+    }, {});
+};
+
+const calculateNegativeEmotions = (entries) => {
+  const negativeEmotions = ['άγχος', 'φόβος', 'θυμός', 'λύπη', 'απογοήτευση', 
+                           'ζήλια', 'ντροπή', 'ενοχή', 'σύγχυση'];
+  
+  return entries
+    .flatMap(entry => entry[4].split(','))
+    .filter(emotion => negativeEmotions.includes(emotion))
+    .reduce((acc, emotion) => {
+      acc[emotion] = (acc[emotion] || 0) + 1;
+      return acc;
+    }, {});
+};
   // [Συνέχεια στο επόμενο μήνυμα λόγω μεγέθους...]
   // Additional calculation functions
   const calculateDailyMoodTrend = (entries) => {
