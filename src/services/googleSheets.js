@@ -15,14 +15,23 @@ const googleSheetsService = {
             userEmail,
             category,
             moodEmoji,
-            emotions,
-            notes
+            emotions: Array.isArray(emotions) ? emotions : emotions.split(','),
+            notes: notes || ''
           }
         })
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const result = await response.json();
       console.log('Add entry result:', result);
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to add entry');
+      }
+      
       return result;
     } catch (error) {
       console.error('Error adding mood entry:', error);
@@ -47,6 +56,10 @@ const googleSheetsService = {
         })
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const result = await response.json();
       console.log('Get entries result:', result);
 
@@ -54,13 +67,13 @@ const googleSheetsService = {
         throw new Error(result.error || 'Failed to fetch entries');
       }
 
-      // Transform the data to the correct format
+      // Transform the data
       const entries = result.data.map(entry => ({
         timestamp: entry[0],
         userEmail: entry[1],
         category: entry[2],
         mood: entry[3],
-        emotions: entry[4].split(','),
+        emotions: entry[4].split(',').map(e => e.trim()),
         notes: entry[5],
         id: entry[6]
       }));
@@ -81,12 +94,14 @@ const googleSheetsService = {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          action: 'getEntries',
-          data: {
-            userEmail
-          }
+          action: 'getCalendarEntries',
+          data: { userEmail }
         })
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const result = await response.json();
       console.log('Calendar entries result:', result);
@@ -95,15 +110,15 @@ const googleSheetsService = {
         throw new Error(result.error || 'Failed to fetch calendar entries');
       }
 
-      // Transform the data to the correct format
+      // Transform the data
       const entries = result.data.map(entry => ({
+        id: entry[6],
         date: new Date(entry[0]),
         userEmail: entry[1],
         category: entry[2],
         mood: entry[3],
-        emotions: entry[4].split(','),
-        notes: entry[5],
-        id: entry[6]
+        emotions: entry[4].split(',').map(e => e.trim()),
+        notes: entry[5]
       }));
 
       return { success: true, data: entries };
@@ -130,8 +145,17 @@ const googleSheetsService = {
         })
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const result = await response.json();
       console.log('Verify user result:', result);
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Invalid credentials');
+      }
+      
       return result;
     } catch (error) {
       console.error('Error verifying user:', error);
@@ -156,8 +180,17 @@ const googleSheetsService = {
         })
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const result = await response.json();
       console.log('Add user result:', result);
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to add user');
+      }
+      
       return result;
     } catch (error) {
       console.error('Error adding user:', error);
@@ -170,11 +203,11 @@ const googleSheetsService = {
       console.log('Getting user stats:', userEmail, timeFilter);
       const entries = await this.getEntries(userEmail, { timeFilter });
       
-      if (!entries.success) {
-        throw new Error(entries.error || 'Failed to fetch stats');
+      if (!entries.success || !entries.data) {
+        throw new Error('Failed to fetch entries for stats');
       }
 
-      // Process the entries to calculate stats
+      // Calculate stats from entries
       const data = entries.data;
       const stats = {
         totalEntries: data.length,
@@ -195,8 +228,10 @@ const googleSheetsService = {
   }
 };
 
-// Helper functions for stats calculations
+// Helper functions for calculations
 function calculateWeeklyCompletion(entries) {
+  if (!entries.length) return 0;
+  
   const today = new Date();
   const startOfWeek = new Date(today);
   startOfWeek.setDate(today.getDate() - today.getDay());
@@ -209,19 +244,51 @@ function calculateWeeklyCompletion(entries) {
 }
 
 function calculateMoodDistribution(entries) {
-  return calculateDistribution(entries.map(e => e.mood));
+  if (!entries.length) return [];
+  
+  const moodCounts = entries.reduce((acc, entry) => {
+    acc[entry.mood] = (acc[entry.mood] || 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.entries(moodCounts).map(([name, count]) => ({
+    name,
+    value: Math.round((count / entries.length) * 100)
+  }));
 }
 
 function calculateCategoryBreakdown(entries) {
-  return calculateDistribution(entries.map(e => e.category));
+  if (!entries.length) return [];
+  
+  const categoryCounts = entries.reduce((acc, entry) => {
+    acc[entry.category] = (acc[entry.category] || 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.entries(categoryCounts).map(([name, count]) => ({
+    name,
+    value: Math.round((count / entries.length) * 100)
+  }));
 }
 
 function calculateEmotionsStats(entries) {
-  const allEmotions = entries.flatMap(e => e.emotions);
-  return calculateDistribution(allEmotions);
+  if (!entries.length) return [];
+  
+  const allEmotions = entries.flatMap(entry => entry.emotions);
+  const emotionCounts = allEmotions.reduce((acc, emotion) => {
+    acc[emotion] = (acc[emotion] || 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.entries(emotionCounts).map(([name, count]) => ({
+    name,
+    value: Math.round((count / allEmotions.length) * 100)
+  }));
 }
 
 function calculateTimeOfDayStats(entries) {
+  if (!entries.length) return [];
+  
   const timeSlots = entries.map(entry => {
     const hour = new Date(entry.timestamp).getHours();
     if (hour < 12) return 'morning';
@@ -229,18 +296,31 @@ function calculateTimeOfDayStats(entries) {
     if (hour < 20) return 'evening';
     return 'night';
   });
-  return calculateDistribution(timeSlots);
+
+  const timeCounts = timeSlots.reduce((acc, time) => {
+    acc[time] = (acc[time] || 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.entries(timeCounts).map(([name, count]) => ({
+    name,
+    value: Math.round((count / timeSlots.length) * 100)
+  }));
 }
 
 function calculatePositivityRatio(entries) {
+  if (!entries.length) return 0;
+  
   const positiveCount = entries.filter(entry => 
     ['positive', 'very-positive'].includes(entry.mood)
   ).length;
   
-  return entries.length > 0 ? Math.round((positiveCount / entries.length) * 100) : 0;
+  return Math.round((positiveCount / entries.length) * 100);
 }
 
 function calculateDailyMoodTrend(entries) {
+  if (!entries.length) return [];
+  
   const moodValues = {
     'very-negative': 1,
     'negative': 2,
@@ -254,7 +334,7 @@ function calculateDailyMoodTrend(entries) {
     if (!acc[date]) {
       acc[date] = [];
     }
-    acc[date].push(moodValues[entry.mood]);
+    acc[date].push(moodValues[entry.mood] || 3);
     return acc;
   }, {});
 
@@ -264,19 +344,6 @@ function calculateDailyMoodTrend(entries) {
       value: moods.reduce((sum, mood) => sum + mood, 0) / moods.length
     }))
     .sort((a, b) => new Date(a.date) - new Date(b.date));
-}
-
-function calculateDistribution(items) {
-  const counts = items.reduce((acc, item) => {
-    acc[item] = (acc[item] || 0) + 1;
-    return acc;
-  }, {});
-
-  const total = items.length;
-  return Object.entries(counts).map(([name, count]) => ({
-    name,
-    value: total > 0 ? Math.round((count / total) * 100) : 0
-  }));
 }
 
 export default googleSheetsService;
