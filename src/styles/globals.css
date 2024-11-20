@@ -5,211 +5,240 @@
 /* Root Variables */
 :root {
   --app-height: 100vh;
-
-  /* Background Colors */
-  --bg-gradient-start: rgba(147,112,219,0.95);
-  --bg-gradient-end: rgba(103,58,183,0.95);
   
-  /* Mood Colors - Consistent across app */
-  --mood-very-negative: rgba(254, 202, 202, 0.8);  /* απαλό κόκκινο */
-  --mood-negative: rgba(254, 215, 170, 0.8);       /* απαλό πορτοκαλί */
-  --mood-neutral: rgba(254, 240, 138, 0.8);        /* απαλό κίτρινο */
-  --mood-positive: rgba(186, 230, 253, 0.8);       /* απαλό γαλάζιο */
-  --mood-very-positive: rgba(187, 247, 208, 0.8);  /* απαλό πράσινο */
+  /* Mood Colors */
+  --mood-very-positive: rgba(72, 187, 255, 0.8);
+  --mood-positive: rgba(100, 223, 223, 0.8);
+  --mood-neutral: rgba(255, 233, 155, 0.8);
+  --mood-negative: rgba(255, 169, 135, 0.8);
+  --mood-very-negative: rgba(255, 130, 130, 0.8);
+  
+  /* Emotion Colors - Pastel with 70% transparency */
+  --emotion-χαρά: rgba(255, 223, 186, 0.7);
+  --emotion-ενθουσιασμός: rgba(255, 186, 186, 0.7);
+  --emotion-αγάπη: rgba(255, 186, 213, 0.7);
+  --emotion-ηρεμία: rgba(186, 225, 255, 0.7);
+  --emotion-ικανοποίηση: rgba(186, 255, 201, 0.7);
+  --emotion-άγχος: rgba(255, 201, 186, 0.7);
+  --emotion-φόβος: rgba(201, 186, 255, 0.7);
+  --emotion-θυμός: rgba(255, 186, 186, 0.7);
+  --emotion-λύπη: rgba(186, 201, 255, 0.7);
+  --emotion-απογοήτευση: rgba(255, 186, 201, 0.7);
+  --emotion-ανακούφιση: rgba(186, 255, 225, 0.7);
+  --emotion-περηφάνια: rgba(255, 213, 186, 0.7);
+  --emotion-ευγνωμοσύνη: rgba(186, 255, 186, 0.7);
+  --emotion-ζήλια: rgba(213, 186, 255, 0.7);
+  --emotion-ντροπή: rgba(255, 186, 225, 0.7);
+  --emotion-ενοχή: rgba(201, 186, 255, 0.7);
+  --emotion-σύγχυση: rgba(255, 255, 186, 0.7);
+  --emotion-έκπληξη: rgba(186, 255, 255, 0.7);
+  --emotion-ελπίδα: rgba(186, 213, 255, 0.7);
 
-  /* Positive Emotions - Soft pastels */
-  --emotion-χαρά: rgba(255, 243, 224, 0.7);        /* απαλό πορτοκαλί */
-  --emotion-ενθουσιασμός: rgba(255, 218, 224, 0.7); /* απαλό ροζ */
-  --emotion-αγάπη: rgba(255, 209, 220, 0.7);       /* απαλό φούξια */
-  --emotion-ηρεμία: rgba(209, 233, 255, 0.7);      /* απαλό γαλάζιο */
-  --emotion-ικανοποίηση: rgba(220, 255, 228, 0.7); /* απαλό πράσινο */
-  --emotion-ανακούφιση: rgba(224, 255, 243, 0.7);  /* απαλό βεραμάν */
-  --emotion-περηφάνια: rgba(255, 235, 209, 0.7);   /* απαλό μπεζ */
-  --emotion-ευγνωμοσύνη: rgba(224, 255, 224, 0.7); /* απαλό λαχανί */
-  --emotion-ελπίδα: rgba(209, 235, 255, 0.7);      /* απαλό σιέλ */
-
-  /* Negative Emotions - Muted pastels */
-  --emotion-άγχος: rgba(230, 218, 255, 0.7);       /* απαλό μωβ */
-  --emotion-φόβος: rgba(218, 224, 255, 0.7);       /* απαλό γκρι-μπλε */
-  --emotion-θυμός: rgba(255, 218, 218, 0.7);       /* απαλό κόκκινο */
-  --emotion-λύπη: rgba(218, 224, 232, 0.7);        /* απαλό γκρι */
-  --emotion-απογοήτευση: rgba(232, 224, 224, 0.7); /* απαλό γκρι-ροζ */
-  --emotion-ζήλια: rgba(232, 232, 232, 0.7);       /* απαλό γκρι */
-  --emotion-ντροπή: rgba(255, 218, 235, 0.7);      /* απαλό ροζ */
-  --emotion-ενοχή: rgba(230, 218, 255, 0.7);       /* απαλό μωβ */
-  --emotion-σύγχυση: rgba(255, 255, 209, 0.7);     /* απαλό κίτρινο */
-  --emotion-έκπληξη: rgba(209, 247, 255, 0.7);     /* απαλό τιρκουάζ */
-
+  /* Chart Colors */
+  --chart-positive: rgba(144, 238, 144, 0.8);  /* Light green */
+  --chart-negative: rgba(255, 178, 107, 0.8);  /* Light orange */
+  
   /* Time of Day Colors */
-  --time-morning: rgba(186, 230, 253, 0.8);        /* απαλό γαλάζιο */
-  --time-noon: rgba(254, 240, 138, 0.8);           /* απαλό κίτρινο */
-  --time-afternoon: rgba(254, 215, 170, 0.8);      /* απαλό πορτοκαλί */
-  --time-evening: rgba(147, 112, 219, 0.8);        /* απαλό μωβ */
-
-  /* Category Colors */
-  --category-personal: rgba(209, 247, 255, 0.7);    /* απαλό τιρκουάζ */
-  --category-work: rgba(255, 204, 188, 0.7);        /* απαλό κοραλί */
-  --category-family: rgba(187, 247, 208, 0.7);      /* απαλό πράσινο */
-  --category-health: rgba(255, 218, 235, 0.7);      /* απαλό ροζ */
-  --category-entertainment: rgba(209, 233, 255, 0.7);/* απαλό γαλάζιο */
-  --category-studies: rgba(255, 243, 224, 0.7);     /* απαλό πορτοκαλί */
-  --category-finances: rgba(232, 232, 232, 0.7);    /* απαλό γκρι */
-  --category-friends: rgba(186, 230, 253, 0.7);     /* απαλό γαλάζιο */
-
-  /* Charts Colors */
-  --chart-positive: rgba(187, 247, 208, 0.8);      /* πράσινο για θετικά */
-  --chart-negative: rgba(254, 215, 170, 0.8);      /* πορτοκαλί για αρνητικά */
+  --time-morning: rgba(255, 220, 155, 0.8);    /* Warm yellow */
+  --time-noon: rgba(255, 178, 107, 0.8);       /* Warm orange */
+  --time-afternoon: rgba(255, 155, 155, 0.8);   /* Warm red */
+  --time-evening: rgba(155, 175, 255, 0.8);     /* Cool blue */
 }
 
 /* Base Styles */
-html {
-  height: 100vh;
-  height: var(--app-height);
-}
-
-body {
+html, body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
   min-height: var(--app-height);
-  background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
-  @apply antialiased text-white overflow-x-hidden overflow-y-auto;
+  background: linear-gradient(135deg, 
+    rgba(147,112,219,0.95) 0%,
+    rgba(103,58,183,0.95) 100%
+  );
+  @apply antialiased text-white overflow-x-hidden;
   -webkit-tap-highlight-color: transparent;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Full Page Scroll Container */
-.page-container {
-  min-height: 100vh;
-  min-height: var(--app-height);
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* Glassmorphic Effects */
 .glassmorphic {
   @apply bg-white/10 backdrop-blur-lg border border-white/20;
-  box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06),
-    inset 0 0 80px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -1px rgba(0, 0, 0, 0.06),
+              inset 0 0 80px rgba(255, 255, 255, 0.1);
 }
 
+/* Enhanced Hover Effects */
 .glassmorphic-hover {
   @apply transition-all duration-300;
 }
 
-.glassmorphic-hover:hover,
+.glassmorphic-hover:hover {
+  @apply bg-white/15 scale-105;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+              0 4px 6px -2px rgba(0, 0, 0, 0.05),
+              inset 0 0 80px rgba(255, 255, 255, 0.2),
+              0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+/* Active State with Glow */
 .glassmorphic-hover:active,
-.glassmorphic-hover.active {
-  @apply bg-white/15;
-  box-shadow: 
-    0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05),
-    inset 0 0 80px rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
+.glassmorphic-hover[data-active="true"] {
+  @apply bg-white/20 scale-110;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.4),
+              inset 0 0 100px rgba(255, 255, 255, 0.3);
+}
+
+/* Emotion Pills */
+.emotion-pill {
+  @apply px-4 py-2 rounded-full text-sm transition-all duration-300;
 }
 
 /* Chart Styles */
-.chart-container {
-  @apply rounded-xl overflow-hidden;
+.recharts-wrapper {
+  @apply mx-auto;
+}
+
+.recharts-legend-wrapper {
+  @apply !bottom-0 !left-1/2 -translate-x-1/2 !text-center;
 }
 
 .recharts-pie-sector {
-  opacity: 0.85;
+  @apply transition-all duration-300;
 }
 
-.recharts-text {
-  fill: rgba(255, 255, 255, 0.8) !important;
+.recharts-pie-sector:hover {
+  @apply opacity-90 cursor-pointer;
 }
 
-.recharts-legend-item-text {
-  color: rgba(255, 255, 255, 0.8) !important;
+/* Calendar Styles */
+.calendar-day {
+  @apply aspect-square rounded-lg glassmorphic p-2 transition-all duration-300;
 }
 
-.recharts-tooltip-wrapper .recharts-default-tooltip {
-  @apply glassmorphic rounded-xl !important;
-  background-color: rgba(255, 255, 255, 0.1) !important;
-  border: none !important;
+.calendar-day:hover {
+  @apply bg-white/20 scale-105;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
-.recharts-bar-rectangle {
-  @apply rounded-lg;
-}
-
-/* Mobile & Responsive Styles */
+/* Mobile Optimizations */
 @media (max-width: 768px) {
-  /* Enable full page scroll */
-  body {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-  }
-
-  .page-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-  }
-
-  /* Default visibility for buttons/icons */
-  .category-button,
-  .mood-button,
-  .emotion-button {
-    opacity: 1 !important;
-    visibility: visible !important;
-  }
-
-  /* Stack items vertically */
-  .mobile-stack {
-    @apply flex flex-col gap-4;
-  }
-
-  /* Full width items */
-  .mobile-full {
-    @apply w-full;
-  }
-
-  /* Better touch targets */
+  /* Better Touch Targets */
   button, 
-  [role="button"] {
+  .emotion-pill,
+  .calendar-day {
     @apply min-h-[44px] min-w-[44px];
-    padding: 0.75rem !important;
   }
 
-  /* Chart responsiveness */
+  /* Improved Spacing */
+  .container {
+    @apply px-4;
+  }
+
+  /* Full Page Scroll */
+  .content-wrapper {
+    height: calc(100vh - 4rem);
+    @apply overflow-y-auto pb-20;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Mood Grid */
+  .mood-grid {
+    @apply grid-cols-3 gap-4;
+  }
+
+  /* Category Grid */
+  .category-grid {
+    @apply grid-cols-2 gap-4;
+  }
+
+  /* Chart Containers */
   .chart-container {
-    @apply w-full h-auto aspect-square;
-    max-height: 300px;
+    @apply w-full mb-8;
   }
 
-  /* Grid adjustments */
-  .grid {
-    @apply grid-cols-1;
-    gap: 1rem !important;
+  /* Calendar Adjustments */
+  .calendar-grid {
+    @apply grid-cols-7 gap-2;
   }
 
-  /* Navigation adjustments */
-  .nav-buttons {
-    @apply fixed bottom-0 left-0 right-0;
-    padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
+  /* Simplified Animations */
+  .glassmorphic-hover:hover {
+    @apply scale-100;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+  }
+
+  /* Enhanced Touch Feedback */
+  .glassmorphic-hover:active {
+    @apply scale-95 bg-white/25;
+  }
+
+  /* Better Visibility */
+  .emotion-pill,
+  .category-button,
+  .mood-button {
+    @apply bg-opacity-90;
   }
 }
 
-/* iOS Specific Fixes */
+/* iOS Fixes */
 @supports (-webkit-touch-callout: none) {
   .min-h-screen {
     min-height: -webkit-fill-available;
   }
 }
 
-/* Transitions */
-.transition-all {
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 300ms;
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  @apply w-1.5;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-white/20 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-white/30;
+}
+
+/* Emotion Colors */
+.emotion-χαρά { background: var(--emotion-χαρά); }
+.emotion-ενθουσιασμός { background: var(--emotion-ενθουσιασμός); }
+.emotion-αγάπη { background: var(--emotion-αγάπη); }
+.emotion-ηρεμία { background: var(--emotion-ηρεμία); }
+.emotion-ικανοποίηση { background: var(--emotion-ικανοποίηση); }
+.emotion-άγχος { background: var(--emotion-άγχος); }
+.emotion-φόβος { background: var(--emotion-φόβος); }
+.emotion-θυμός { background: var(--emotion-θυμός); }
+.emotion-λύπη { background: var(--emotion-λύπη); }
+.emotion-απογοήτευση { background: var(--emotion-απογοήτευση); }
+.emotion-ανακούφιση { background: var(--emotion-ανακούφιση); }
+.emotion-περηφάνια { background: var(--emotion-περηφάνια); }
+.emotion-ευγνωμοσύνη { background: var(--emotion-ευγνωμοσύνη); }
+.emotion-ζήλια { background: var(--emotion-ζήλια); }
+.emotion-ντροπή { background: var(--emotion-ντροπή); }
+.emotion-ενοχή { background: var(--emotion-ενοχή); }
+.emotion-σύγχυση { background: var(--emotion-σύγχυση); }
+.emotion-έκπληξη { background: var(--emotion-έκπληξη); }
+.emotion-ελπίδα { background: var(--emotion-ελπίδα); }
+
+/* Chart Customizations */
+.recharts-pie-label-text {
+  @apply fill-white font-medium;
+}
+
+.recharts-label {
+  @apply fill-white;
+}
+
+.recharts-text {
+  @apply fill-white/90;
+}
+
+/* Loading States */
+.loading-shimmer {
+  @apply animate-pulse bg-white/10 rounded-lg;
 }
