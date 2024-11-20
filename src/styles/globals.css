@@ -4,35 +4,45 @@
 
 /* Root Variables */
 :root {
-  --app-height: 100vh;
-  
-  /* Updated Emotion Colors with Pastel Purple Theme */
-  --emotion-χαρά: rgba(230, 220, 255, 0.75);
-  --emotion-ενθουσιασμός: rgba(220, 200, 255, 0.75);
-  --emotion-αγάπη: rgba(210, 190, 255, 0.75);
-  --emotion-ηρεμία: rgba(200, 180, 255, 0.75);
-  --emotion-ικανοποίηση: rgba(190, 170, 255, 0.75);
-  --emotion-άγχος: rgba(180, 160, 255, 0.75);
-  --emotion-φόβος: rgba(170, 150, 255, 0.75);
-  --emotion-θυμός: rgba(160, 140, 255, 0.75);
-  --emotion-λύπη: rgba(150, 130, 255, 0.75);
-  --emotion-απογοήτευση: rgba(140, 120, 255, 0.75);
-  --emotion-ανακούφιση: rgba(130, 110, 255, 0.75);
-  --emotion-περηφάνια: rgba(120, 100, 255, 0.75);
-  --emotion-ευγνωμοσύνη: rgba(110, 90, 255, 0.75);
-  --emotion-ζήλια: rgba(100, 80, 255, 0.75);
-  --emotion-ντροπή: rgba(90, 70, 255, 0.75);
-  --emotion-ενοχή: rgba(80, 60, 255, 0.75);
-  --emotion-σύγχυση: rgba(70, 50, 255, 0.75);
-  --emotion-έκπληξη: rgba(60, 40, 255, 0.75);
-  --emotion-ελπίδα: rgba(50, 30, 255, 0.75);
+  /* Mood Colors - Pastel */
+  --mood-very-positive: rgba(187, 247, 208, 0.8);  /* Light green */
+  --mood-positive: rgba(186, 230, 253, 0.8);       /* Light blue */
+  --mood-neutral: rgba(254, 240, 138, 0.8);        /* Light yellow */
+  --mood-negative: rgba(254, 215, 170, 0.8);       /* Light orange */
+  --mood-very-negative: rgba(254, 202, 202, 0.8);  /* Light red */
 
-  /* Mood Colors */
-  --mood-very-negative: rgba(254, 202, 202, 0.4);
-  --mood-negative: rgba(254, 215, 170, 0.4);
-  --mood-neutral: rgba(254, 240, 138, 0.4);
-  --mood-positive: rgba(187, 247, 208, 0.4);
-  --mood-very-positive: rgba(186, 230, 253, 0.4);
+  /* Positive Emotions - Light Pastel */
+  --emotion-χαρά: rgba(253, 230, 238, 0.8);
+  --emotion-ενθουσιασμός: rgba(224, 242, 254, 0.8);
+  --emotion-αγάπη: rgba(251, 207, 232, 0.8);
+  --emotion-ηρεμία: rgba(224, 231, 255, 0.8);
+  --emotion-ικανοποίηση: rgba(220, 252, 231, 0.8);
+  --emotion-ανακούφιση: rgba(226, 232, 240, 0.8);
+  --emotion-περηφάνια: rgba(254, 235, 200, 0.8);
+  --emotion-ευγνωμοσύνη: rgba(236, 254, 255, 0.8);
+  --emotion-ελπίδα: rgba(224, 242, 254, 0.8);
+
+  /* Negative Emotions - Muted Pastel */
+  --emotion-άγχος: rgba(226, 232, 240, 0.8);
+  --emotion-φόβος: rgba(226, 232, 240, 0.8);
+  --emotion-θυμός: rgba(254, 202, 202, 0.8);
+  --emotion-λύπη: rgba(226, 232, 240, 0.8);
+  --emotion-απογοήτευση: rgba(226, 232, 240, 0.8);
+  --emotion-ζήλια: rgba(226, 232, 240, 0.8);
+  --emotion-ντροπή: rgba(254, 205, 211, 0.8);
+  --emotion-ενοχή: rgba(226, 232, 240, 0.8);
+  --emotion-σύγχυση: rgba(254, 240, 138, 0.8);
+  --emotion-έκπληξη: rgba(199, 210, 254, 0.8);
+
+  /* Category Colors */
+  --category-work: rgba(254, 215, 170, 0.8);
+  --category-family: rgba(187, 247, 208, 0.8);
+  --category-friends: rgba(186, 230, 253, 0.8);
+  --category-health: rgba(251, 207, 232, 0.8);
+  --category-entertainment: rgba(224, 231, 255, 0.8);
+  --category-studies: rgba(254, 240, 138, 0.8);
+  --category-personal: rgba(226, 232, 240, 0.8);
+  --category-finances: rgba(226, 232, 240, 0.8);
 }
 
 /* Base Styles */
