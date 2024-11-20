@@ -18,57 +18,60 @@ export default async function handler(req, res) {
     const sheets = google.sheets({ version: 'v4', auth });
     const { action, data } = req.body;
 
+    console.log('API Request:', { action, data }); // Debug log
+
     switch (action) {
       case 'addEntry': {
+        // Validate required fields
+        if (!data.userEmail || !data.category || !data.moodEmoji || !data.emotions) {
+          return res.status(400).json({
+            success: false,
+            error: 'Missing required fields'
+          });
+        }
+
         const response = await sheets.spreadsheets.values.append({
           spreadsheetId: process.env.REACT_APP_GOOGLE_SHEETS_ID,
           range: 'TrackerData1!A2:G',
           valueInputOption: 'USER_ENTERED',
+          insertDataOption: 'INSERT_ROWS',
           resource: {
             values: [[
-              new Date().toISOString(),
+              new Date().toISOString(), // Timestamp
               data.userEmail,
               data.category,
               data.moodEmoji,
-              data.emotions.join(','),
-              data.notes,
+              Array.isArray(data.emotions) ? data.emotions.join(',') : data.emotions,
+              data.notes || '',
               `MT-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
             ]]
           }
         });
+
+        console.log('Add Entry Response:', response.data); // Debug log
         return res.status(200).json({ success: true, data: response.data });
       }
 
       case 'getEntries': {
-        let range = 'TrackerData1!A2:G';
-        const entries = await sheets.spreadsheets.values.get({
+        console.log('Getting entries for user:', data.userEmail); // Debug log
+
+        const entriesResponse = await sheets.spreadsheets.values.get({
           spreadsheetId: process.env.REACT_APP_GOOGLE_SHEETS_ID,
-          range
+          range: 'TrackerData1!A2:G'
         });
 
-        let filteredEntries = entries.data.values || [];
-
-        // Filter by user
+        let entries = entriesResponse.data.values || [];
+        
+        // Filter by user email
         if (data.userEmail) {
-          filteredEntries = filteredEntries.filter(row => row[1] === data.userEmail);
+          entries = entries.filter(row => row[1] === data.userEmail);
         }
 
-        // Apply time range filter if provided
-        if (data.timeRange) {
-          const startDate = new Date(data.timeRange.start);
-          const endDate = new Date(data.timeRange.end);
-          
-          filteredEntries = filteredEntries.filter(row => {
-            const entryDate = new Date(row[0]);
-            return entryDate >= startDate && entryDate <= endDate;
-          });
-        }
-
-        // Apply time filter (week/month/year/all)
+        // Apply time filter if provided
         if (data.timeFilter) {
           const now = new Date();
           let cutoffDate = new Date();
-
+          
           switch (data.timeFilter) {
             case 'week':
               cutoffDate.setDate(now.getDate() - 7);
@@ -79,35 +82,62 @@ export default async function handler(req, res) {
             case 'year':
               cutoffDate.setFullYear(now.getFullYear() - 1);
               break;
-            default:
-              // 'all' - no filtering needed
-              break;
+            // 'all' - no filtering needed
           }
 
           if (data.timeFilter !== 'all') {
-            filteredEntries = filteredEntries.filter(row => {
-              const entryDate = new Date(row[0]);
-              return entryDate >= cutoffDate;
+            entries = entries.filter(row => {
+              try {
+                const entryDate = new Date(row[0]);
+                return entryDate >= cutoffDate;
+              } catch (error) {
+                console.error('Error parsing date:', row[0], error);
+                return false;
+              }
             });
           }
         }
 
-        return res.status(200).json({ success: true, data: filteredEntries });
+        // Apply date range filter if provided
+        if (data.timeRange) {
+          const startDate = new Date(data.timeRange.start);
+          const endDate = new Date(data.timeRange.end);
+          
+          entries = entries.filter(row => {
+            try {
+              const entryDate = new Date(row[0]);
+              return entryDate >= startDate && entryDate <= endDate;
+            } catch (error) {
+              console.error('Error parsing date:', row[0], error);
+              return false;
+            }
+          });
+        }
+
+        console.log('Filtered entries count:', entries.length); // Debug log
+        return res.status(200).json({ success: true, data: entries });
       }
 
       case 'verifyUser': {
-        const users = await sheets.spreadsheets.values.get({
+        if (!data.email || !data.hashedPassword) {
+          return res.status(400).json({
+            success: false,
+            error: 'Missing email or password'
+          });
+        }
+
+        const usersResponse = await sheets.spreadsheets.values.get({
           spreadsheetId: process.env.REACT_APP_GOOGLE_SHEETS_ID,
           range: 'UserAccounts!A2:D'
         });
         
-        const userRows = users.data.values || [];
-        const user = userRows.find(row => 
+        const users = usersResponse.data.values || [];
+        const user = users.find(row => 
           row[0] === data.email && row[1] === data.hashedPassword
         );
 
         if (user) {
-          const userRowIndex = userRows.indexOf(user) + 2;
+          const userRowIndex = users.indexOf(user) + 2;
           // Update last login
           await sheets.spreadsheets.values.update({
             spreadsheetId: process.env.REACT_APP_GOOGLE_SHEETS_ID,
@@ -119,20 +149,31 @@ export default async function handler(req, res) {
           });
           return res.status(200).json({ success: true });
         }
-        return res.status(401).json({ success: false, error: 'Invalid credentials' });
+
+        return res.status(401).json({ 
+          success: false, 
+          error: 'Invalid credentials' 
+        });
       }
 
       case 'addUser': {
-        // Check if user already exists
-        const existingUsers = await sheets.spreadsheets.values.get({
+        if (!data.email || !data.hashedPassword) {
+          return res.status(400).json({
+            success: false,
+            error: 'Missing email or password'
+          });
+        }
+
+        // Check if user exists
+        const existingUsersResponse = await sheets.spreadsheets.values.get({
           spreadsheetId: process.env.REACT_APP_GOOGLE_SHEETS_ID,
           range: 'UserAccounts!A2:D'
         });
         
-        const exists = (existingUsers.data.values || [])
-          .some(row => row[0] === data.email);
+        const existingUsers = existingUsersResponse.data.values || [];
+        const userExists = existingUsers.some(row => row[0] === data.email);
 
-        if (exists) {
+        if (userExists) {
           return res.status(400).json({ 
             success: false, 
             error: 'User already exists' 
@@ -140,6 +181,7 @@ export default async function handler(req, res) {
         }
 
         // Add new user
+        const now = new Date().toISOString();
         await sheets.spreadsheets.values.append({
           spreadsheetId: process.env.REACT_APP_GOOGLE_SHEETS_ID,
           range: 'UserAccounts!A2:D',
@@ -148,55 +190,13 @@ export default async function handler(req, res) {
             values: [[
               data.email,
               data.hashedPassword,
-              new Date().toISOString(), // Created date
-              new Date().toISOString()  // Last login date
+              now,  // Created date
+              now   // Last login date
             ]]
           }
         });
+
         return res.status(200).json({ success: true });
-      }
-
-      case 'getCalendarEntries': {
-        const entries = await sheets.spreadsheets.values.get({
-          spreadsheetId: process.env.REACT_APP_GOOGLE_SHEETS_ID,
-          range: 'TrackerData1!A2:G'
-        });
-
-        let filteredEntries = entries.data.values || [];
-
-        // Filter by user
-        filteredEntries = filteredEntries.filter(row => row[1] === data.userEmail);
-
-        // Format entries for calendar
-        const calendarEntries = filteredEntries.map(entry => ({
-          id: entry[6],
-          date: entry[0],
-          mood: entry[3],
-          emotions: entry[4].split(','),
-          notes: entry[5],
-          category: entry[2]
-        }));
-
-        return res.status(200).json({ success: true, data: calendarEntries });
-      }
-
-      case 'getStatsForDate': {
-        const entries = await sheets.spreadsheets.values.get({
-          spreadsheetId: process.env.REACT_APP_GOOGLE_SHEETS_ID,
-          range: 'TrackerData1!A2:G'
-        });
-
-        let filteredEntries = entries.data.values || [];
-
-        // Filter by user and date
-        const targetDate = new Date(data.date);
-        filteredEntries = filteredEntries.filter(row => {
-          const entryDate = new Date(row[0]);
-          return row[1] === data.userEmail && 
-                 entryDate.toDateString() === targetDate.toDateString();
-        });
-
-        return res.status(200).json({ success: true, data: filteredEntries });
       }
 
       default:
@@ -209,7 +209,7 @@ export default async function handler(req, res) {
     console.error('API Error:', error);
     return res.status(500).json({ 
       success: false, 
-      error: error.message 
+      error: error.message || 'Internal server error'
     });
   }
 }
