@@ -1,5 +1,5 @@
-class GoogleSheetsService {
-  async addMoodEntry(data) {
+const googleSheetsService = {
+  async addMoodEntry({ userEmail, category, moodEmoji, emotions, notes }) {
     try {
       const response = await fetch('/api/sheets', {
         method: 'POST',
@@ -8,19 +8,25 @@ class GoogleSheetsService {
         },
         body: JSON.stringify({
           action: 'addEntry',
-          data
+          data: {
+            userEmail,
+            category,
+            moodEmoji,
+            emotions,
+            notes
+          }
         })
       });
 
       const result = await response.json();
-      return { success: result.success };
+      return result;
     } catch (error) {
       console.error('Error adding mood entry:', error);
       return { success: false, error: error.message };
     }
-  }
+  },
 
-  async getUserEntries(userEmail) {
+  async getEntries(userEmail, timeRange = null) {
     try {
       const response = await fetch('/api/sheets', {
         method: 'POST',
@@ -29,187 +35,20 @@ class GoogleSheetsService {
         },
         body: JSON.stringify({
           action: 'getEntries',
-          data: { userEmail }
+          data: {
+            userEmail,
+            timeRange
+          }
         })
       });
 
       const result = await response.json();
-      return result.data || [];
+      return result;
     } catch (error) {
-      console.error('Error getting user entries:', error);
-      return [];
+      console.error('Error getting entries:', error);
+      return { success: false, error: error.message };
     }
-  }
-
-  async getUserStats(userEmail, timeFilter = 'week') {
-    try {
-      const entries = await this.getUserEntries(userEmail);
-      if (!entries.length) return this.getEmptyStats();
-
-      const filteredEntries = this.filterEntriesByTime(entries, timeFilter);
-      
-      return {
-        totalEntries: entries.length,
-        weeklyCompletion: this.calculateWeeklyCompletion(filteredEntries),
-        moodDistribution: this.calculateMoodDistribution(filteredEntries),
-        categoryBreakdown: this.calculateCategoryBreakdown(filteredEntries),
-        emotions: this.calculateEmotions(filteredEntries),
-        timeOfDay: this.calculateTimeOfDay(filteredEntries),
-        positivityRatio: this.calculatePositivityRatio(filteredEntries)
-      };
-    } catch (error) {
-      console.error('Error getting user stats:', error);
-      return this.getEmptyStats();
-    }
-  }
-
-  getEmptyStats() {
-    return {
-      totalEntries: 0,
-      weeklyCompletion: 0,
-      moodDistribution: [],
-      categoryBreakdown: [],
-      emotions: [],
-      timeOfDay: [],
-      positivityRatio: []
-    };
-  }
-
-  filterEntriesByTime(entries, timeFilter) {
-    const now = new Date();
-    const filterDate = new Date();
-
-    switch (timeFilter) {
-      case 'week':
-        filterDate.setDate(now.getDate() - 7);
-        break;
-      case 'month':
-        filterDate.setMonth(now.getMonth() - 1);
-        break;
-      case 'year':
-        filterDate.setFullYear(now.getFullYear() - 1);
-        break;
-      default:
-        return entries;
-    }
-
-    return entries.filter(entry => new Date(entry[0]) >= filterDate);
-  }
-
-  calculateWeeklyCompletion(entries) {
-    const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    
-    const recentEntries = entries.filter(entry => 
-      new Date(entry[0]) > oneWeekAgo
-    );
-
-    return Math.round((recentEntries.length / 7) * 100);
-  }
-
-  calculateMoodDistribution(entries) {
-    const distribution = entries.reduce((acc, entry) => {
-      const mood = entry[3];
-      acc[mood] = (acc[mood] || 0) + 1;
-      return acc;
-    }, {});
-
-    return Object.entries(distribution).map(([name, value]) => ({
-      name,
-      originalName: name,
-      value: Math.round((value / entries.length) * 100)
-    }));
-  }
-
-  calculateEmotions(entries) {
-    const emotions = entries.reduce((acc, entry) => {
-      const entryEmotions = entry[4].split(',');
-      entryEmotions.forEach(emotion => {
-        acc[emotion] = (acc[emotion] || 0) + 1;
-      });
-      return acc;
-    }, {});
-
-    return Object.entries(emotions).map(([name, value]) => ({
-      name,
-      value,
-      type: this.getEmotionType(name)
-    }));
-  }
-
-  getEmotionType(emotion) {
-    const positiveEmotions = [
-      'joy', 'calm', 'gratitude', 'enthusiasm', 'optimism',
-      'satisfaction', 'pride', 'love', 'relief', 'serenity'
-    ];
-    return positiveEmotions.includes(emotion) ? 'positive' : 'negative';
-  }
-
-  calculateTimeOfDay(entries) {
-    const getTimeCategory = (date) => {
-      const hour = new Date(date).getHours();
-      if (hour >= 5 && hour < 12) return 'morning';
-      if (hour >= 12 && hour < 17) return 'noon';
-      if (hour >= 17 && hour < 21) return 'afternoon';
-      return 'evening';
-    };
-
-    const distribution = entries.reduce((acc, entry) => {
-      const timeCategory = getTimeCategory(entry[0]);
-      acc[timeCategory] = (acc[timeCategory] || 0) + 1;
-      return acc;
-    }, {});
-
-    return Object.entries(distribution).map(([name, value]) => ({
-      name,
-      value: Math.round((value / entries.length) * 100)
-    }));
-  }
-
-  calculatePositivityRatio(entries) {
-    const positiveCount = entries.filter(entry => 
-      ['very-positive', 'positive'].includes(entry[3])
-    ).length;
-
-    const negativeCount = entries.filter(entry => 
-      ['very-negative', 'negative'].includes(entry[3])
-    ).length;
-
-    const total = entries.length;
-
-    return [
-      { name: 'Θετικά', value: Math.round((positiveCount / total) * 100) },
-      { name: 'Αρνητικά', value: Math.round((negativeCount / total) * 100) }
-    ];
-  }
-
-  calculateCategoryBreakdown(entries) {
-    const breakdown = entries.reduce((acc, entry) => {
-      const category = entry[2];
-      acc[category] = (acc[category] || 0) + 1;
-      return acc;
-    }, {});
-
-    return Object.entries(breakdown).map(([id, value]) => ({
-      id,
-      name: this.getCategoryName(id),
-      value: Math.round((value / entries.length) * 100)
-    }));
-  }
-
-  getCategoryName(id) {
-    const categories = {
-      personal: 'Προσωπικά',
-      friends: 'Φίλοι',
-      family: 'Οικογένεια',
-      work: 'Επαγγελματικά',
-      studies: 'Σπουδές',
-      health: 'Υγεία',
-      finances: 'Οικονομικά',
-      entertainment: 'Ψυχαγωγία'
-    };
-    return categories[id] || id;
-  }
+  },
 
   async verifyUser(email, hashedPassword) {
     try {
@@ -220,17 +59,20 @@ class GoogleSheetsService {
         },
         body: JSON.stringify({
           action: 'verifyUser',
-          data: { email, hashedPassword }
+          data: {
+            email,
+            hashedPassword
+          }
         })
       });
 
       const result = await response.json();
-      return { success: result.success };
+      return result;
     } catch (error) {
       console.error('Error verifying user:', error);
       return { success: false, error: error.message };
     }
-  }
+  },
 
   async addUser(email, hashedPassword) {
     try {
@@ -241,17 +83,171 @@ class GoogleSheetsService {
         },
         body: JSON.stringify({
           action: 'addUser',
-          data: { email, hashedPassword }
+          data: {
+            email,
+            hashedPassword
+          }
         })
       });
 
       const result = await response.json();
-      return { success: result.success };
+      return result;
     } catch (error) {
       console.error('Error adding user:', error);
       return { success: false, error: error.message };
     }
+  },
+
+  // Νέα μέθοδος για την ανάκτηση των καταχωρήσεων για το ημερολόγιο
+  async getCalendarEntries(userEmail, startDate, endDate) {
+    try {
+      const response = await fetch('/api/sheets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'getEntries',
+          data: {
+            userEmail,
+            timeRange: {
+              start: startDate,
+              end: endDate
+            }
+          }
+        })
+      });
+
+      const result = await response.json();
+      
+      // Μορφοποίηση των δεδομένων για το ημερολόγιο
+      if (result.success && result.data) {
+        return {
+          success: true,
+          data: result.data.map(entry => ({
+            id: entry[6], // MT-timestamp-random
+            date: entry[0], // timestamp
+            mood: entry[3], // moodEmoji
+            emotions: entry[4].split(','), // emotions array
+            notes: entry[5], // notes
+            category: entry[2] // category
+          }))
+        };
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('Error getting calendar entries:', error);
+      return { success: false, error: error.message };
+    }
+  },
+
+  // Νέα μέθοδος για την ανάκτηση στατιστικών
+  async getUserStats(userEmail, timeFilter = 'week') {
+    try {
+      const response = await fetch('/api/sheets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'getEntries',
+          data: {
+            userEmail,
+            timeFilter
+          }
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        // Υπολογισμός στατιστικών από τα δεδομένα
+        const entries = result.data;
+        const today = new Date();
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay());
+
+        // Υπολογισμός βασικών στατιστικών
+        const stats = {
+          totalEntries: entries.length,
+          weeklyCompletion: calculateWeeklyCompletion(entries, startOfWeek),
+          moodDistribution: calculateMoodDistribution(entries),
+          categoryBreakdown: calculateCategoryBreakdown(entries),
+          emotions: calculateEmotionsStats(entries),
+          timeOfDay: calculateTimeOfDayStats(entries),
+          positivityRatio: calculatePositivityRatio(entries)
+        };
+
+        return {
+          success: true,
+          data: stats
+        };
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('Error getting user stats:', error);
+      return { success: false, error: error.message };
+    }
   }
+};
+
+// Βοηθητικές συναρτήσεις για τους υπολογισμούς
+function calculateWeeklyCompletion(entries, startOfWeek) {
+  const weekEntries = entries.filter(entry => {
+    const entryDate = new Date(entry[0]);
+    return entryDate >= startOfWeek;
+  });
+  
+  return (weekEntries.length / 7) * 100;
 }
 
-export default new GoogleSheetsService();
+function calculateMoodDistribution(entries) {
+  const moods = entries.map(entry => entry[3]);
+  return calculateDistribution(moods);
+}
+
+function calculateCategoryBreakdown(entries) {
+  const categories = entries.map(entry => entry[2]);
+  return calculateDistribution(categories);
+}
+
+function calculateEmotionsStats(entries) {
+  const allEmotions = entries.flatMap(entry => entry[4].split(','));
+  return calculateDistribution(allEmotions);
+}
+
+function calculateTimeOfDayStats(entries) {
+  const timeSlots = entries.map(entry => {
+    const hour = new Date(entry[0]).getHours();
+    if (hour < 12) return 'morning';
+    if (hour < 17) return 'afternoon';
+    if (hour < 20) return 'evening';
+    return 'night';
+  });
+  return calculateDistribution(timeSlots);
+}
+
+function calculatePositivityRatio(entries) {
+  const positiveCount = entries.filter(entry => 
+    ['positive', 'very-positive'].includes(entry[3])
+  ).length;
+  
+  return (positiveCount / entries.length) * 100;
+}
+
+function calculateDistribution(items) {
+  const distribution = items.reduce((acc, item) => {
+    acc[item] = (acc[item] || 0) + 1;
+    return acc;
+  }, {});
+
+  const total = items.length;
+  return Object.entries(distribution).map(([name, count]) => ({
+    name,
+    value: (count / total) * 100
+  }));
+}
+
+export default googleSheetsService;
