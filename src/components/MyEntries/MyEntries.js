@@ -63,54 +63,61 @@ const MyEntries = ({ language = 'el', userEmail }) => {
   }, [viewType, currentDate, userEmail]);
 
   const fetchEntries = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
+  try {
+    setIsLoading(true);
+    setError(null);
 
-      // Calculate date range based on view type
-      const startDate = new Date(currentDate);
-      const endDate = new Date(currentDate);
+    // Add debug logging
+    console.log('Fetching entries for:', {
+      userEmail,
+      currentDate: currentDate.toISOString()
+    });
 
-      if (viewType === 'month') {
-        startDate.setDate(1);
-        endDate.setMonth(endDate.getMonth() + 1);
-        endDate.setDate(0);
-      } else {
-        startDate.setMonth(0, 1);
-        endDate.setMonth(11, 31);
-      }
+    // Απευθείας κλήση στο API αντί του service
+    const response = await fetch('/api/sheets', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'getEntries',
+        data: {
+          userEmail,
+          timeFilter: 'all' // Παίρνουμε όλες τις καταχωρήσεις για το calendar
+        }
+      })
+    });
 
-      console.log('Fetching entries for:', {
-        userEmail,
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString()
-      });
-
-      const response = await googleSheetsService.getCalendarEntries(userEmail);
-
-      if (!response.success) {
-        throw new Error(response.error || 'Failed to fetch entries');
-      }
-
-      // Transform the entries to the expected format
-      const transformedEntries = response.data.map(row => ({
-        id: row[6], // UniqueID
-        date: parseDateString(row[0]), // Timestamp
-        mood: row[3], // MoodEmoji
-        emotions: row[4].split(','), // Emotions array
-        notes: row[5], // Notes
-        category: row[2] // Category
-      }));
-
-      console.log('Transformed entries:', transformedEntries);
-      setEntries(transformedEntries);
-      setIsLoading(false);
-    } catch (err) {
-      console.error('Error fetching entries:', err);
-      setError(t.error);
-      setIsLoading(false);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  };
+
+    const result = await response.json();
+    console.log('Raw API Response:', result);
+
+    if (!result.success || !result.data) {
+      throw new Error(result.error || 'Failed to fetch entries');
+    }
+
+    // Transform entries to the expected format
+    const transformedEntries = result.data.map(entry => ({
+      id: entry[6],
+      date: new Date(entry[0]),
+      mood: entry[3],
+      emotions: typeof entry[4] === 'string' ? entry[4].split(',').map(e => e.trim()) : entry[4],
+      notes: entry[5],
+      category: entry[2]
+    }));
+
+    console.log('Transformed Entries:', transformedEntries);
+    setEntries(transformedEntries);
+    setIsLoading(false);
+  } catch (err) {
+    console.error('Full error details:', err);
+    setError(err.message);
+    setIsLoading(false);
+  }
+};
 
   // Get color based on mood and emotions
   const getMoodColor = (mood) => {
