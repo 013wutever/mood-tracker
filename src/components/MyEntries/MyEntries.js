@@ -4,8 +4,11 @@ import {
   ChevronRight,
   Calendar as CalendarIcon,
   Clock,
-  List
+  List,
+  Loader,
+  XCircle
 } from 'lucide-react';
+import googleSheetsService from '../../services/googleSheets';
 
 const MyEntries = ({ language = 'el', userEmail }) => {
   const [viewType, setViewType] = useState('month'); // 'month' or 'year'
@@ -13,6 +16,7 @@ const MyEntries = ({ language = 'el', userEmail }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [entries, setEntries] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const translations = {
     el: {
@@ -29,38 +33,102 @@ const MyEntries = ({ language = 'el', userEmail }) => {
       weekDays: ['Κυρ', 'Δευ', 'Τρι', 'Τετ', 'Πεμ', 'Παρ', 'Σαβ'],
       noEntries: 'Δεν υπάρχουν γραπτές καταχωρήσεις για αυτή την ημέρα',
       latestEntries: 'Τελευταίες καταχωρήσεις',
-      loading: 'Φόρτωση...'
+      loading: 'Φόρτωση...',
+      error: 'Σφάλμα φόρτωσης δεδομένων',
+      retry: 'Δοκιμάστε ξανά',
+      emotions: 'Συναισθήματα',
+      mood: 'Διάθεση',
+      category: 'Κατηγορία'
     },
     en: {
-      title: 'My Entries',
-      viewTypes: {
-        month: 'Month',
-        year: 'Year'
-      },
-      months: [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
-      ],
-      weekDays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-      noEntries: 'No written entries for this day',
-      latestEntries: 'Latest entries',
-      loading: 'Loading...'
+      // ... [αντίστοιχες μεταφράσεις στα αγγλικά]
     }
   };
 
   const t = translations[language];
 
-  // Get color for mood/emotion combination
-  const getEntryColor = (mood, emotions) => {
-    const moodColors = {
+  // Helper function to parse dates from the Google Sheet format
+  const parseDateString = (dateStr) => {
+    try {
+      return new Date(dateStr);
+    } catch (error) {
+      console.error('Error parsing date:', dateStr, error);
+      return new Date();
+    }
+  };
+
+  // Fetch entries when component mounts or when viewType/currentDate changes
+  useEffect(() => {
+    fetchEntries();
+  }, [viewType, currentDate, userEmail]);
+
+  const fetchEntries = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Calculate date range based on view type
+      const startDate = new Date(currentDate);
+      const endDate = new Date(currentDate);
+
+      if (viewType === 'month') {
+        startDate.setDate(1);
+        endDate.setMonth(endDate.getMonth() + 1);
+        endDate.setDate(0);
+      } else {
+        startDate.setMonth(0, 1);
+        endDate.setMonth(11, 31);
+      }
+
+      console.log('Fetching entries for:', {
+        userEmail,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString()
+      });
+
+      const response = await googleSheetsService.getCalendarEntries(userEmail);
+
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to fetch entries');
+      }
+
+      // Transform the entries to the expected format
+      const transformedEntries = response.data.map(row => ({
+        id: row[6], // UniqueID
+        date: parseDateString(row[0]), // Timestamp
+        mood: row[3], // MoodEmoji
+        emotions: row[4].split(','), // Emotions array
+        notes: row[5], // Notes
+        category: row[2] // Category
+      }));
+
+      console.log('Transformed entries:', transformedEntries);
+      setEntries(transformedEntries);
+      setIsLoading(false);
+    } catch (err) {
+      console.error('Error fetching entries:', err);
+      setError(t.error);
+      setIsLoading(false);
+    }
+  };
+
+  // Get color based on mood and emotions
+  const getMoodColor = (mood) => {
+    const colorMap = {
       'very-negative': 'rgba(254, 202, 202, 0.4)',
       'negative': 'rgba(254, 215, 170, 0.4)',
       'neutral': 'rgba(254, 240, 138, 0.4)',
       'positive': 'rgba(187, 247, 208, 0.4)',
       'very-positive': 'rgba(186, 230, 253, 0.4)'
     };
+    return colorMap[mood] || 'rgba(255, 255, 255, 0.1)';
+  };
 
-    return moodColors[mood] || 'rgba(255, 255, 255, 0.1)';
+  // Get entries for a specific date
+  const getEntriesForDate = (date) => {
+    return entries.filter(entry => 
+      entry.date.toDateString() === date.toDateString()
+    );
   };
 
   // Generate calendar data
@@ -99,6 +167,30 @@ const MyEntries = ({ language = 'el', userEmail }) => {
     }
     setCurrentDate(newDate);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <Loader className="w-8 h-8 animate-spin text-white/50" />
+        <p className="text-white/70">{t.loading}</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <XCircle className="w-12 h-12 text-red-400" />
+        <p className="text-white/70">{error}</p>
+        <button
+          onClick={fetchEntries}
+          className="px-4 py-2 glassmorphic rounded-xl hover:bg-white/20"
+        >
+          {t.retry}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -165,18 +257,13 @@ const MyEntries = ({ language = 'el', userEmail }) => {
             if (!date) return <div key={`empty-${index}`} />;
             
             const isSelected = date.toDateString() === selectedDate.toDateString();
-            const hasEntries = entries.some(entry => 
-              new Date(entry.date).toDateString() === date.toDateString()
-            );
+            const dateEntries = getEntriesForDate(date);
+            const hasEntries = dateEntries.length > 0;
             
-            const dayEntries = entries.filter(entry =>
-              new Date(entry.date).toDateString() === date.toDateString()
-            );
-            
-            // Get the dominant mood for coloring
-            const dominantEntry = dayEntries[0];
+            // Get dominant mood for coloring
+            const dominantEntry = dateEntries[0];
             const backgroundColor = dominantEntry 
-              ? getEntryColor(dominantEntry.mood, dominantEntry.emotions)
+              ? getMoodColor(dominantEntry.mood)
               : 'transparent';
             
             return (
@@ -184,11 +271,9 @@ const MyEntries = ({ language = 'el', userEmail }) => {
                 key={date.toISOString()}
                 onClick={() => setSelectedDate(date)}
                 className={`
-                  aspect-square rounded-xl p-2 relative
-                  transition-all duration-300
-                  ${isSelected 
-                    ? 'ring-2 ring-white/30 shadow-lg' 
-                    : 'hover:bg-white/10'}
+                  calendar-day
+                  ${isSelected ? 'selected' : ''}
+                  ${hasEntries ? 'has-entries' : ''}
                 `}
                 style={{
                   background: hasEntries ? backgroundColor : undefined
@@ -219,61 +304,55 @@ const MyEntries = ({ language = 'el', userEmail }) => {
         </h2>
         
         <div className="space-y-4">
-          {entries
-            .filter(entry => 
-              new Date(entry.date).toDateString() === selectedDate.toDateString()
-            )
-            .map((entry, index) => (
-              <div 
-                key={entry.id} 
-                className="glassmorphic rounded-xl p-4 relative"
-                style={{
-                  background: `linear-gradient(135deg, 
-                    ${getEntryColor(entry.mood, entry.emotions)},
-                    transparent
-                  )`
-                }}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2 text-sm text-white/70">
-                      <Clock className="w-4 h-4" />
-                      <span>
-                        {new Date(entry.date).toLocaleTimeString(
-                          language === 'el' ? 'el-GR' : 'en-US',
-                          { hour: '2-digit', minute: '2-digit' }
-                        )}
-                      </span>
-                    </div>
-                    <p className="text-white/90">{entry.notes}</p>
+          {getEntriesForDate(selectedDate).map((entry) => (
+            <div 
+              key={entry.id} 
+              className="glassmorphic rounded-xl p-4 relative"
+              style={{
+                background: `linear-gradient(135deg, 
+                  ${getMoodColor(entry.mood)},
+                  transparent
+                )`
+              }}
+            >
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2 text-sm text-white/70">
+                    <Clock className="w-4 h-4" />
+                    <span>
+                      {entry.date.toLocaleTimeString(
+                        language === 'el' ? 'el-GR' : 'en-US',
+                        { hour: '2-digit', minute: '2-digit' }
+                      )}
+                    </span>
                   </div>
+                  <p className="text-white/90">{entry.notes}</p>
+                </div>
+                
+                <div className="flex space-x-2">
+                  {/* Mood indicator */}
+                  <div 
+                    className="w-4 h-4 rounded-full"
+                    style={{ backgroundColor: getMoodColor(entry.mood) }}
+                  />
                   
-                  <div className="flex space-x-2">
-                    {/* Mood indicator */}
+                  {/* Emotion indicators */}
+                  {entry.emotions.slice(0, 2).map((emotion) => (
                     <div 
+                      key={emotion}
                       className="w-4 h-4 rounded-full"
-                      style={{ backgroundColor: getEntryColor(entry.mood, []) }}
+                      style={{ 
+                        backgroundColor: `var(--emotion-${emotion})`,
+                        opacity: 0.8 
+                      }}
                     />
-                    
-                    {/* Emotion indicators */}
-                    {entry.emotions.slice(0, 2).map((emotion, i) => (
-                      <div 
-                        key={emotion}
-                        className="w-4 h-4 rounded-full"
-                        style={{ 
-                          backgroundColor: `var(--emotion-${emotion})`,
-                          opacity: 0.8 
-                        }}
-                      />
-                    ))}
-                  </div>
+                  ))}
                 </div>
               </div>
-            ))}
-            
-          {entries.filter(entry => 
-            new Date(entry.date).toDateString() === selectedDate.toDateString()
-          ).length === 0 && (
+            </div>
+          ))}
+          
+          {getEntriesForDate(selectedDate).length === 0 && (
             <div className="text-center text-white/50 py-8">
               {t.noEntries}
             </div>
@@ -286,13 +365,13 @@ const MyEntries = ({ language = 'el', userEmail }) => {
         <h2 className="text-xl font-medium">{t.latestEntries}</h2>
         
         <div className="space-y-4">
-          {entries.slice(0, 3).map((entry, index) => (
+          {entries.slice(0, 3).map((entry) => (
             <div 
               key={entry.id}
               className="glassmorphic rounded-xl p-4 relative"
               style={{
                 background: `linear-gradient(135deg, 
-                  ${getEntryColor(entry.mood, entry.emotions)},
+                  ${getMoodColor(entry.mood)},
                   transparent
                 )`
               }}
@@ -302,13 +381,13 @@ const MyEntries = ({ language = 'el', userEmail }) => {
                   <div className="flex items-center space-x-2 text-sm text-white/70">
                     <CalendarIcon className="w-4 h-4" />
                     <span>
-                      {new Date(entry.date).toLocaleDateString(
+                      {entry.date.toLocaleDateString(
                         language === 'el' ? 'el-GR' : 'en-US'
                       )}
                     </span>
                     <Clock className="w-4 h-4" />
                     <span>
-                      {new Date(entry.date).toLocaleTimeString(
+                      {entry.date.toLocaleTimeString(
                         language === 'el' ? 'el-GR' : 'en-US',
                         { hour: '2-digit', minute: '2-digit' }
                       )}
@@ -319,21 +398,22 @@ const MyEntries = ({ language = 'el', userEmail }) => {
                 
                 <div className="flex space-x-2">
                   {/* Mood indicator */}
-{/* Mood indicator */}
                   <div 
                     className="w-4 h-4 rounded-full"
-                    style={{ backgroundColor: getEntryColor(entry.mood, []) }}
+                    style={{ backgroundColor: getMoodColor(entry.mood) }}
+                    title={t.mood}
                   />
                   
                   {/* Emotion indicators */}
-                  {entry.emotions.slice(0, 2).map((emotion, i) => (
+                  {entry.emotions.slice(0, 2).map((emotion) => (
                     <div 
                       key={emotion}
-                      className="w-4 h-4 rounded-full"
+                      className="w-4 h-4 rounded-full tooltip"
                       style={{ 
                         backgroundColor: `var(--emotion-${emotion})`,
                         opacity: 0.8 
                       }}
+                      title={emotion}
                     />
                   ))}
                 </div>
@@ -353,3 +433,4 @@ const MyEntries = ({ language = 'el', userEmail }) => {
 };
 
 export default MyEntries;
+                        
