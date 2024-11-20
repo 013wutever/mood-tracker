@@ -4,11 +4,13 @@ import {
   LineChart, 
   Info as InfoIcon,
   Languages,
-  LogOut
+  LogOut,
+  Calendar  // Προσθήκη του Calendar icon
 } from 'lucide-react';
 import MoodEntry from './components/MoodEntry/MoodEntry';
 import Progress from './components/Progress/Progress';
 import Info from './components/Info/Info';
+import MyEntries from './components/MyEntries/MyEntries';  // Εισαγωγή του νέου component
 import Login from './components/Auth/Login';
 
 const App = () => {
@@ -28,6 +30,7 @@ const App = () => {
     el: {
       'mood-entry': 'Καταχώρηση συναισθήματος',
       'progress': 'Προβολή προόδου',
+      'my-entries': 'Οι καταχωρήσεις μου',  // Προσθήκη νέας μετάφρασης
       'info': 'Πληροφορίες',
       'logout': 'Αποσύνδεση',
       'welcomeBack': 'Καλως ήρθατε'
@@ -35,6 +38,7 @@ const App = () => {
     en: {
       'mood-entry': 'Mood Entry',
       'progress': 'View Progress',
+      'my-entries': 'My Entries',  // Προσθήκη νέας μετάφρασης
       'info': 'Information',
       'logout': 'Logout',
       'welcomeBack': 'Welcome back'
@@ -52,8 +56,10 @@ const App = () => {
     setActiveTab('mood-entry');
   };
 
+  // Ενημέρωση των navigation items με το νέο tab
   const navItems = [
     { id: 'mood-entry', icon: Heart },
+    { id: 'my-entries', icon: Calendar },  // Προσθήκη του νέου tab
     { id: 'progress', icon: LineChart },
     { id: 'info', icon: InfoIcon }
   ];
@@ -64,6 +70,8 @@ const App = () => {
         return 'max-w-6xl';
       case 'info':
         return 'max-w-4xl';
+      case 'my-entries':  // Προσθήκη του νέου case
+        return 'max-w-6xl';
       default:
         return 'max-w-2xl';
     }
@@ -77,6 +85,8 @@ const App = () => {
     switch (activeTab) {
       case 'mood-entry':
         return <MoodEntry language={language} userEmail={user} />;
+      case 'my-entries':  // Προσθήκη του νέου case
+        return <MyEntries language={language} userEmail={user} />;
       case 'progress':
         return <Progress language={language} userEmail={user} />;
       case 'info':
@@ -89,14 +99,14 @@ const App = () => {
   // If user is not logged in, show only the login component
   if (!user) {
     return (
-      <div className="min-h-screen w-full overflow-hidden bg-gradient-to-br from-pink-200/80 to-purple-300/80">
+      <div className="min-h-screen w-full overflow-hidden bg-gradient-to-br from-purple-300/80 to-indigo-400/80">
         {renderContent()}
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-full overflow-hidden bg-gradient-to-br from-pink-200/80 to-purple-300/80">
+    <div className="min-h-screen w-full overflow-hidden bg-gradient-to-br from-purple-300/80 to-indigo-400/80">
       {/* Top navigation */}
       <nav className="fixed top-0 left-0 right-0 h-16 glassmorphic z-50 flex items-center justify-between px-4 backdrop-blur-xl bg-white/10">
         <div className="flex items-center space-x-1">
