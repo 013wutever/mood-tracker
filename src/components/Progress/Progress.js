@@ -7,10 +7,7 @@ import {
   Calendar as CalendarIcon,
   Clock,
   Loader,
-  XCircle,
-  Heart,
-  Sun,
-  Moon
+  XCircle
 } from 'lucide-react';
 import {
   PieChart,
@@ -27,26 +24,148 @@ import {
   BarChart,
   Bar
 } from 'recharts';
-import googleSheetsService from '../../services/googleSheets';
 
 const Progress = ({ language = 'el', userEmail }) => {
   const [timeFilter, setTimeFilter] = useState('week');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [rawData, setRawData] = useState([]);
   const [stats, setStats] = useState({
     totalEntries: 0,
     weeklyCompletion: 0,
     moodDistribution: [],
     categoryBreakdown: [],
     emotions: [],
-    timeOfDay: [],
-    positivityRatio: 0,
-    negativeEmotions: [],
-    positiveEmotions: [],
-    categoryMoodCorrelation: [],
-    dailyMoodTrend: [],
-    emotionCategoryBreakdown: []
+    timeOfDay: []
   });
+
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/sheets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'getEntries',
+          data: {
+            userEmail,
+            timeFilter
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const result = await response.json();
+      console.log('API response:', result);
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch data');
+      }
+
+      // Store raw data
+      setRawData(result.data);
+      
+      // Calculate stats
+      if (result.data && result.data.length > 0) {
+        const calculatedStats = calculateStats(result.data);
+        setStats(calculatedStats);
+      }
+
+    } catch (err) {
+      console.error('Error fetching data:', err);
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (userEmail) {
+      fetchData();
+    }
+  }, [userEmail, timeFilter]);
+
+  const calculateStats = (data) => {
+    // Example entry structure from sheets:
+    // [timestamp, userEmail, category, moodEmoji, emotions, notes, id]
+    
+    const totalEntries = data.length;
+    
+    // Calculate weekly completion
+    const today = new Date();
+    const weekStart = new Date(today.setDate(today.getDate() - today.getDay()));
+    const weekEntries = data.filter(entry => new Date(entry[0]) >= weekStart);
+    const weeklyCompletion = Math.round((weekEntries.length / 7) * 100);
+
+    // Calculate mood distribution
+    const moodCounts = data.reduce((acc, entry) => {
+      const mood = entry[3];
+      acc[mood] = (acc[mood] || 0) + 1;
+      return acc;
+    }, {});
+
+    const moodDistribution = Object.entries(moodCounts).map(([name, count]) => ({
+      name,
+      value: Math.round((count / totalEntries) * 100)
+    }));
+
+    // Calculate category breakdown
+    const categoryCounts = data.reduce((acc, entry) => {
+      const category = entry[2];
+      acc[category] = (acc[category] || 0) + 1;
+      return acc;
+    }, {});
+
+    const categoryBreakdown = Object.entries(categoryCounts).map(([name, count]) => ({
+      name,
+      value: Math.round((count / totalEntries) * 100)
+    }));
+
+    // Calculate emotions
+    const allEmotions = data.flatMap(entry => entry[4].split(','));
+    const emotionCounts = allEmotions.reduce((acc, emotion) => {
+      acc[emotion] = (acc[emotion] || 0) + 1;
+      return acc;
+    }, {});
+
+    const emotions = Object.entries(emotionCounts).map(([name, count]) => ({
+      name,
+      value: Math.round((count / allEmotions.length) * 100)
+    }));
+
+    // Calculate time of day distribution
+    const timeSlots = data.map(entry => {
+      const hour = new Date(entry[0]).getHours();
+      if (hour < 12) return 'morning';
+      if (hour < 17) return 'afternoon';
+      if (hour < 20) return 'evening';
+      return 'night';
+    });
+
+    const timeOfDayCounts = timeSlots.reduce((acc, time) => {
+      acc[time] = (acc[time] || 0) + 1;
+      return acc;
+    }, {});
+
+    const timeOfDay = Object.entries(timeOfDayCounts).map(([name, count]) => ({
+      name,
+      value: Math.round((count / timeSlots.length) * 100)
+    }));
+
+    return {
+      totalEntries,
+      weeklyCompletion,
+      moodDistribution,
+      categoryBreakdown,
+      emotions,
+      timeOfDay
+    };
+  };
 
   const translations = {
     el: {
@@ -60,297 +179,76 @@ const Progress = ({ language = 'el', userEmail }) => {
       stats: {
         totalEntries: 'Συνολικές καταχωρήσεις',
         weeklyCompletion: 'Ολοκλήρωση εβδομάδας',
-        positivityRatio: 'Δείκτης θετικότητας',
       },
       charts: {
         emotions: 'Συναισθήματα',
         mood: 'Διάθεση',
         category: 'Κατηγορία',
-        timeOfDay: 'Ώρα ημέρας',
-        dailyTrend: 'Ημερήσια τάση',
-        positiveEmotions: 'Θετικά συναισθήματα',
-        negativeEmotions: 'Αρνητικά συναισθήματα',
-        categoryMood: 'Συσχέτιση κατηγορίας-διάθεσης',
-        emotionCategory: 'Συναισθήματα ανά κατηγορία'
+        timeOfDay: 'Ώρα ημέρας'
       },
       loading: 'Φόρτωση...',
       error: 'Σφάλμα φόρτωσης δεδομένων',
-      retry: 'Δοκιμάστε ξανά',
-      timeOfDay: {
-        morning: 'Πρωί',
-        noon: 'Μεσημέρι',
-        afternoon: 'Απόγευμα',
-        evening: 'Βράδυ'
-      }
+      retry: 'Δοκιμάστε ξανά'
     },
     en: {
-      // ... [αντίστοιχες μεταφράσεις στα αγγλικά]
+      // ... English translations
     }
   };
 
   const t = translations[language];
 
-  const parseDateString = (dateStr) => {
-    // Handle the format from Google Sheets (2024-11-20T14:...)
-    return new Date(dateStr);
-  };
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <Loader className="w-8 h-8 animate-spin text-white/50" />
+        <p className="text-white/70">{t.loading}</p>
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    fetchStats();
-  }, [timeFilter, userEmail]);
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <XCircle className="w-12 h-12 text-red-400" />
+        <p className="text-white/70">{error}</p>
+        <button
+          onClick={fetchData}
+          className="px-4 py-2 glassmorphic rounded-xl hover:bg-white/20"
+        >
+          {t.retry}
+        </button>
+      </div>
+    );
+  }
 
-  const fetchStats = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const response = await googleSheetsService.getEntries(userEmail, {
-        timeFilter: timeFilter
-      });
-
-      if (!response.success) {
-        throw new Error(response.error || 'Failed to fetch data');
-      }
-
-      const entries = response.data;
-      
-      // Process entries
-      const processedStats = {
-        totalEntries: entries.length,
-        weeklyCompletion: calculateWeeklyCompletion(entries),
-        moodDistribution: calculateMoodDistribution(entries),
-        categoryBreakdown: calculateCategoryBreakdown(entries),
-        emotions: calculateEmotionsStats(entries),
-        timeOfDay: calculateTimeOfDayStats(entries),
-        positivityRatio: calculatePositivityRatio(entries),
-        negativeEmotions: calculateNegativeEmotions(entries),
-        positiveEmotions: calculatePositiveEmotions(entries),
-        categoryMoodCorrelation: calculateCategoryMoodCorrelation(entries),
-        dailyMoodTrend: calculateDailyMoodTrend(entries),
-        emotionCategoryBreakdown: calculateEmotionCategoryBreakdown(entries)
-      };
-
-      setStats(processedStats);
-      setIsLoading(false);
-    } catch (err) {
-      console.error('Error fetching stats:', err);
-      setError(t.error);
-      setIsLoading(false);
-    }
-  };
-
-  // Calculation functions with proper date parsing
-  const calculateWeeklyCompletion = (entries) => {
-    const today = new Date();
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay());
-    
-    const weekEntries = entries.filter(entry => {
-      const entryDate = parseDateString(entry[0]);
-      return entryDate >= startOfWeek;
-    });
-    
-    return Math.round((weekEntries.length / 7) * 100);
-  };
-// Προσθήκη πριν τη συνάρτηση calculateDailyMoodTrend
-
-const calculateMoodDistribution = (entries) => {
-  const moodCounts = entries.reduce((acc, entry) => {
-    const mood = entry[3];  // moodEmoji στήλη
-    acc[mood] = (acc[mood] || 0) + 1;
-    return acc;
-  }, {});
-
-  return Object.entries(moodCounts).map(([name, count]) => ({
-    name,
-    value: Math.round((count / entries.length) * 100)
-  }));
-};
-
-const calculateCategoryBreakdown = (entries) => {
-  const categoryCounts = entries.reduce((acc, entry) => {
-    const category = entry[2];  // category στήλη
-    acc[category] = (acc[category] || 0) + 1;
-    return acc;
-  }, {});
-
-  return Object.entries(categoryCounts).map(([name, count]) => ({
-    name,
-    value: Math.round((count / entries.length) * 100)
-  }));
-};
-
-const calculateEmotionsStats = (entries) => {
-  const allEmotions = entries.flatMap(entry => entry[4].split(','));  // emotions στήλη
-  const emotionCounts = allEmotions.reduce((acc, emotion) => {
-    acc[emotion] = (acc[emotion] || 0) + 1;
-    return acc;
-  }, {});
-
-  return Object.entries(emotionCounts).map(([name, count]) => ({
-    name,
-    value: Math.round((count / allEmotions.length) * 100)
-  }));
-};
-
-const calculateTimeOfDayStats = (entries) => {
-  const timeSlots = entries.map(entry => {
-    const hour = parseDateString(entry[0]).getHours();
-    if (hour < 12) return 'morning';
-    if (hour < 17) return 'afternoon';
-    if (hour < 20) return 'evening';
-    return 'night';
-  });
-
-  const timeCounts = timeSlots.reduce((acc, time) => {
-    acc[time] = (acc[time] || 0) + 1;
-    return acc;
-  }, {});
-
-  return Object.entries(timeCounts).map(([name, count]) => ({
-    name,
-    value: Math.round((count / timeSlots.length) * 100)
-  }));
-};
-
-const calculatePositivityRatio = (entries) => {
-  const positiveCount = entries.filter(entry => 
-    ['positive', 'very-positive'].includes(entry[3])
-  ).length;
-  
-  return Math.round((positiveCount / entries.length) * 100);
-};
-
-const calculatePositiveEmotions = (entries) => {
-  const positiveEmotions = ['χαρά', 'ενθουσιασμός', 'αγάπη', 'ηρεμία', 'ικανοποίηση', 
-                           'ανακούφιση', 'περηφάνια', 'ευγνωμοσύνη', 'ελπίδα'];
-  
-  return entries
-    .flatMap(entry => entry[4].split(','))
-    .filter(emotion => positiveEmotions.includes(emotion))
-    .reduce((acc, emotion) => {
-      acc[emotion] = (acc[emotion] || 0) + 1;
-      return acc;
-    }, {});
-};
-
-const calculateNegativeEmotions = (entries) => {
-  const negativeEmotions = ['άγχος', 'φόβος', 'θυμός', 'λύπη', 'απογοήτευση', 
-                           'ζήλια', 'ντροπή', 'ενοχή', 'σύγχυση'];
-  
-  return entries
-    .flatMap(entry => entry[4].split(','))
-    .filter(emotion => negativeEmotions.includes(emotion))
-    .reduce((acc, emotion) => {
-      acc[emotion] = (acc[emotion] || 0) + 1;
-      return acc;
-    }, {});
-};
-  // [Συνέχεια στο επόμενο μήνυμα λόγω μεγέθους...]
-  // Additional calculation functions
-  const calculateDailyMoodTrend = (entries) => {
-    const moodValues = {
-      'very-negative': 1,
-      'negative': 2,
-      'neutral': 3,
-      'positive': 4,
-      'very-positive': 5
-    };
-
-    // Group entries by date
-    const dailyMoods = entries.reduce((acc, entry) => {
-      const date = parseDateString(entry[0]).toLocaleDateString();
-      if (!acc[date]) {
-        acc[date] = [];
-      }
-      acc[date].push(moodValues[entry[3]]);
-      return acc;
-    }, {});
-
-    // Calculate average mood per day
-    return Object.entries(dailyMoods).map(([date, moods]) => ({
-      date: date,
-      value: moods.reduce((sum, mood) => sum + mood, 0) / moods.length
-    })).sort((a, b) => new Date(a.date) - new Date(b.date));
-  };
-
-  const calculateEmotionCategoryBreakdown = (entries) => {
-    const breakdown = entries.reduce((acc, entry) => {
-      const category = entry[2];
-      const emotions = entry[4].split(',');
-      
-      emotions.forEach(emotion => {
-        if (!acc[category]) {
-          acc[category] = {};
-        }
-        acc[category][emotion] = (acc[category][emotion] || 0) + 1;
-      });
-      
-      return acc;
-    }, {});
-
-    // Transform to format suitable for stacked bar chart
-    return Object.entries(breakdown).map(([category, emotions]) => ({
-      category,
-      ...emotions
-    }));
-  };
-
-  const calculateCategoryMoodCorrelation = (entries) => {
-    const correlation = entries.reduce((acc, entry) => {
-      const category = entry[2];
-      const mood = entry[3];
-      
-      if (!acc[category]) {
-        acc[category] = {
-          positive: 0,
-          negative: 0,
-          total: 0
-        };
-      }
-      
-      acc[category].total++;
-      if (['positive', 'very-positive'].includes(mood)) {
-        acc[category].positive++;
-      } else if (['negative', 'very-negative'].includes(mood)) {
-        acc[category].negative++;
-      }
-      
-      return acc;
-    }, {});
-
-    return Object.entries(correlation).map(([category, stats]) => ({
-      category,
-      positiveRatio: (stats.positive / stats.total) * 100,
-      negativeRatio: (stats.negative / stats.total) * 100
-    }));
-  };
-
-  // Custom components
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="glassmorphic p-3 rounded-lg">
-          <p className="text-sm font-medium">{label}</p>
-          {payload.map((item, index) => (
-            <p key={index} className="text-sm">
-              {`${item.name}: ${Math.round(item.value)}%`}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
-
-  // Rendering the enriched dashboard
   return (
     <div className="space-y-8">
-      {/* Header and filters - unchanged */}
-      {/* ... */}
+      {/* Header with filters */}
+      <div className="flex flex-wrap justify-between items-center gap-4">
+        <h1 className="text-2xl font-semibold text-white">
+          {t.title}
+        </h1>
+        
+        <div className="flex gap-2">
+          <div className="flex rounded-xl overflow-hidden glassmorphic">
+            {Object.entries(t.filters).map(([key, value]) => (
+              <button
+                key={key}
+                onClick={() => setTimeFilter(key)}
+                className={`px-4 py-2 text-sm transition-colors
+                  ${timeFilter === key 
+                    ? 'bg-white/20 shadow-inner' 
+                    : 'bg-white/5 hover:bg-white/10'}`}
+              >
+                {value}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
 
-      {/* Quick stats cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Quick stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="glassmorphic rounded-xl p-4">
           <div className="text-sm text-white/70 mb-2">
             {t.stats.totalEntries}
@@ -367,112 +265,112 @@ const calculateNegativeEmotions = (entries) => {
             {stats.weeklyCompletion}%
           </div>
         </div>
-        <div className="glassmorphic rounded-xl p-4">
-          <div className="text-sm text-white/70 mb-2">
-            {t.stats.positivityRatio}
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Emotions Chart */}
+        <div className="glassmorphic rounded-xl p-6">
+          <h3 className="text-lg font-medium mb-4">
+            {t.charts.emotions}
+          </h3>
+          <div className="aspect-square">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={stats.emotions}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius="70%"
+                  label
+                >
+                  {stats.emotions.map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={`var(--emotion-${entry.name})`}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
-          <div className="text-2xl font-semibold">
-            {stats.positivityRatio}%
+        </div>
+
+        {/* Category Breakdown */}
+        <div className="glassmorphic rounded-xl p-6">
+          <h3 className="text-lg font-medium mb-4">
+            {t.charts.category}
+          </h3>
+          <div className="aspect-square">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={stats.categoryBreakdown}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius="70%"
+                  label
+                >
+                  {stats.categoryBreakdown.map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={`var(--category-${entry.name.toLowerCase()})`}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Time of Day */}
+        <div className="glassmorphic rounded-xl p-6 col-span-2">
+          <h3 className="text-lg font-medium mb-4">
+            {t.charts.timeOfDay}
+          </h3>
+          <div className="aspect-square max-w-xl mx-auto">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={stats.timeOfDay}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius="40%"
+                  outerRadius="70%"
+                  label
+                >
+                  {stats.timeOfDay.map((entry, index) => {
+                    const colors = {
+                      morning: 'rgba(179,229,252,0.75)',
+                      afternoon: 'rgba(255,204,188,0.75)',
+                      evening: 'rgba(179,157,219,0.75)',
+                      night: 'rgba(69,90,100,0.75)'
+                    };
+                    return (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={colors[entry.name]}
+                      />
+                    );
+                  })}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>
-
-      {/* Mood Trend Chart */}
-      <div className="glassmorphic rounded-xl p-6">
-        <h3 className="text-lg font-medium mb-4">
-          {t.charts.dailyTrend}
-        </h3>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={stats.dailyMoodTrend}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-              <XAxis 
-                dataKey="date" 
-                stroke="rgba(255,255,255,0.7)"
-                tick={{ fill: 'rgba(255,255,255,0.7)' }}
-              />
-              <YAxis 
-                stroke="rgba(255,255,255,0.7)"
-                tick={{ fill: 'rgba(255,255,255,0.7)' }}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Line 
-                type="monotone" 
-                dataKey="value" 
-                stroke="#8884d8" 
-                strokeWidth={2}
-                dot={{ fill: '#8884d8' }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Emotion Category Breakdown */}
-      <div className="glassmorphic rounded-xl p-6">
-        <h3 className="text-lg font-medium mb-4">
-          {t.charts.emotionCategory}
-        </h3>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={stats.emotionCategoryBreakdown}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-              <XAxis 
-                dataKey="category" 
-                stroke="rgba(255,255,255,0.7)"
-                tick={{ fill: 'rgba(255,255,255,0.7)' }}
-              />
-              <YAxis 
-                stroke="rgba(255,255,255,0.7)"
-                tick={{ fill: 'rgba(255,255,255,0.7)' }}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-              {stats.emotions.map((emotion, index) => (
-                <Bar 
-                  key={emotion.name}
-                  dataKey={emotion.name}
-                  stackId="a"
-                  fill={`var(--emotion-${emotion.name})`}
-                />
-              ))}
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Category-Mood Correlation */}
-      <div className="glassmorphic rounded-xl p-6">
-        <h3 className="text-lg font-medium mb-4">
-          {t.charts.categoryMood}
-        </h3>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={stats.categoryMoodCorrelation} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-              <XAxis 
-                type="number"
-                stroke="rgba(255,255,255,0.7)"
-                tick={{ fill: 'rgba(255,255,255,0.7)' }}
-              />
-              <YAxis 
-                type="category"
-                dataKey="category"
-                stroke="rgba(255,255,255,0.7)"
-                tick={{ fill: 'rgba(255,255,255,0.7)' }}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-              <Bar dataKey="positiveRatio" name="Θετική διάθεση" fill="#4ade80" />
-              <Bar dataKey="negativeRatio" name="Αρνητική διάθεση" fill="#f87171" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Original charts can follow here */}
-      {/* ... */}
-
     </div>
   );
 };
