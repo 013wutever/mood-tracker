@@ -120,38 +120,41 @@ const Progress = ({ language = 'el', userEmail }) => {
     return Math.round((weekEntries.length / 7) * 100);
   };
 
- const calculateMoodDistribution = (entries) => {
-  const moodCounts = entries.reduce((acc, entry) => {
-    const mood = entry[3];
-    acc[mood] = (acc[mood] || 0) + 1;
-    return acc;
-  }, {});
+  const calculateMoodDistribution = (entries) => {
+    const moodTranslations = {
+      'very-positive': language === 'el' ? 'Πολύ Θετικός' : 'Very Positive',
+      'positive': language === 'el' ? 'Θετικός' : 'Positive',
+      'neutral': language === 'el' ? 'Ουδέτερος' : 'Neutral',
+      'negative': language === 'el' ? 'Αρνητικός' : 'Negative',
+      'very-negative': language === 'el' ? 'Πολύ Αρνητικός' : 'Very Negative'
+    };
 
-  const moodTranslations = {
-    'very-positive': language === 'el' ? 'Πολύ Θετικός' : 'Very Positive',
-    'positive': language === 'el' ? 'Θετικός' : 'Positive',
-    'neutral': language === 'el' ? 'Ουδέτερος' : 'Neutral',
-    'negative': language === 'el' ? 'Αρνητικός' : 'Negative',
-    'very-negative': language === 'el' ? 'Πολύ Αρνητικός' : 'Very Negative'
-  };
-
-  const total = entries.length;
-  return Object.entries(moodCounts).map(([mood, count]) => ({
-    id: mood,
-    name: moodTranslations[mood],
-    value: Math.round((count / total) * 100)
-  }));
-};
+    const moodCounts = entries.reduce((acc, entry) => {
+      const mood = entry[3];
+      acc[mood] = (acc[mood] || 0) + 1;
+      return acc;
+    }, {});
 
     const total = entries.length;
     return Object.entries(moodCounts).map(([mood, count]) => ({
       id: mood,
-      name: t(`moodEntry.moods.${mood}`),
+      name: moodTranslations[mood],
       value: Math.round((count / total) * 100)
     }));
   };
 
   const calculateCategoryBreakdown = (entries) => {
+    const categoryTranslations = {
+      'personal': language === 'el' ? 'Προσωπικά' : 'Personal',
+      'friends': language === 'el' ? 'Φίλοι' : 'Friends',
+      'family': language === 'el' ? 'Οικογένεια' : 'Family',
+      'work': language === 'el' ? 'Επαγγελματικά' : 'Work',
+      'studies': language === 'el' ? 'Σπουδές' : 'Studies',
+      'health': language === 'el' ? 'Υγεία' : 'Health',
+      'finances': language === 'el' ? 'Οικονομικά' : 'Finances',
+      'entertainment': language === 'el' ? 'Ψυχαγωγία' : 'Entertainment'
+    };
+
     const categoryCounts = entries.reduce((acc, entry) => {
       const category = entry[2];
       acc[category] = (acc[category] || 0) + 1;
@@ -161,7 +164,7 @@ const Progress = ({ language = 'el', userEmail }) => {
     const total = entries.length;
     return Object.entries(categoryCounts).map(([category, count]) => ({
       id: category,
-      name: t(`moodEntry.categories.${category}`),
+      name: categoryTranslations[category],
       value: Math.round((count / total) * 100)
     }));
   };
@@ -186,11 +189,18 @@ const Progress = ({ language = 'el', userEmail }) => {
   };
 
   const calculateTimeOfDayStats = (entries) => {
+    const timeTranslations = {
+      morning: language === 'el' ? 'Πρωί' : 'Morning',
+      noon: language === 'el' ? 'Μεσημέρι' : 'Noon',
+      afternoon: language === 'el' ? 'Απόγευμα' : 'Afternoon',
+      evening: language === 'el' ? 'Βράδυ' : 'Evening'
+    };
+
     const timeSlots = {
-      morning: { id: 'morning', name: t('progress.timeOfDay.morning'), value: 0 },
-      noon: { id: 'noon', name: t('progress.timeOfDay.noon'), value: 0 },
-      afternoon: { id: 'afternoon', name: t('progress.timeOfDay.afternoon'), value: 0 },
-      evening: { id: 'evening', name: t('progress.timeOfDay.evening'), value: 0 }
+      morning: { id: 'morning', name: timeTranslations.morning, value: 0 },
+      noon: { id: 'noon', name: timeTranslations.noon, value: 0 },
+      afternoon: { id: 'afternoon', name: timeTranslations.afternoon, value: 0 },
+      evening: { id: 'evening', name: timeTranslations.evening, value: 0 }
     };
 
     entries.forEach(entry => {
@@ -207,7 +217,6 @@ const Progress = ({ language = 'el', userEmail }) => {
       value: Math.round((slot.value / total) * 100)
     }));
   };
-
   const calculateEmotionsByCategory = (entries) => {
     const categoryEmotions = {};
     
@@ -300,17 +309,17 @@ const Progress = ({ language = 'el', userEmail }) => {
     return [
       { 
         id: 'positive', 
-        name: t('progress.charts.positiveEmotions'), 
+        name: language === 'el' ? 'Θετικά Συναισθήματα' : 'Positive Emotions', 
         value: Math.round((emotionCounts.positive / total) * 100) 
       },
       { 
         id: 'negative', 
-        name: t('progress.charts.negativeEmotions'), 
+        name: language === 'el' ? 'Αρνητικά Συναισθήματα' : 'Negative Emotions', 
         value: Math.round((emotionCounts.negative / total) * 100) 
       }
     ];
   };
-  // Chart components configuration
+
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
