@@ -103,13 +103,13 @@ export const translations = {
     // My Entries
     myEntries: {
       title: 'Οι Καταχωρήσεις μου',
+      lastEntries: 'Οι τελευταίες καταχωρήσεις μου',
       calendar: {
         today: 'Σήμερα',
         noEntries: 'Δεν υπάρχουν καταχωρήσεις για αυτή την ημέρα',
         viewType: {
           month: 'Μήνας',
           year: 'Έτος'
-          lastEntries: 'Οι τελευταίες καταχωρήσεις μου',
         },
         navigate: {
           previous: 'Προηγούμενο',
@@ -240,13 +240,13 @@ export const translations = {
     // My Entries
     myEntries: {
       title: 'My Entries',
+      lastEntries: 'My Last Entries',
       calendar: {
         today: 'Today',
         noEntries: 'No entries for this day',
         viewType: {
           month: 'Month',
-          year: 'Year
-            lastEntries: 'My Last Entries',
+          year: 'Year'
         },
         navigate: {
           previous: 'Previous',
