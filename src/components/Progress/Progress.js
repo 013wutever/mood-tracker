@@ -120,12 +120,28 @@ const Progress = ({ language = 'el', userEmail }) => {
     return Math.round((weekEntries.length / 7) * 100);
   };
 
-  const calculateMoodDistribution = (entries) => {
-    const moodCounts = entries.reduce((acc, entry) => {
-      const mood = entry[3];
-      acc[mood] = (acc[mood] || 0) + 1;
-      return acc;
-    }, {});
+ const calculateMoodDistribution = (entries) => {
+  const moodCounts = entries.reduce((acc, entry) => {
+    const mood = entry[3];
+    acc[mood] = (acc[mood] || 0) + 1;
+    return acc;
+  }, {});
+
+  const moodTranslations = {
+    'very-positive': language === 'el' ? 'Πολύ Θετικός' : 'Very Positive',
+    'positive': language === 'el' ? 'Θετικός' : 'Positive',
+    'neutral': language === 'el' ? 'Ουδέτερος' : 'Neutral',
+    'negative': language === 'el' ? 'Αρνητικός' : 'Negative',
+    'very-negative': language === 'el' ? 'Πολύ Αρνητικός' : 'Very Negative'
+  };
+
+  const total = entries.length;
+  return Object.entries(moodCounts).map(([mood, count]) => ({
+    id: mood,
+    name: moodTranslations[mood],
+    value: Math.round((count / total) * 100)
+  }));
+};
 
     const total = entries.length;
     return Object.entries(moodCounts).map(([mood, count]) => ({
