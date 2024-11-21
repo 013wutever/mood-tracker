@@ -109,6 +109,7 @@ export const translations = {
         viewType: {
           month: 'Μήνας',
           year: 'Έτος'
+          lastEntries: 'Οι τελευταίες καταχωρήσεις μου',
         },
         navigate: {
           previous: 'Προηγούμενο',
@@ -244,7 +245,8 @@ export const translations = {
         noEntries: 'No entries for this day',
         viewType: {
           month: 'Month',
-          year: 'Year'
+          year: 'Year
+            lastEntries: 'My Last Entries',
         },
         navigate: {
           previous: 'Previous',
