@@ -215,8 +215,124 @@ const MyEntries = ({ language = 'el', userEmail }) => {
       </div>
     );
   };
+// First part of the code remains the same until renderSelectedDayEntries...
 
-  // Rest of the component code...
+  const getDaysInMonth = (date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    return Array.from({ length: daysInMonth }, (_, i) => {
+      const day = i + 1;
+      const currentDay = new Date(year, month, day);
+      const dayEntries = entries.filter(entry => 
+        new Date(entry.date).toDateString() === currentDay.toDateString()
+      );
+      
+      return {
+        date: currentDay,
+        entries: dayEntries,
+        mood: dayEntries[0]?.mood || null,
+        emotions: dayEntries.reduce((acc, entry) => [...acc, ...entry.emotions], [])
+      };
+    });
+  };
+
+  const getMonthsInYear = (date) => {
+    const year = date.getFullYear();
+    return Array.from({ length: 12 }, (_, i) => {
+      const currentMonth = new Date(year, i, 1);
+      const monthEntries = entries.filter(entry => {
+        const entryDate = new Date(entry.date);
+        return entryDate.getMonth() === i && entryDate.getFullYear() === year;
+      });
+      
+      return {
+        date: currentMonth,
+        entries: monthEntries,
+        mood: monthEntries[0]?.mood || null,
+        emotions: monthEntries.reduce((acc, entry) => [...acc, ...entry.emotions], [])
+      };
+    });
+  };
+
+  const renderYearView = () => {
+    const months = getMonthsInYear(currentDate);
+    const monthNames = language === 'el' 
+      ? ['Ιαν', 'Φεβ', 'Μαρ', 'Απρ', 'Μάι', 'Ιουν', 'Ιουλ', 'Αυγ', 'Σεπ', 'Οκτ', 'Νοε', 'Δεκ']
+      : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    return (
+      <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
+        {months.map(({ date, entries, emotions }, index) => (
+          <button
+            key={date.toISOString()}
+            onClick={() => navigateToDate(date, 'month')}
+            className={`
+              aspect-square p-4 rounded-xl
+              glassmorphic-hover
+              transition-all duration-300
+              ${entries.length > 0 ? 'cursor-pointer' : 'cursor-default'}
+            `}
+            style={{
+              backgroundColor: entries.length > 0
+                ? 'rgba(255, 255, 255, 0.15)'
+                : 'rgba(255, 255, 255, 0.05)'
+            }}
+          >
+            <div className="h-full flex flex-col">
+              <span className="text-lg font-medium mb-2">
+                {monthNames[index]}
+              </span>
+              {entries.length > 0 && (
+                <>
+                  <div className="flex-1 flex items-center justify-center">
+                    <div className="flex flex-wrap gap-1 justify-center">
+                      {Array.from(new Set(emotions)).slice(0, 4).map((emotion, i) => (
+                        <div
+                          key={i}
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: `var(--emotion-${emotion})` }}
+                          title={t(`moodEntry.emotions.${emotion}`)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="text-sm text-white/70 mt-2">
+                    {t('myEntries.entriesCount', { count: entries.length })}
+                  </div>
+                </>
+              )}
+            </div>
+          </button>
+        ))}
+      </div>
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <Loader className="w-8 h-8 animate-spin text-white/50" />
+        <p className="text-white/70">{t('states.loading')}</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <XCircle className="w-12 h-12 text-red-400" />
+        <p className="text-white/70">{error}</p>
+        <button
+          onClick={fetchEntries}
+          className="px-4 py-2 glassmorphic rounded-xl hover:bg-white/20"
+        >
+          {t('states.retry')}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
