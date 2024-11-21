@@ -7,8 +7,8 @@ import {
   XCircle,
   ArrowLeft
 } from 'lucide-react';
-import { getTranslation } from '../utils/translations';
-import googleSheetsService from '../services/googleSheets';
+import { getTranslation } from '../../utils/translations';
+import googleSheetsService from '../../services/googleSheets';
 
 const MyEntries = ({ language = 'el', userEmail }) => {
   const [entries, setEntries] = useState([]);
