@@ -200,43 +200,4 @@ html, body {
     overscroll-behavior-y: contain;
   }
 
-  /* Disable pull-to-refresh */
-  body {
-    overscroll-behavior-y: none;
-  }
-
-  /* Fix iOS momentum scrolling */
-  .scroll-container {
-    -webkit-overflow-scrolling: touch;
-    overflow-y: auto;
-    height: 100%;
-  }
-}
-
-/* iOS-specific fixes */
-@supports (-webkit-touch-callout: none) {
-  .min-h-screen {
-    min-height: -webkit-fill-available;
-  }
-
-  .h-screen {
-    height: -webkit-fill-available;
-  }
-}
-
-/* Scrollbar Styling */
-::-webkit-scrollbar {
-  @apply w-1.5;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-white/20 rounded-full;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-white/30;
-}
+  
