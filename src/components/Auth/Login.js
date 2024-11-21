@@ -2,13 +2,7 @@ import React, { useState } from 'react';
 import { Mail, Lock, Loader } from 'lucide-react';
 import CryptoJS from 'crypto-js';
 import googleSheetsService from '../../services/googleSheets';
-
-const Login = ({ language = 'el', onLogin }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [isNewUser, setIsNewUser] = useState(false);
+import { getTranslation } from '../../utils/translations';
 
   const translations = {
     el: {
