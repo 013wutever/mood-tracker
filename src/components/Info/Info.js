@@ -11,6 +11,7 @@ import {
   LineChart,
   BookOpen
 } from 'lucide-react';
+import { getTranslation } from '../../utils/translations';
 
 const Info = ({ language = 'el' }) => {
   const translations = {
