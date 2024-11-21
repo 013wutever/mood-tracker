@@ -13,13 +13,13 @@ import Info from './components/Info/Info';
 import MyEntries from './components/MyEntries/MyEntries';
 import Login from './components/Auth/Login';
 import { getTranslation } from './utils/translations';
+import GlassmorphicContainer from './components/ui/GlassmorphicContainer';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('mood-entry');
   const [language, setLanguage] = useState('el');
   const [user, setUser] = useState(null);
 
-  // Check for saved user and language preferences
   useEffect(() => {
     const savedUser = localStorage.getItem('moodTrackerUser');
     const savedLanguage = localStorage.getItem('moodTrackerLanguage');
@@ -87,7 +87,6 @@ const App = () => {
     }
   };
 
-  // If user is not logged in, show only the login component
   if (!user) {
     return (
       <div className="min-h-screen w-full overflow-hidden bg-gradient-to-br from-purple-300/80 to-indigo-400/80">
@@ -99,7 +98,7 @@ const App = () => {
   return (
     <div className="min-h-screen w-full overflow-hidden bg-gradient-to-br from-purple-300/80 to-indigo-400/80">
       {/* Top navigation */}
-      <nav className="fixed top-0 left-0 right-0 h-16 glassmorphic z-50 flex items-center justify-between px-4 backdrop-blur-xl bg-white/10">
+      <GlassmorphicContainer className="fixed top-0 left-0 right-0 h-16 z-50 flex items-center justify-between px-4">
         <div className="flex items-center space-x-1">
           <span className="text-white/70 text-sm mr-4">
             {getTranslation(language, 'nav.welcomeBack')}, {user.split('@')[0]}
@@ -108,102 +107,58 @@ const App = () => {
           {navItems.map((item) => {
             const ItemIcon = item.icon;
             return (
-              <button
+              <GlassmorphicContainer
                 key={item.id}
+                as="button"
                 onClick={() => setActiveTab(item.id)}
-                className={`glassmorphic p-2 rounded-full transition-all duration-300
-                  hover:-translate-y-1 hover:shadow-lg hover:shadow-white/20
-                  ${activeTab === item.id 
-                    ? 'bg-white/20 shadow-lg shadow-white/10' 
-                    : 'bg-white/5'}`}
-                aria-label={getTranslation(language, `nav.${item.id}`)}
+                className="p-2 rounded-full"
+                hover={true}
+                active={activeTab === item.id}
               >
                 <ItemIcon className="w-6 h-6" />
                 <span className="sr-only">{getTranslation(language, `nav.${item.id}`)}</span>
-              </button>
+              </GlassmorphicContainer>
             );
           })}
         </div>
 
         <div className="flex items-center space-x-2">
           {/* Language toggle */}
-          <button
+          <GlassmorphicContainer
+            as="button"
             onClick={handleLanguageChange}
-            className="glassmorphic p-2 rounded-full hover:bg-white/20 transition-all duration-300
-              hover:-translate-y-1 hover:shadow-lg hover:shadow-white/20"
-            aria-label={language === 'el' ? 'Switch to English' : 'Αλλαγή σε Ελληνικά'}
+            className="p-2 rounded-full"
+            hover={true}
           >
             <Languages className="w-6 h-6" />
             <span className="sr-only">
               {language === 'el' ? 'Switch to English' : 'Αλλαγή σε Ελληνικά'}
             </span>
-          </button>
+          </GlassmorphicContainer>
 
           {/* Logout button */}
-          <button
+          <GlassmorphicContainer
+            as="button"
             onClick={handleLogout}
-            className="glassmorphic p-2 rounded-full hover:bg-white/20 transition-all duration-300
-              hover:-translate-y-1 hover:shadow-lg hover:shadow-white/20"
-            aria-label={getTranslation(language, 'nav.logout')}
+            className="p-2 rounded-full"
+            hover={true}
           >
             <LogOut className="w-6 h-6" />
             <span className="sr-only">{getTranslation(language, 'nav.logout')}</span>
-          </button>
+          </GlassmorphicContainer>
         </div>
-      </nav>
+      </GlassmorphicContainer>
 
       {/* Main content area */}
       <main className="container mx-auto pt-20 px-4 pb-4 min-h-screen">
-        <div className={`glassmorphic rounded-2xl p-6 mx-auto backdrop-blur-xl bg-white/10 
-          transition-all duration-500 ${getContentMaxWidth()}`}>
+        <GlassmorphicContainer 
+          className={`rounded-2xl p-6 mx-auto ${getContentMaxWidth()}`}
+        >
           {renderContent()}
-        </div>
+        </GlassmorphicContainer>
       </main>
     </div>
   );
 };
-// Add to App.js navigation section
-const mobileNav = `
-  @media (max-width: 768px) {
-    .nav-container {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      z-index: 50;
-    }
-
-    .nav-items {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.5rem;
-    }
-
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 0.5rem;
-    }
-
-    .nav-icon {
-      width: 1.5rem;
-      height: 1.5rem;
-    }
-
-    .nav-label {
-      font-size: 0.75rem;
-      margin-top: 0.25rem;
-    }
-
-    .main-content {
-      padding-bottom: 5rem;
-    }
-  }
-`;
 
 export default App;
