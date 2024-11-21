@@ -10,8 +10,10 @@ import {
   XCircle,
   Loader
 } from 'lucide-react';
-import { getTranslation } from '../utils/translations';
-import googleSheetsService from '../services/googleSheets';
+import { getTranslation, emotionTypes } from '../../utils/translations';
+import googleSheetsService from '../../services/googleSheets';
+
+// Rest of the MoodEntry component code remains the same
 
 const MoodEntry = ({ language = 'el', userEmail }) => {
   const [selectedMood, setSelectedMood] = useState(null);
