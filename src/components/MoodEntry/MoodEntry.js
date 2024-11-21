@@ -170,7 +170,7 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
                 title={mood.label}
                 data-active={selectedMood === mood.id}
               >
-                <MoodIcon className="w-6 h-6 md:w-8 md:h-8" />
+                <MoodIcon className="w-5 h-5 md:w-6 md:h-6" />
               </button>
             );
           })}
