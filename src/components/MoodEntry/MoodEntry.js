@@ -158,7 +158,7 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
                   transition-all duration-300
                   rounded-full
                   touch-manipulation
-                  min-h-[12px] min-w-[12px]
+                  min-h-[6px] min-w-[6px]
                   aspect-square
                   flex items-center justify-center
                   ${selectedMood === mood.id ? 'scale-110 ring-2 ring-white/50' : ''}
