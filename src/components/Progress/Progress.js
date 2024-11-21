@@ -43,27 +43,6 @@ const Progress = ({ language = 'el', userEmail }) => {
 
   const t = (path) => getTranslation(language, path);
 
-  // Chart color schemes
-  const moodColors = {
-    'very-positive': 'rgba(72, 187, 255, 0.8)',
-    'positive': 'rgba(100, 223, 223, 0.8)',
-    'neutral': 'rgba(255, 233, 155, 0.8)',
-    'negative': 'rgba(255, 169, 135, 0.8)',
-    'very-negative': 'rgba(255, 130, 130, 0.8)'
-  };
-
-  const timeColors = {
-    'morning': 'rgba(255, 220, 155, 0.8)',
-    'noon': 'rgba(255, 178, 107, 0.8)',
-    'afternoon': 'rgba(255, 155, 155, 0.8)',
-    'evening': 'rgba(155, 175, 255, 0.8)'
-  };
-
-  const sentimentColors = {
-    positive: 'rgba(144, 238, 144, 0.8)',
-    negative: 'rgba(255, 178, 107, 0.8)'
-  };
-
   useEffect(() => {
     fetchStats();
   }, [timeFilter, userEmail]);
@@ -75,7 +54,18 @@ const Progress = ({ language = 'el', userEmail }) => {
       const entries = await googleSheetsService.getUserEntries(userEmail, timeFilter);
       
       if (entries.success) {
-        const processedStats = processEntries(entries.data);
+        const processedStats = {
+          totalEntries: entries.data.length,
+          weeklyCompletion: calculateWeeklyCompletion(entries.data),
+          moodDistribution: calculateMoodDistribution(entries.data),
+          categoryBreakdown: calculateCategoryBreakdown(entries.data),
+          emotions: calculateEmotionsStats(entries.data),
+          timeOfDay: calculateTimeOfDayStats(entries.data),
+          emotionsByCategory: calculateEmotionsByCategory(entries.data),
+          negativeByCategory: calculateNegativeByCategory(entries.data),
+          monthlyEntries: calculateMonthlyEntries(entries.data),
+          positiveVsNegative: calculatePositiveVsNegative(entries.data)
+        };
         setStats(processedStats);
       } else {
         throw new Error('Failed to fetch entries');
@@ -87,22 +77,152 @@ const Progress = ({ language = 'el', userEmail }) => {
     }
   };
 
-  const processEntries = (entries) => {
-    return {
-      totalEntries: entries.length,
-      weeklyCompletion: calculateWeeklyCompletion(entries),
-      moodDistribution: calculateMoodDistribution(entries),
-      categoryBreakdown: calculateCategoryBreakdown(entries),
-      emotions: calculateEmotionsStats(entries),
-      timeOfDay: calculateTimeOfDayStats(entries),
-      emotionsByCategory: calculateEmotionsByCategory(entries),
-      negativeByCategory: calculateNegativeByCategory(entries),
-      monthlyEntries: calculateMonthlyEntries(entries),
-      positiveVsNegative: calculatePositiveVsNegative(entries)
-    };
+  const calculateWeeklyCompletion = (entries) => {
+    const now = new Date();
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const weekEntries = entries.filter(entry => new Date(entry[0]) >= oneWeekAgo);
+    return Math.round((weekEntries.length / 7) * 100);
   };
 
-  // Chart components configuration
+  const calculateMoodDistribution = (entries) => {
+    const moodCounts = entries.reduce((acc, entry) => {
+      const mood = entry[3];
+      acc[mood] = (acc[mood] || 0) + 1;
+      return acc;
+    }, {});
+
+    const total = entries.length;
+    return Object.entries(moodCounts).map(([mood, count]) => ({
+      id: mood,
+      name: t(`moodEntry.moods.${mood}`),
+      value: Math.round((count / total) * 100)
+    }));
+  };
+
+  const calculateCategoryBreakdown = (entries) => {
+    const categoryCounts = entries.reduce((acc, entry) => {
+      const category = entry[2];
+      acc[category] = (acc[category] || 0) + 1;
+      return acc;
+    }, {});
+
+    const total = entries.length;
+    return Object.entries(categoryCounts).map(([category, count]) => ({
+      id: category,
+      name: t(`moodEntry.categories.${category}`),
+      value: Math.round((count / total) * 100)
+    }));
+  };
+
+  const calculateEmotionsStats = (entries) => {
+    const emotionCounts = {};
+    let total = 0;
+
+    entries.forEach(entry => {
+      const emotions = entry[4].split(',').map(e => e.trim());
+      emotions.forEach(emotion => {
+        emotionCounts[emotion] = (emotionCounts[emotion] || 0) + 1;
+        total++;
+      });
+    });
+
+    return Object.entries(emotionCounts).map(([emotion, count]) => ({
+      id: emotion,
+      name: t(`moodEntry.emotions.${emotion}`),
+      value: Math.round((count / total) * 100),
+      type: getEmotionType(emotion)
+    }));
+  };
+
+  const calculateTimeOfDayStats = (entries) => {
+    const timeSlots = {
+      morning: { id: 'morning', name: t('progress.timeOfDay.morning'), value: 0 },
+      noon: { id: 'noon', name: t('progress.timeOfDay.noon'), value: 0 },
+      afternoon: { id: 'afternoon', name: t('progress.timeOfDay.afternoon'), value: 0 },
+      evening: { id: 'evening', name: t('progress.timeOfDay.evening'), value: 0 }
+    };
+
+    entries.forEach(entry => {
+      const hour = new Date(entry[0]).getHours();
+      if (hour >= 5 && hour < 12) timeSlots.morning.value++;
+      else if (hour >= 12 && hour < 15) timeSlots.noon.value++;
+      else if (hour >= 15 && hour < 19) timeSlots.afternoon.value++;
+      else timeSlots.evening.value++;
+    });
+
+    const total = entries.length;
+    return Object.values(timeSlots).map(slot => ({
+      ...slot,
+      value: Math.round((slot.value / total) * 100)
+    }));
+  };
+
+  const calculatePositiveVsNegative = (entries) => {
+    const emotionCounts = { positive: 0, negative: 0 };
+    let total = 0;
+
+    entries.forEach(entry => {
+      const emotions = entry[4].split(',').map(e => e.trim());
+      emotions.forEach(emotion => {
+        if (emotionTypes.positive.includes(emotion)) emotionCounts.positive++;
+        if (emotionTypes.negative.includes(emotion)) emotionCounts.negative++;
+        total++;
+      });
+    });
+
+    return [
+      { id: 'positive', name: t('progress.charts.positiveEmotions'), value: Math.round((emotionCounts.positive / total) * 100) },
+      { id: 'negative', name: t('progress.charts.negativeEmotions'), value: Math.round((emotionCounts.negative / total) * 100) }
+    ];
+  };
+
+  const calculateNegativeByCategory = (entries) => {
+    const categoryEmotions = {};
+    
+    entries.forEach(entry => {
+      const category = entry[2];
+      const emotions = entry[4].split(',').map(e => e.trim());
+      
+      if (!categoryEmotions[category]) {
+        categoryEmotions[category] = { negative: 0, total: 0 };
+      }
+      
+      emotions.forEach(emotion => {
+        categoryEmotions[category].total++;
+        if (emotionTypes.negative.includes(emotion)) {
+          categoryEmotions[category].negative++;
+        }
+      });
+    });
+
+    return Object.entries(categoryEmotions)
+      .map(([category, counts]) => ({
+        id: category,
+        name: t(`moodEntry.categories.${category}`),
+        value: Math.round((counts.negative / counts.total) * 100)
+      }))
+      .sort((a, b) => b.value - a.value);
+  };
+
+  const calculateMonthlyEntries = (entries) => {
+    const monthlyData = entries.reduce((acc, entry) => {
+      const date = new Date(entry[0]);
+      const monthYear = date.toLocaleString(language === 'el' ? 'el-GR' : 'en-US', {
+        month: 'short',
+        year: '2-digit'
+      });
+      acc[monthYear] = (acc[monthYear] || 0) + 1;
+      return acc;
+    }, {});
+
+    return Object.entries(monthlyData)
+      .map(([month, count]) => ({
+        name: month,
+        value: count
+      }))
+      .sort((a, b) => new Date(a.name) - new Date(b.name));
+  };
+
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
@@ -113,24 +233,6 @@ const Progress = ({ language = 'el', userEmail }) => {
       );
     }
     return null;
-  };
-
-  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * Math.PI / 180);
-    const y = cy + radius * Math.sin(-midAngle * Math.PI / 180);
-    
-    return (
-      <text 
-        x={x} 
-        y={y} 
-        fill="white"
-        textAnchor="middle" 
-        dominantBaseline="central"
-      >
-        {`${(percent * 100).toFixed(0)}%`}
-      </text>
-    );
   };
 
   if (isLoading) {
@@ -207,7 +309,7 @@ const Progress = ({ language = 'el', userEmail }) => {
             <h3 className="text-lg">{t('progress.stats.positivityRatio')}</h3>
           </div>
           <p className="text-3xl font-semibold">
-            {Math.round(stats.positiveVsNegative[0]?.value || 0)}%
+            {stats.positiveVsNegative[0]?.value || 0}%
           </p>
         </div>
       </div>
@@ -227,13 +329,11 @@ const Progress = ({ language = 'el', userEmail }) => {
                   cx="50%"
                   cy="50%"
                   outerRadius="70%"
-                  labelLine={false}
-                  label={renderCustomizedLabel}
                 >
                   {stats.emotions.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`}
-                      fill={entry.color}
+                      fill={`var(--emotion-${entry.id})`}
                     />
                   ))}
                 </Pie>
@@ -262,13 +362,44 @@ const Progress = ({ language = 'el', userEmail }) => {
                   cx="50%"
                   cy="50%"
                   outerRadius="70%"
-                  labelLine={false}
-                  label={renderCustomizedLabel}
                 >
                   {stats.moodDistribution.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`}
-                      fill={moodColors[entry.id]}
+                      fill={`var(--mood-${entry.id})`}
+                    />
+                  ))}
+                </Pie>
+                <Legend 
+                  verticalAlign="bottom" 
+                  align="center"
+                  layout="horizontal"
+                  wrapperStyle={{ paddingTop: "20px" }}
+                />
+                <Tooltip content={<CustomTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Categories Breakdown */}
+        <div className="glassmorphic rounded-xl p-6">
+          <h3 className="text-xl mb-6">{t('progress.charts.category')}</h3>
+          <div className="aspect-square">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={stats.categoryBreakdown}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius="70%"
+                >
+                  {stats.categoryBreakdown.map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`}
+                      fill={`var(--emotion-${entry.id})`}
                     />
                   ))}
                 </Pie>
@@ -297,48 +428,11 @@ const Progress = ({ language = 'el', userEmail }) => {
                   cx="50%"
                   cy="50%"
                   outerRadius="70%"
-                  labelLine={false}
-                  label={renderCustomizedLabel}
                 >
                   {stats.timeOfDay.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`}
-                      fill={timeColors[entry.id]}
-                    />
-                  ))}
-                </Pie>
-                <Legend 
-                  verticalAlign="bottom" 
-                  align="center"
-                  layout="horizontal"
-                  wrapperStyle={{ paddingTop: "20px" }}
-                />
-                <Tooltip content={<CustomTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Category Breakdown */}
-        <div className="glassmorphic rounded-xl p-6">
-          <h3 className="text-xl mb-6">{t('progress.charts.category')}</h3>
-          <div className="aspect-square">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={stats.categoryBreakdown}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius="70%"
-                  labelLine={false}
-                  label={renderCustomizedLabel}
-                >
-                  {stats.categoryBreakdown.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`}
-                      fill={`var(--emotion-${entry.id})`}
+                      fill={`var(--time-${entry.id})`}
                     />
                   ))}
                 </Pie>
@@ -367,7 +461,7 @@ const Progress = ({ language = 'el', userEmail }) => {
                   {stats.positiveVsNegative.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`}
-                      fill={sentimentColors[entry.id]}
+                      fill={entry.id === 'positive' ? 'var(--chart-positive)' : 'var(--chart-negative)'}
                     />
                   ))}
                 </Bar>
@@ -376,7 +470,8 @@ const Progress = ({ language = 'el', userEmail }) => {
           </div>
         </div>
 
-        {/* Negative by Category (continued) */}
+        {/* Negativity by Category */}
+        <div className="glassmorphic rounded-xl p-6">
           <h3 className="text-xl mb-6">{t('progress.charts.negativeByCategory')}</h3>
           <div className="aspect-square">
             <ResponsiveContainer width="100%" height="100%">
@@ -399,7 +494,7 @@ const Progress = ({ language = 'el', userEmail }) => {
         </div>
       </div>
 
-      {/* Monthly Entries (at the bottom) */}
+      {/* Monthly Entries */}
       <div className="glassmorphic rounded-xl p-6 mt-8">
         <h3 className="text-xl mb-6">{t('progress.charts.monthlyEntries')}</h3>
         <div className="h-[400px]">
@@ -420,120 +515,8 @@ const Progress = ({ language = 'el', userEmail }) => {
           </ResponsiveContainer>
         </div>
       </div>
-
-      {/* Last updated timestamp */}
-      <div className="text-center text-sm text-white/50 flex items-center justify-center gap-2">
-        <Calendar className="w-4 h-4" />
-        {new Date().toLocaleDateString(language === 'el' ? 'el-GR' : 'en-US')}
-      </div>
     </div>
   );
-};
-
-// Helper functions for data processing
-const calculateWeeklyCompletion = (entries) => {
-  const now = new Date();
-  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-  const weekEntries = entries.filter(entry => new Date(entry[0]) >= oneWeekAgo);
-  return Math.round((weekEntries.length / 7) * 100);
-};
-
-const calculateMoodDistribution = (entries) => {
-  const moodCounts = entries.reduce((acc, entry) => {
-    const mood = entry[3];
-    acc[mood] = (acc[mood] || 0) + 1;
-    return acc;
-  }, {});
-
-  const total = entries.length;
-  return Object.entries(moodCounts).map(([mood, count]) => ({
-    id: mood,
-    name: mood,
-    value: Math.round((count / total) * 100)
-  }));
-};
-
-const calculateTimeOfDayStats = (entries) => {
-  const timeSlots = {
-    morning: { id: 'morning', name: 'morning', value: 0 },
-    noon: { id: 'noon', name: 'noon', value: 0 },
-    afternoon: { id: 'afternoon', name: 'afternoon', value: 0 },
-    evening: { id: 'evening', name: 'evening', value: 0 }
-  };
-
-  entries.forEach(entry => {
-    const hour = new Date(entry[0]).getHours();
-    if (hour >= 5 && hour < 12) timeSlots.morning.value++;
-    else if (hour >= 12 && hour < 15) timeSlots.noon.value++;
-    else if (hour >= 15 && hour < 19) timeSlots.afternoon.value++;
-    else timeSlots.evening.value++;
-  });
-
-  const total = entries.length;
-  return Object.values(timeSlots).map(slot => ({
-    ...slot,
-    value: Math.round((slot.value / total) * 100)
-  }));
-};
-
-const calculateMonthlyEntries = (entries) => {
-  const monthlyData = entries.reduce((acc, entry) => {
-    const date = new Date(entry[0]);
-    const monthYear = date.toLocaleString('default', { month: 'short', year: '2-digit' });
-    acc[monthYear] = (acc[monthYear] || 0) + 1;
-    return acc;
-  }, {});
-
-  return Object.entries(monthlyData)
-    .map(([month, count]) => ({
-      name: month,
-      value: count
-    }))
-    .sort((a, b) => new Date(a.name) - new Date(b.name));
-};
-
-const calculatePositiveVsNegative = (entries) => {
-  const emotionCounts = { positive: 0, negative: 0 };
-  let total = 0;
-
-  entries.forEach(entry => {
-    const emotions = entry[4].split(',').map(e => e.trim());
-    emotions.forEach(emotion => {
-      if (emotionTypes.positive.includes(emotion)) emotionCounts.positive++;
-      if (emotionTypes.negative.includes(emotion)) emotionCounts.negative++;
-      total++;
-    });
-  });
-
-  return [
-    { id: 'positive', name: 'Θετικά', value: Math.round((emotionCounts.positive / total) * 100) },
-    { id: 'negative', name: 'Αρνητικά', value: Math.round((emotionCounts.negative / total) * 100) }
-  ];
-};
-
-const calculateEmotionsByCategory = (entries) => {
-  const categoryEmotions = {};
-  
-  entries.forEach(entry => {
-    const category = entry[2];
-    const emotions = entry[4].split(',').map(e => e.trim());
-    
-    if (!categoryEmotions[category]) {
-      categoryEmotions[category] = { positive: 0, negative: 0, total: 0 };
-    }
-    
-    emotions.forEach(emotion => {
-      categoryEmotions[category].total++;
-      if (emotionTypes.positive.includes(emotion)) categoryEmotions[category].positive++;
-      if (emotionTypes.negative.includes(emotion)) categoryEmotions[category].negative++;
-    });
-  });
-
-  return Object.entries(categoryEmotions).map(([category, counts]) => ({
-    name: category,
-    value: Math.round((counts.positive / counts.total) * 100),
-    negativeValue: Math.round((counts.negative / counts.total) * 100)
-  }));
 };
 
 export default Progress;
