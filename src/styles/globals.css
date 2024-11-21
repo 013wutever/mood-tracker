@@ -155,8 +155,6 @@ html, body {
 @media (max-width: 768px) {
   /* Enable smooth scrolling */
   html, body {
-    height: 100%;
-    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
 
