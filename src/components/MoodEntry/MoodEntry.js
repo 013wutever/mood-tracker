@@ -144,38 +144,38 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
 
       {/* Moods */}
       <div className="mood-section">
-        <h2 className="text-lg md:text-xl mb-4">
-          {t('moodEntry.title')}
-        </h2>
-        <div className="grid grid-cols-5 gap-3 md:gap-4">
-          {moods.map((mood) => {
-            const MoodIcon = mood.icon;
-            return (
-              <button
-                key={mood.id}
-                onClick={() => setSelectedMood(mood.id)}
-                className={`
-                  transition-all duration-300
-                  rounded-full
-                  touch-manipulation
-                  min-h-[6px] min-w-[6px]
-                  aspect-square
-                  flex items-center justify-center
-                  ${selectedMood === mood.id ? 'scale-110 ring-2 ring-white/50' : ''}
-                `}
-                style={{
-                  backgroundColor: mood.color,
-                  opacity: selectedMood === mood.id ? 1 : 0.8
-                }}
-                title={mood.label}
-                data-active={selectedMood === mood.id}
-              >
-                <MoodIcon className="w-6 h-6 md:w-8 md:h-8" />
-              </button>
-            );
-          })}
-        </div>
-      </div>
+  <h2 className="text-lg md:text-xl mb-4">
+    {t('moodEntry.title')}
+  </h2>
+  <div className="grid grid-cols-5 gap-3 md:gap-4 px-4 md:px-20">
+    {moods.map((mood) => {
+      const MoodIcon = mood.icon;
+      return (
+        <button
+          key={mood.id}
+          onClick={() => setSelectedMood(mood.id)}
+          className={`
+            transition-all duration-300
+            rounded-full
+            touch-manipulation
+            aspect-square
+            flex items-center justify-center
+            ${isMobile ? 'min-h-[36px] min-w-[36px]' : 'h-12 w-12'}
+            ${selectedMood === mood.id ? 'scale-110 ring-2 ring-white/50' : ''}
+          `}
+          style={{
+            backgroundColor: mood.color,
+            opacity: selectedMood === mood.id ? 1 : 0.8
+          }}
+          title={mood.label}
+          data-active={selectedMood === mood.id}
+        >
+          <MoodIcon className={isMobile ? 'w-5 h-5' : 'w-6 h-6'} />
+        </button>
+      );
+    })}
+  </div>
+</div>
 
       {/* Categories */}
       <div className="category-section">
