@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Smile,
   Laugh,
@@ -20,21 +20,28 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const t = (path) => getTranslation(language, path);
 
   const moods = [
     { 
-      id: 'very-negative', 
-      icon: Frown, 
-      color: 'var(--mood-very-negative)',
-      label: t('moodEntry.moods.veryNegative')
+      id: 'very-positive', 
+      icon: Laugh, 
+      color: 'var(--mood-very-positive)',
+      label: t('moodEntry.moods.veryPositive')
     },
     { 
-      id: 'negative', 
-      icon: Frown, 
-      color: 'var(--mood-negative)',
-      label: t('moodEntry.moods.negative')
+      id: 'positive', 
+      icon: Smile, 
+      color: 'var(--mood-positive)',
+      label: t('moodEntry.moods.positive')
     },
     { 
       id: 'neutral', 
@@ -43,18 +50,16 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
       label: t('moodEntry.moods.neutral')
     },
     { 
-      
-      id: 'positive', 
-      icon: Smile, 
-      color: 'var(--mood-positive)',
-      label: t('moodEntry.moods.positive')
+      id: 'negative', 
+      icon: Frown, 
+      color: 'var(--mood-negative)',
+      label: t('moodEntry.moods.negative')
     },
     { 
-      
-      id: 'very-positive', 
-      icon: Laugh, 
-      color: 'var(--mood-very-positive)',
-      label: t('moodEntry.moods.veryPositive')
+      id: 'very-negative', 
+      icon: Frown, 
+      color: 'var(--mood-very-negative)',
+      label: t('moodEntry.moods.veryNegative')
     }
   ];
 
@@ -76,6 +81,13 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
     value,
     color: `var(--emotion-${value})`
   }));
+
+  const resetForm = () => {
+    setSelectedMood(null);
+    setSelectedEmotions([]);
+    setSelectedCategory(null);
+    setNotes('');
+  };
 
   const handleSubmit = async () => {
     if (!selectedMood || !selectedCategory) {
@@ -111,15 +123,8 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
     }
   };
 
-  const resetForm = () => {
-    setSelectedMood(null);
-    setSelectedEmotions([]);
-    setSelectedCategory(null);
-    setNotes('');
-  };
-
   return (
-    <div className="space-y-8 content-wrapper p-4">
+    <div className="space-y-6 md:space-y-8 content-wrapper scroll-container">
       {/* Status Messages */}
       {submitStatus && (
         <div className={`fixed top-4 right-4 p-4 rounded-xl glassmorphic flex items-center gap-2
@@ -138,25 +143,33 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
       )}
 
       {/* Moods */}
-      <div>
-        <h2 className="text-xl mb-4">
+      <div className="mood-section">
+        <h2 className="text-lg md:text-xl mb-4">
           {t('moodEntry.title')}
         </h2>
-        <div className="flex flex-wrap gap-4 justify-center mood-grid">
+        <div className="grid grid-cols-3 md:grid-cols-5 gap-3 md:gap-4 justify-items-center">
           {moods.map((mood) => {
             const MoodIcon = mood.icon;
             return (
               <button
                 key={mood.id}
                 onClick={() => setSelectedMood(mood.id)}
-                className="glassmorphic-hover p-4 rounded-full transition-all duration-300"
+                className={`
+                  transition-all duration-300
+                  p-3 md:p-4 rounded-full
+                  glassmorphic-hover
+                  touch-manipulation
+                  min-h-[44px] min-w-[44px]
+                  aspect-square
+                  ${selectedMood === mood.id ? 'active scale-110' : ''}
+                `}
                 style={{
                   backgroundColor: selectedMood === mood.id ? mood.color : 'rgba(255, 255, 255, 0.1)'
                 }}
                 title={mood.label}
                 data-active={selectedMood === mood.id}
               >
-                <MoodIcon className="w-8 h-8" />
+                <MoodIcon className="w-full h-full" />
               </button>
             );
           })}
@@ -164,16 +177,23 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
       </div>
 
       {/* Categories */}
-      <div>
-        <h2 className="text-xl mb-4">
+      <div className="category-section">
+        <h2 className="text-lg md:text-xl mb-4">
           {t('moodEntry.categories.title')}
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 category-grid">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {categories.map((category) => (
             <button
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}
-              className="category-button"
+              className={`
+                p-3 rounded-xl text-sm 
+                glassmorphic-hover
+                touch-manipulation
+                min-h-[44px]
+                transition-all duration-300
+                ${selectedCategory === category.id ? 'active scale-105' : ''}
+              `}
               style={{
                 backgroundColor: selectedCategory === category.id ? category.color : 'rgba(255, 255, 255, 0.1)'
               }}
@@ -186,8 +206,8 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
       </div>
 
       {/* Emotions */}
-      <div>
-        <h2 className="text-xl mb-4">
+      <div className="emotions-section">
+        <h2 className="text-lg md:text-xl mb-4">
           {t('moodEntry.emotions.title')}
         </h2>
         <div className="flex flex-wrap gap-2">
@@ -203,10 +223,16 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
               }}
               disabled={selectedEmotions.length >= 3 && !selectedEmotions.includes(emotion.value)}
               style={{
-                backgroundColor: selectedEmotions.includes(emotion.value) ? emotion.color : 'rgba(255, 255, 255, 0.1)'
+                backgroundColor: selectedEmotions.includes(emotion.value) 
+                  ? emotion.color 
+                  : 'rgba(255, 255, 255, 0.1)'
               }}
               className={`
                 emotion-pill
+                touch-manipulation
+                min-h-[44px]
+                transition-all duration-300
+                ${selectedEmotions.includes(emotion.value) ? 'active scale-105' : ''}
                 ${selectedEmotions.length >= 3 && !selectedEmotions.includes(emotion.value)
                   ? 'opacity-50 cursor-not-allowed'
                   : ''}
@@ -220,20 +246,22 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
       </div>
 
       {/* Notes */}
-      <div>
-        <h2 className="text-xl mb-4">
+      <div className="notes-section">
+        <h2 className="text-lg md:text-xl mb-4">
           {t('moodEntry.notes.title')}
         </h2>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           placeholder={t('moodEntry.notes.placeholder')}
-          className="w-full h-32 glassmorphic bg-white/10 rounded-xl p-4 
+          className="w-full min-h-[120px] glassmorphic bg-white/10 rounded-xl p-4 
                     placeholder-white/50 resize-none focus:ring-2 
-                    focus:ring-white/30 focus:outline-none"
+                    focus:ring-white/30 focus:outline-none
+                    text-base"
+          style={{ fontSize: '16px' }}
           maxLength={500}
         />
-        <div className="text-right text-sm text-white/50">
+        <div className="text-right text-sm text-white/50 mt-2">
           {`${notes.length}/500 ${t('moodEntry.notes.charCount')}`}
         </div>
       </div>
@@ -243,19 +271,21 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
         onClick={handleSubmit}
         disabled={isSubmitting}
         className={`
-          w-full py-3 rounded-xl glassmorphic-hover
+          w-full py-4 md:py-3 rounded-xl 
+          glassmorphic-hover
+          touch-manipulation
+          min-h-[44px]
           transition-all duration-300
           ${isSubmitting 
             ? 'bg-white/10 cursor-not-allowed' 
-            : 'bg-white/20 hover:bg-white/30 hover:shadow-lg'
-          }
+            : 'bg-white/20 hover:bg-white/30'}
         `}
       >
         {isSubmitting ? (
-          <>
-            <Loader className="w-5 h-5 animate-spin inline-block mr-2" />
-            {t('moodEntry.submitting')}
-          </>
+          <div className="flex items-center justify-center gap-2">
+            <Loader className="w-5 h-5 animate-spin" />
+            <span>{t('moodEntry.submitting')}</span>
+          </div>
         ) : (
           t('moodEntry.submit')
         )}
