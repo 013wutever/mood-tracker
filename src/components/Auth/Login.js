@@ -3,7 +3,6 @@ import { Mail, Lock, Loader } from 'lucide-react';
 import CryptoJS from 'crypto-js';
 import googleSheetsService from '../../services/googleSheets';
 import { getTranslation } from '../../utils/translations';
-import GlassmorphicContainer from '../../components/ui/GlassmorphicContainer';
 
 const Login = ({ language = 'el', onLogin }) => {
   const [email, setEmail] = useState('');
@@ -29,7 +28,19 @@ const Login = ({ language = 'el', onLogin }) => {
       }
     },
     en: {
-      // ... (διατηρούμε τα υπάρχοντα translations)
+      title: 'Welcome',
+      titleRegister: 'Create Account',
+      email: 'Email',
+      password: 'Password',
+      login: 'Login',
+      register: 'Register',
+      switchToRegister: "Don't have an account? Sign up",
+      switchToLogin: 'Already have an account? Sign in',
+      error: {
+        invalidEmail: 'Please enter a valid email',
+        passwordLength: 'Password must be at least 6 characters long',
+        generic: 'Something went wrong. Please try again.'
+      }
     }
   };
 
@@ -51,12 +62,49 @@ const Login = ({ language = 'el', onLogin }) => {
   };
 
   const handleSubmit = async (e) => {
-    // ... (διατηρούμε το υπάρχον handleSubmit)
+    e.preventDefault();
+    setError('');
+
+    // Validation
+    if (!validateEmail(email)) {
+      setError(t('error.invalidEmail'));
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      setError(t('error.passwordLength'));
+      return;
+    }
+
+    setIsLoading(true);
+    const hashedPassword = hashPassword(password);
+
+    try {
+      if (isNewUser) {
+        const result = await googleSheetsService.addUser(email, hashedPassword);
+        if (result.success) {
+          onLogin(email);
+        } else {
+          setError(result.error || t('error.generic'));
+        }
+      } else {
+        const result = await googleSheetsService.verifyUser(email, hashedPassword);
+        if (result.success) {
+          onLogin(email);
+        } else {
+          setError(result.error || t('error.generic'));
+        }
+      }
+    } catch (error) {
+      setError(t('error.generic'));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <GlassmorphicContainer className="w-full max-w-md rounded-2xl p-8">
+      <div className="w-full max-w-md glassmorphic rounded-2xl p-8 backdrop-blur-xl bg-white/10">
         <h1 className="text-2xl font-semibold text-center mb-8">
           {isNewUser ? t('titleRegister') : t('title')}
         </h1>
@@ -68,11 +116,12 @@ const Login = ({ language = 'el', onLogin }) => {
             </label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
-              <GlassmorphicContainer as="input"
+              <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-xl focus:ring-2 focus:ring-white/20 focus:outline-none"
+                className="w-full pl-10 pr-4 py-2 glassmorphic bg-white/5 rounded-xl 
+                          focus:ring-2 focus:ring-white/20 focus:outline-none"
                 placeholder="example@email.com"
               />
             </div>
@@ -84,11 +133,12 @@ const Login = ({ language = 'el', onLogin }) => {
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
-              <GlassmorphicContainer as="input"
+              <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-xl focus:ring-2 focus:ring-white/20 focus:outline-none"
+                className="w-full pl-10 pr-4 py-2 glassmorphic bg-white/5 rounded-xl
+                          focus:ring-2 focus:ring-white/20 focus:outline-none"
                 placeholder="••••••"
               />
             </div>
@@ -100,31 +150,29 @@ const Login = ({ language = 'el', onLogin }) => {
             </p>
           )}
 
-          <GlassmorphicContainer
-            as="button"
+          <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-2 px-4 rounded-xl flex items-center justify-center"
-            hover={true}
+            className="w-full py-2 px-4 glassmorphic bg-white/10 rounded-xl
+                     hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/20
+                     transition-all duration-300 flex items-center justify-center"
           >
             {isLoading ? (
               <Loader className="w-5 h-5 animate-spin" />
             ) : (
               isNewUser ? t('register') : t('login')
             )}
-          </GlassmorphicContainer>
+          </button>
 
-          <GlassmorphicContainer
-            as="button"
+          <button
             type="button"
             onClick={() => setIsNewUser(!isNewUser)}
             className="w-full text-sm text-white/70 hover:text-white transition-colors"
-            hover={true}
           >
             {isNewUser ? t('switchToLogin') : t('switchToRegister')}
-          </GlassmorphicContainer>
+          </button>
         </form>
-      </GlassmorphicContainer>
+      </div>
     </div>
   );
 };
