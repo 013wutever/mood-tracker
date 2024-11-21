@@ -355,7 +355,7 @@ const MyEntries = ({ language = 'el', userEmail }) => {
             ))}
           </div>
 
-          {/* Navigation */}
+         {/* Navigation */}
           <div className="flex items-center gap-2">
             {viewHistory.length > 0 && (
               <button
@@ -368,10 +368,6 @@ const MyEntries = ({ language = 'el', userEmail }) => {
             )}
             <button
               onClick={() => {
-                const date = new Date(currentDate);
-                viewType === 'month'
-                  ? date.setMonth(date.getMonth() - 1)
-                  : date.setFullYear(date.getFullYear() -onClick={() => {
                 const date = new Date(currentDate);
                 viewType === 'month'
                   ? date.setMonth(date.getMonth() - 1)
