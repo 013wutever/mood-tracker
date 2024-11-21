@@ -294,26 +294,7 @@ const Progress = ({ language = 'el', userEmail }) => {
       }
     ];
   };
-
-  const calculateMonthlyEntries = (entries) => {
-    const monthlyData = entries.reduce((acc, entry) => {
-      const date = new Date(entry[0]);
-      const monthYear = date.toLocaleString(language === 'el' ? 'el-GR' : 'en-US', {
-        month: 'short',
-        year: '2-digit'
-      });
-      acc[monthYear] = (acc[monthYear] || 0) + 1;
-      return acc;
-    }, {});
-
-    return Object.entries(monthlyData)
-      .map(([month, count]) => ({
-        name: month,
-        value: count
-      }))
-      .sort((a, b) => new Date(a.name) - new Date(b.name));
-  };
-
+  // Chart components configuration
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
@@ -326,7 +307,21 @@ const Progress = ({ language = 'el', userEmail }) => {
     return null;
   };
 
- // ... previous code remains the same ...
+  const CustomLegend = ({ payload }) => {
+    return (
+      <ul className="flex flex-wrap justify-center gap-4 mt-4">
+        {payload.map((entry, index) => (
+          <li key={index} className="flex items-center gap-2">
+            <div 
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="text-sm">{entry.value}</span>
+          </li>
+        ))}
+      </ul>
+    );
+  };
 
   if (isLoading) {
     return (
@@ -378,7 +373,7 @@ const Progress = ({ language = 'el', userEmail }) => {
         </div>
       </div>
 
-      {/* Quick stats cards with margin bottom for separation */}
+      {/* Quick stats cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <div className="glassmorphic rounded-xl p-6">
           <div className="flex items-center gap-3 mb-2">
@@ -430,10 +425,7 @@ const Progress = ({ language = 'el', userEmail }) => {
                     />
                   ))}
                 </Pie>
-                <Legend 
-                  content={<CustomLegend />}
-                  verticalAlign="bottom"
-                />
+                <Legend content={<CustomLegend />} />
                 <Tooltip content={<CustomTooltip />} />
               </PieChart>
             </ResponsiveContainer>
@@ -461,10 +453,7 @@ const Progress = ({ language = 'el', userEmail }) => {
                     />
                   ))}
                 </Pie>
-                <Legend 
-                  content={<CustomLegend />}
-                  verticalAlign="bottom"
-                />
+                <Legend content={<CustomLegend />} />
                 <Tooltip content={<CustomTooltip />} />
               </PieChart>
             </ResponsiveContainer>
@@ -492,10 +481,7 @@ const Progress = ({ language = 'el', userEmail }) => {
                     />
                   ))}
                 </Pie>
-                <Legend 
-                  content={<CustomLegend />}
-                  verticalAlign="bottom"
-                />
+                <Legend content={<CustomLegend />} />
                 <Tooltip content={<CustomTooltip />} />
               </PieChart>
             </ResponsiveContainer>
@@ -523,17 +509,14 @@ const Progress = ({ language = 'el', userEmail }) => {
                     />
                   ))}
                 </Pie>
-                <Legend 
-                  content={<CustomLegend />}
-                  verticalAlign="bottom"
-                />
+                <Legend content={<CustomLegend />} />
                 <Tooltip content={<CustomTooltip />} />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Positive vs Negative Emotions */}
+        {/* Positive vs Negative */}
         <div className="glassmorphic rounded-xl p-6">
           <h3 className="text-xl mb-6">{t('progress.charts.positiveVsNegative')}</h3>
           <div className="aspect-square">
@@ -555,7 +538,7 @@ const Progress = ({ language = 'el', userEmail }) => {
           </div>
         </div>
 
-        {/* Negativity by Category */}
+        {/* Negative by Category */}
         <div className="glassmorphic rounded-xl p-6">
           <h3 className="text-xl mb-6">{t('progress.charts.negativeByCategory')}</h3>
           <div className="aspect-square">
@@ -579,7 +562,7 @@ const Progress = ({ language = 'el', userEmail }) => {
         </div>
       </div>
 
-      {/* Monthly Entries at the bottom */}
+      {/* Monthly Entries */}
       <div className="glassmorphic rounded-xl p-6 mt-8">
         <h3 className="text-xl mb-6">{t('progress.charts.monthlyEntries')}</h3>
         <div className="h-[400px]">
