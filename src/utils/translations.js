@@ -80,9 +80,7 @@ export const translations = {
       stats: {
         totalEntries: 'Συνολικές Καταχωρήσεις',
         weeklyCompletion: 'Ολοκλήρωση Εβδομάδας',
-        positivityRatio: 'Δείκτης Θετικότητας',
-        mostFrequentMood: 'Συχνότερη Διάθεση',
-        mostFrequentEmotion: 'Συχνότερο Συναίσθημα'
+        positivityRatio: 'Δείκτης Θετικότητας'
       },
       charts: {
         emotions: 'Συναισθήματα',
@@ -116,7 +114,17 @@ export const translations = {
           previous: 'Προηγούμενο',
           next: 'Επόμενο',
           back: 'Πίσω'
-        }
+        },
+        monthNames: [
+          'Ιανουάριος', 'Φεβρουάριος', 'Μάρτιος', 'Απρίλιος',
+          'Μάιος', 'Ιούνιος', 'Ιούλιος', 'Αύγουστος',
+          'Σεπτέμβριος', 'Οκτώβριος', 'Νοέμβριος', 'Δεκέμβριος'
+        ],
+        monthNamesShort: [
+          'Ιαν', 'Φεβ', 'Μαρ', 'Απρ', 'Μάι', 'Ιουν',
+          'Ιουλ', 'Αυγ', 'Σεπ', 'Οκτ', 'Νοε', 'Δεκ'
+        ],
+        weekDays: ['Κυρ', 'Δευ', 'Τρι', 'Τετ', 'Πεμ', 'Παρ', 'Σαβ']
       }
     },
 
@@ -208,9 +216,7 @@ export const translations = {
       stats: {
         totalEntries: 'Total Entries',
         weeklyCompletion: 'Weekly Completion',
-        positivityRatio: 'Positivity Ratio',
-        mostFrequentMood: 'Most Frequent Mood',
-        mostFrequentEmotion: 'Most Frequent Emotion'
+        positivityRatio: 'Positivity Ratio'
       },
       charts: {
         emotions: 'Emotions',
@@ -244,7 +250,17 @@ export const translations = {
           previous: 'Previous',
           next: 'Next',
           back: 'Back'
-        }
+        },
+        monthNames: [
+          'January', 'February', 'March', 'April',
+          'May', 'June', 'July', 'August',
+          'September', 'October', 'November', 'December'
+        ],
+        monthNamesShort: [
+          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        ],
+        weekDays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
       }
     },
 
@@ -258,6 +274,13 @@ export const translations = {
   }
 };
 
+// Κατηγοριοποίηση συναισθημάτων
+export const emotionTypes = {
+  positive: ['χαρά', 'ενθουσιασμός', 'αγάπη', 'ηρεμία', 'ικανοποίηση', 'ανακούφιση', 'περηφάνια', 'ευγνωμοσύνη', 'ελπίδα'],
+  negative: ['άγχος', 'φόβος', 'θυμός', 'λύπη', 'απογοήτευση', 'ζήλια', 'ντροπή', 'ενοχή', 'σύγχυση'],
+  neutral: ['έκπληξη']
+};
+
 // Helper functions
 export const getTranslation = (language, path) => {
   return path.split('.').reduce((obj, key) => obj?.[key], translations[language]) || path;
@@ -267,9 +290,9 @@ export const capitalize = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
-// Emotion classification
-export const emotionTypes = {
-  positive: ['χαρά', 'ενθουσιασμός', 'αγάπη', 'ηρεμία', 'ικανοποίηση', 'ανακούφιση', 'περηφάνια', 'ευγνωμοσύνη', 'ελπίδα'],
-  negative: ['άγχος', 'φόβος', 'θυμός', 'λύπη', 'απογοήτευση', 'ζήλια', 'ντροπή', 'ενοχή', 'σύγχυση'],
-  neutral: ['έκπληξη']
+// Function to get emotion type (positive/negative/neutral)
+export const getEmotionType = (emotion) => {
+  if (emotionTypes.positive.includes(emotion)) return 'positive';
+  if (emotionTypes.negative.includes(emotion)) return 'negative';
+  return 'neutral';
 };
