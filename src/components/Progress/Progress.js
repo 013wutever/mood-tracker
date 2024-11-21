@@ -133,6 +133,41 @@ const Progress = ({ language = 'el', userEmail }) => {
       type: getEmotionType(emotion)
     }));
   };
+  // Add these functions after calculateEmotionsStats
+  const getEmotionType = (emotion) => {
+    if (emotionTypes.positive.includes(emotion)) return 'positive';
+    if (emotionTypes.negative.includes(emotion)) return 'negative';
+    return 'neutral';
+  };
+
+  const calculateEmotionsByCategory = (entries) => {
+    const categoryEmotions = {};
+    
+    entries.forEach(entry => {
+      const category = entry[2];
+      const emotions = entry[4].split(',').map(e => e.trim());
+      
+      if (!categoryEmotions[category]) {
+        categoryEmotions[category] = { positive: 0, negative: 0, total: 0 };
+      }
+      
+      emotions.forEach(emotion => {
+        categoryEmotions[category].total++;
+        if (emotionTypes.positive.includes(emotion)) {
+          categoryEmotions[category].positive++;
+        }
+        if (emotionTypes.negative.includes(emotion)) {
+          categoryEmotions[category].negative++;
+        }
+      });
+    });
+
+    return Object.entries(categoryEmotions).map(([category, counts]) => ({
+      id: category,
+      name: t(`moodEntry.categories.${category}`),
+      value: Math.round((counts.positive / counts.total) * 100)
+    }));
+  };
 
   const calculateTimeOfDayStats = (entries) => {
     const timeSlots = {
