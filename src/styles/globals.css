@@ -14,14 +14,14 @@
   --mood-very-negative: rgba(255, 128, 128, 0.8); /* Darker red */
 
   /* Category Colors - Pastel */
-  --category-Personal: rgba(230, 190, 255, 0.8);    /* Light purple */
-  --category-Friends: rgba(190, 255, 190, 0.8);     /* Light green */
-  --category-Family: rgba(190, 220, 255, 0.8);      /* Light blue */
-  --category-Work: rgba(255, 210, 190, 0.8);        /* Light orange */
-  --category-Studies: rgba(255, 255, 190, 0.8);     /* Light yellow */
-  --category-Health: rgba(255, 190, 210, 0.8);      /* Light pink */
-  --category-Finances: rgba(220, 220, 220, 0.8);    /* Light gray */
-  --category-Entertainment: rgba(190, 255, 230, 0.8); /* Light teal */
+  --category-personal: rgba(230, 190, 255, 0.8);    /* Light purple */
+  --category-friends: rgba(190, 255, 190, 0.8);     /* Light green */
+  --category-family: rgba(190, 220, 255, 0.8);      /* Light blue */
+  --category-work: rgba(255, 210, 190, 0.8);        /* Light orange */
+  --category-studies: rgba(255, 255, 190, 0.8);     /* Light yellow */
+  --category-health: rgba(255, 190, 210, 0.8);      /* Light pink */
+  --category-finances: rgba(220, 220, 220, 0.8);    /* Light gray */
+  --category-entertainment: rgba(190, 255, 230, 0.8); /* Light teal */
 
   /* Time of Day Colors - Pastel */
   --time-morning: rgba(255, 220, 155, 0.8);    /* Warm yellow */
