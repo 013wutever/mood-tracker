@@ -151,45 +151,78 @@ html, body {
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
-/* Mobile Optimizations */
+/* Mobile-specific fixes */
 @media (max-width: 768px) {
-  /* Better Touch Targets */
-  button, 
-  .emotion-pill,
-  .calendar-day {
-    @apply min-h-[44px] min-w-[44px];
-  }
-
-  /* Full Page Scroll */
-  .content-wrapper {
-    @apply min-h-screen overflow-y-auto pb-20;
+  /* Enable smooth scrolling */
+  html, body {
+    height: 100%;
+    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Grid Layouts */
+  /* Fix content height */
+  .content-wrapper {
+    min-height: calc(100vh - 4rem);
+    height: auto;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Better touch targets */
+  button,
+  .emotion-pill,
+  .calendar-day {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px;
+  }
+
+  /* Improved grid layouts */
   .mood-grid {
-    @apply grid-cols-3 gap-4;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
   }
 
   .category-grid {
-    @apply grid-cols-2 gap-4;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
   }
 
-  /* Chart Containers */
+  /* Chart responsiveness */
   .chart-container {
-    @apply w-full mb-8;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    margin-bottom: 2rem;
   }
 
-  /* Simplified Animations */
-  .glassmorphic-hover:hover {
-    @apply scale-100;
+  /* Better scroll handling */
+  .content-scrollable {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+
+  /* Disable pull-to-refresh */
+  body {
+    overscroll-behavior-y: none;
+  }
+
+  /* Fix iOS momentum scrolling */
+  .scroll-container {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+    height: 100%;
   }
 }
 
-/* iOS Fixes */
+/* iOS-specific fixes */
 @supports (-webkit-touch-callout: none) {
   .min-h-screen {
     min-height: -webkit-fill-available;
+  }
+
+  .h-screen {
+    height: -webkit-fill-available;
   }
 }
 
