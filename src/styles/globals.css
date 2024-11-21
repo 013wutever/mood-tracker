@@ -4,6 +4,8 @@
 
 /* Root Variables */
 :root {
+  --app-height: 100vh;
+  
   /* Mood Colors - Pastel */
   --mood-very-positive: rgba(142, 227, 255, 0.8);  /* Light blue */
   --mood-positive: rgba(179, 255, 179, 0.8);      /* Light green */
@@ -20,6 +22,16 @@
   --category-health: rgba(255, 190, 210, 0.8);      /* Light pink */
   --category-finances: rgba(220, 220, 220, 0.8);    /* Light gray */
   --category-entertainment: rgba(190, 255, 230, 0.8); /* Light teal */
+
+  /* Time of Day Colors - Pastel */
+  --time-morning: rgba(255, 220, 155, 0.8);    /* Warm yellow */
+  --time-noon: rgba(255, 190, 145, 0.8);       /* Warm orange */
+  --time-afternoon: rgba(255, 170, 170, 0.8);   /* Warm red */
+  --time-evening: rgba(170, 190, 255, 0.8);     /* Cool blue */
+
+  /* Chart Colors - Pastel */
+  --chart-positive: rgba(179, 255, 179, 0.8);    /* Light green */
+  --chart-negative: rgba(255, 179, 179, 0.8);    /* Light red */
 
   /* Emotion Colors - Pastel with 70% transparency */
   --emotion-χαρά: rgba(255, 223, 186, 0.7);
@@ -41,44 +53,9 @@
   --emotion-σύγχυση: rgba(255, 255, 186, 0.7);
   --emotion-έκπληξη: rgba(186, 255, 255, 0.7);
   --emotion-ελπίδα: rgba(186, 213, 255, 0.7);
-
-  /* Chart Colors */
-  --chart-positive: rgba(179, 255, 179, 0.8);    /* Pastel green */
-  --chart-negative: rgba(255, 179, 179, 0.8);    /* Pastel red */
 }
 
-/* Enhanced hover effects with persistent active state */
-.glassmorphic-hover:hover {
-  @apply bg-white/15 scale-105;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-              0 4px 6px -2px rgba(0, 0, 0, 0.05),
-              inset 0 0 80px rgba(255, 255, 255, 0.2),
-              0 0 20px rgba(255, 255, 255, 0.3);
-}
-
-.glassmorphic-hover[data-active="true"],
-.glassmorphic-hover.active {
-  @apply bg-white/20 scale-110;
-  box-shadow: 0 0 30px rgba(255, 255, 255, 0.4),
-              inset 0 0 100px rgba(255, 255, 255, 0.3);
-}
-
-/* Emotion Pills */
-.emotion-pill {
-  @apply px-4 py-2 rounded-full text-sm transition-all duration-300;
-}
-
-.emotion-pill:hover {
-  @apply scale-105;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-}
-
-.emotion-pill[data-active="true"] {
-  @apply scale-110;
-  box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
-}
-
-/* Base Layout */
+/* Base Styles */
 html, body {
   margin: 0;
   padding: 0;
@@ -100,7 +77,7 @@ html, body {
               inset 0 0 80px rgba(255, 255, 255, 0.1);
 }
 
-/* Enhanced Hover Effects with persistent active state */
+/* Enhanced Hover Effects */
 .glassmorphic-hover {
   @apply transition-all duration-300;
 }
@@ -113,21 +90,38 @@ html, body {
               0 0 20px rgba(255, 255, 255, 0.3);
 }
 
-.glassmorphic-hover[data-active="true"],
-.glassmorphic-hover.active {
+/* Active State with Glow */
+.glassmorphic-hover:active,
+.glassmorphic-hover[data-active="true"] {
   @apply bg-white/20 scale-110;
   box-shadow: 0 0 30px rgba(255, 255, 255, 0.4),
               inset 0 0 100px rgba(255, 255, 255, 0.3);
 }
 
-/* Calendar Styles */
-.calendar-day {
-  @apply aspect-square rounded-lg glassmorphic p-2 transition-all duration-300;
+/* Category Buttons */
+.category-button {
+  @apply p-3 rounded-xl text-sm glassmorphic-hover transition-all duration-300;
 }
 
-.calendar-day:hover {
-  @apply bg-white/20 scale-105;
+.category-button[data-active="true"] {
+  @apply scale-110;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+}
+
+/* Emotion Pills */
+.emotion-pill {
+  @apply px-4 py-2 rounded-full text-sm transition-all duration-300;
+  background-color: var(--emotion-default);
+}
+
+.emotion-pill:hover {
+  @apply scale-105;
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.emotion-pill[data-active="true"] {
+  @apply scale-110;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
 }
 
 /* Chart Customizations */
@@ -143,8 +137,18 @@ html, body {
   @apply fill-white font-medium;
 }
 
-.recharts-bar {
-  @apply rounded-lg overflow-hidden;
+.recharts-text {
+  @apply fill-white/90;
+}
+
+/* Calendar Styles */
+.calendar-day {
+  @apply aspect-square rounded-lg glassmorphic p-2 transition-all duration-300;
+}
+
+.calendar-day:hover {
+  @apply bg-white/20 scale-105;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
 /* Mobile Optimizations */
@@ -162,7 +166,7 @@ html, body {
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Improved Grid Layouts */
+  /* Grid Layouts */
   .mood-grid {
     @apply grid-cols-3 gap-4;
   }
@@ -176,15 +180,9 @@ html, body {
     @apply w-full mb-8;
   }
 
-  /* Simplified Hover Effects */
+  /* Simplified Animations */
   .glassmorphic-hover:hover {
     @apply scale-100;
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-  }
-
-  /* Better Touch Feedback */
-  .glassmorphic-hover:active {
-    @apply scale-95 bg-white/25;
   }
 }
 
