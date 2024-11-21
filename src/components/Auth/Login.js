@@ -3,6 +3,7 @@ import { Mail, Lock, Loader } from 'lucide-react';
 import CryptoJS from 'crypto-js';
 import googleSheetsService from '../../services/googleSheets';
 import { getTranslation } from '../../utils/translations';
+import GlassmorphicContainer from '../../components/ui/GlassmorphicContainer';
 
 const Login = ({ language = 'el', onLogin }) => {
   const [email, setEmail] = useState('');
@@ -104,7 +105,7 @@ const Login = ({ language = 'el', onLogin }) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md glassmorphic rounded-2xl p-8 backdrop-blur-xl bg-white/10">
+      <GlassmorphicContainer className="w-full max-w-md rounded-2xl p-8">
         <h1 className="text-2xl font-semibold text-center mb-8">
           {isNewUser ? t('titleRegister') : t('title')}
         </h1>
@@ -150,19 +151,19 @@ const Login = ({ language = 'el', onLogin }) => {
             </p>
           )}
 
-          <button
+          <GlassmorphicContainer
+            as="button"
             type="submit"
             disabled={isLoading}
-            className="w-full py-2 px-4 glassmorphic bg-white/10 rounded-xl
-                     hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/20
-                     transition-all duration-300 flex items-center justify-center"
+            className="w-full py-2 px-4 rounded-xl flex items-center justify-center"
+            hover={true}
           >
             {isLoading ? (
               <Loader className="w-5 h-5 animate-spin" />
             ) : (
               isNewUser ? t('register') : t('login')
             )}
-          </button>
+          </GlassmorphicContainer>
 
           <button
             type="button"
@@ -172,7 +173,7 @@ const Login = ({ language = 'el', onLogin }) => {
             {isNewUser ? t('switchToLogin') : t('switchToRegister')}
           </button>
         </form>
-      </div>
+      </GlassmorphicContainer>
     </div>
   );
 };
