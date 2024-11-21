@@ -25,22 +25,10 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
 
   const moods = [
     { 
-      id: 'very-positive', 
-      icon: Laugh, 
-      color: 'var(--mood-very-positive)',
-      label: t('moodEntry.moods.veryPositive')
-    },
-    { 
-      id: 'positive', 
-      icon: Smile, 
-      color: 'var(--mood-positive)',
-      label: t('moodEntry.moods.positive')
-    },
-    { 
-      id: 'neutral', 
-      icon: Meh, 
-      color: 'var(--mood-neutral)',
-      label: t('moodEntry.moods.neutral')
+      id: 'very-negative', 
+      icon: Frown, 
+      color: 'var(--mood-very-negative)',
+      label: t('moodEntry.moods.veryNegative')
     },
     { 
       id: 'negative', 
@@ -49,10 +37,24 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
       label: t('moodEntry.moods.negative')
     },
     { 
-      id: 'very-negative', 
-      icon: Frown, 
-      color: 'var(--mood-very-negative)',
-      label: t('moodEntry.moods.veryNegative')
+      id: 'neutral', 
+      icon: Meh, 
+      color: 'var(--mood-neutral)',
+      label: t('moodEntry.moods.neutral')
+    },
+    { 
+      
+      id: 'positive', 
+      icon: Smile, 
+      color: 'var(--mood-positive)',
+      label: t('moodEntry.moods.positive')
+    },
+    { 
+      
+      id: 'very-positive', 
+      icon: Laugh, 
+      color: 'var(--mood-very-positive)',
+      label: t('moodEntry.moods.veryPositive')
     }
   ];
 
