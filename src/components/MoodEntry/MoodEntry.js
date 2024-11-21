@@ -32,22 +32,10 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
 
   const moods = [
     { 
-      id: 'very-positive', 
-      icon: Laugh, 
-      color: 'var(--mood-very-positive)',
-      label: t('moodEntry.moods.veryPositive')
-    },
-    { 
-      id: 'positive', 
-      icon: Smile, 
-      color: 'var(--mood-positive)',
-      label: t('moodEntry.moods.positive')
-    },
-    { 
-      id: 'neutral', 
-      icon: Meh, 
-      color: 'var(--mood-neutral)',
-      label: t('moodEntry.moods.neutral')
+      id: 'very-negative', 
+      icon: Frown, 
+      color: 'var(--mood-very-negative)',
+      label: t('moodEntry.moods.veryNegative')
     },
     { 
       id: 'negative', 
@@ -56,10 +44,22 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
       label: t('moodEntry.moods.negative')
     },
     { 
-      id: 'very-negative', 
-      icon: Frown, 
-      color: 'var(--mood-very-negative)',
-      label: t('moodEntry.moods.veryNegative')
+      id: 'neutral', 
+      icon: Meh, 
+      color: 'var(--mood-neutral)',
+      label: t('moodEntry.moods.neutral')
+    },
+    { 
+      id: 'positive', 
+      icon: Smile, 
+      color: 'var(--mood-positive)',
+      label: t('moodEntry.moods.positive')
+    },
+    { 
+      id: 'very-positive', 
+      icon: Laugh, 
+      color: 'var(--mood-very-positive)',
+      label: t('moodEntry.moods.veryPositive')
     }
   ];
 
@@ -127,7 +127,7 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
     <div className="space-y-6 md:space-y-8 content-wrapper scroll-container">
       {/* Status Messages */}
       {submitStatus && (
-        <div className={`fixed top-4 right-4 p-4 rounded-xl glassmorphic flex items-center gap-2
+        <div className={`fixed top-4 right-4 p-4 rounded-xl flex items-center gap-2
           ${submitStatus === 'success' ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
           {submitStatus === 'success' ? (
             <CheckCircle className="w-5 h-5" />
@@ -147,7 +147,7 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
         <h2 className="text-lg md:text-xl mb-4">
           {t('moodEntry.title')}
         </h2>
-        <div className="grid grid-cols-3 md:grid-cols-5 gap-3 md:gap-4 justify-items-center">
+        <div className="grid grid-cols-5 gap-3 md:gap-4">
           {moods.map((mood) => {
             const MoodIcon = mood.icon;
             return (
@@ -156,20 +156,21 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
                 onClick={() => setSelectedMood(mood.id)}
                 className={`
                   transition-all duration-300
-                  p-4 md:p-4 rounded-full
-                  glassmorphic-hover
+                  rounded-full
                   touch-manipulation
                   min-h-[44px] min-w-[44px]
                   aspect-square
-                  ${selectedMood === mood.id ? 'active scale-110' : ''}
+                  flex items-center justify-center
+                  ${selectedMood === mood.id ? 'scale-110 ring-2 ring-white/50' : ''}
                 `}
                 style={{
-                  backgroundColor: selectedMood === mood.id ? mood.color : 'rgba(255, 255, 255, 0.1)'
+                  backgroundColor: mood.color,
+                  opacity: selectedMood === mood.id ? 1 : 0.8
                 }}
                 title={mood.label}
                 data-active={selectedMood === mood.id}
               >
-                <MoodIcon className="w-full h-full" />
+                <MoodIcon className="w-6 h-6 md:w-8 md:h-8" />
               </button>
             );
           })}
@@ -188,14 +189,14 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
               onClick={() => setSelectedCategory(category.id)}
               className={`
                 p-3 rounded-xl text-sm 
-                glassmorphic-hover
                 touch-manipulation
                 min-h-[44px]
                 transition-all duration-300
+                ${isMobile ? 'bg-white/20' : 'glassmorphic'}
                 ${selectedCategory === category.id ? 'active scale-105' : ''}
               `}
               style={{
-                backgroundColor: selectedCategory === category.id ? category.color : 'rgba(255, 255, 255, 0.1)'
+                backgroundColor: selectedCategory === category.id ? category.color : undefined
               }}
               data-active={selectedCategory === category.id}
             >
@@ -225,13 +226,14 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
               style={{
                 backgroundColor: selectedEmotions.includes(emotion.value) 
                   ? emotion.color 
-                  : 'rgba(255, 255, 255, 0.1)'
+                  : isMobile ? 'rgba(255, 255, 255, 0.2)' : undefined
               }}
               className={`
-                emotion-pill
+                px-4 py-2 rounded-full text-sm
                 touch-manipulation
                 min-h-[44px]
                 transition-all duration-300
+                ${!isMobile && 'glassmorphic'}
                 ${selectedEmotions.includes(emotion.value) ? 'active scale-105' : ''}
                 ${selectedEmotions.length >= 3 && !selectedEmotions.includes(emotion.value)
                   ? 'opacity-50 cursor-not-allowed'
@@ -254,10 +256,13 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           placeholder={t('moodEntry.notes.placeholder')}
-          className="w-full min-h-[120px] glassmorphic bg-white/10 rounded-xl p-4 
-                    placeholder-white/50 resize-none focus:ring-2 
-                    focus:ring-white/30 focus:outline-none
-                    text-base"
+          className={`
+            w-full min-h-[120px] rounded-xl p-4 
+            placeholder-white/50 resize-none focus:ring-2 
+            focus:ring-white/30 focus:outline-none
+            text-base
+            ${isMobile ? 'bg-white/20' : 'glassmorphic bg-white/10'}
+          `}
           style={{ fontSize: '16px' }}
           maxLength={500}
         />
@@ -272,13 +277,11 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
         disabled={isSubmitting}
         className={`
           w-full py-4 md:py-3 rounded-xl 
-          glassmorphic-hover
           touch-manipulation
           min-h-[44px]
           transition-all duration-300
-          ${isSubmitting 
-            ? 'bg-white/10 cursor-not-allowed' 
-            : 'bg-white/20 hover:bg-white/30'}
+          ${isMobile ? 'bg-white/20' : 'glassmorphic hover:bg-white/30'}
+          ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}
         `}
       >
         {isSubmitting ? (
