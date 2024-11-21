@@ -19,6 +19,7 @@
     "googleapis": "^105.0.0",
     "crypto-js": "^4.1.1",
     "recharts": "^2.10.1"
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
   },
   "scripts": {
     "start": "react-scripts start",
