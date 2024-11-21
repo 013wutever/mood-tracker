@@ -410,8 +410,8 @@ const MyEntries = ({ language = 'el', userEmail }) => {
       {lastEntries.length > 0 && (
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">
-            {t('myEntries.lastEntries')}
-          </h2>
+  {t('myEntries.lastEntries')}
+</h2>
           {lastEntries.map(entry => renderEntryCard(entry))}
         </div>
       )}
