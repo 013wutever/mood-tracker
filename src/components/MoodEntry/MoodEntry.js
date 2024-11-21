@@ -10,10 +10,8 @@ import {
   XCircle,
   Loader
 } from 'lucide-react';
-import { getTranslation, emotionTypes } from '../../utils/translations';
+import { getTranslation } from '../../utils/translations';
 import googleSheetsService from '../../services/googleSheets';
-
-// Rest of the MoodEntry component code remains the same
 
 const MoodEntry = ({ language = 'el', userEmail }) => {
   const [selectedMood, setSelectedMood] = useState(null);
@@ -59,14 +57,14 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
   ];
 
   const categories = [
-    { id: 'personal', name: t('moodEntry.categories.personal'), color: 'bg-purple-300/20' },
-    { id: 'friends', name: t('moodEntry.categories.friends'), color: 'bg-green-300/20' },
-    { id: 'family', name: t('moodEntry.categories.family'), color: 'bg-blue-300/20' },
-    { id: 'work', name: t('moodEntry.categories.work'), color: 'bg-orange-300/20' },
-    { id: 'studies', name: t('moodEntry.categories.studies'), color: 'bg-yellow-300/20' },
-    { id: 'health', name: t('moodEntry.categories.health'), color: 'bg-pink-300/20' },
-    { id: 'finances', name: t('moodEntry.categories.finances'), color: 'bg-gray-300/20' },
-    { id: 'entertainment', name: t('moodEntry.categories.entertainment'), color: 'bg-teal-300/20' }
+    { id: 'personal', name: t('moodEntry.categories.personal'), color: 'var(--category-personal)' },
+    { id: 'friends', name: t('moodEntry.categories.friends'), color: 'var(--category-friends)' },
+    { id: 'family', name: t('moodEntry.categories.family'), color: 'var(--category-family)' },
+    { id: 'work', name: t('moodEntry.categories.work'), color: 'var(--category-work)' },
+    { id: 'studies', name: t('moodEntry.categories.studies'), color: 'var(--category-studies)' },
+    { id: 'health', name: t('moodEntry.categories.health'), color: 'var(--category-health)' },
+    { id: 'finances', name: t('moodEntry.categories.finances'), color: 'var(--category-finances)' },
+    { id: 'entertainment', name: t('moodEntry.categories.entertainment'), color: 'var(--category-entertainment)' }
   ];
 
   const emotions = Object.entries(t('moodEntry.emotions')).filter(([key]) => 
@@ -74,17 +72,8 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
   ).map(([value, name]) => ({
     name,
     value,
-    type: value in emotionTypes ? 
-      emotionTypes[value] : 
-      'neutral'
+    color: `var(--emotion-${value})`
   }));
-
-  const resetForm = () => {
-    setSelectedMood(null);
-    setSelectedEmotions([]);
-    setSelectedCategory(null);
-    setNotes('');
-  };
 
   const handleSubmit = async () => {
     if (!selectedMood || !selectedCategory) {
@@ -120,6 +109,13 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
     }
   };
 
+  const resetForm = () => {
+    setSelectedMood(null);
+    setSelectedEmotions([]);
+    setSelectedCategory(null);
+    setNotes('');
+  };
+
   return (
     <div className="space-y-8 content-wrapper p-4">
       {/* Status Messages */}
@@ -151,16 +147,8 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
               <button
                 key={mood.id}
                 onClick={() => setSelectedMood(mood.id)}
-                className={`
-                  transition-all duration-300
-                  p-4 rounded-full
-                  glassmorphic-hover
-                  hover:scale-110
-                  hover:shadow-lg
-                  ${selectedMood === mood.id ? 'active' : ''}
-                `}
+                className="glassmorphic-hover p-4 rounded-full transition-all duration-300"
                 style={{
-                  '--mood-color': mood.color,
                   backgroundColor: selectedMood === mood.id ? mood.color : 'rgba(255, 255, 255, 0.1)'
                 }}
                 title={mood.label}
@@ -183,12 +171,10 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
             <button
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}
-              className={`
-                p-3 rounded-xl text-sm glassmorphic-hover
-                transition-all duration-300
-                hover:scale-105
-                ${selectedCategory === category.id ? 'active' : ''}
-              `}
+              className="category-button"
+              style={{
+                backgroundColor: selectedCategory === category.id ? category.color : 'rgba(255, 255, 255, 0.1)'
+              }}
               data-active={selectedCategory === category.id}
             >
               {category.name}
@@ -214,14 +200,14 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
                 }
               }}
               disabled={selectedEmotions.length >= 3 && !selectedEmotions.includes(emotion.value)}
+              style={{
+                backgroundColor: selectedEmotions.includes(emotion.value) ? emotion.color : 'rgba(255, 255, 255, 0.1)'
+              }}
               className={`
-                emotion-pill emotion-${emotion.value}
-                glassmorphic-hover
-                ${selectedEmotions.includes(emotion.value) ? 'active' : ''}
+                emotion-pill
                 ${selectedEmotions.length >= 3 && !selectedEmotions.includes(emotion.value)
                   ? 'opacity-50 cursor-not-allowed'
-                  : 'hover:scale-105'
-                }
+                  : ''}
               `}
               data-active={selectedEmotions.includes(emotion.value)}
             >
