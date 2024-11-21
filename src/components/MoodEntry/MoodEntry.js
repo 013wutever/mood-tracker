@@ -158,7 +158,7 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
                   transition-all duration-300
                   rounded-full
                   touch-manipulation
-                  min-h-[24px] min-w-[24px]
+                  min-h-[12px] min-w-[12px]
                   aspect-square
                   flex items-center justify-center
                   ${selectedMood === mood.id ? 'scale-110 ring-2 ring-white/50' : ''}
@@ -170,7 +170,7 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
                 title={mood.label}
                 data-active={selectedMood === mood.id}
               >
-                <MoodIcon className="w-5 h-5 md:w-6 md:h-6" />
+                <MoodIcon className="w-6 h-6 md:w-8 md:h-8" />
               </button>
             );
           })}
