@@ -11,7 +11,43 @@ const Login = ({ language = 'el', onLogin }) => {
   const [error, setError] = useState('');
   const [isNewUser, setIsNewUser] = useState(false);
 
-  const t = (path) => getTranslation(language, path);
+  const translations = {
+    el: {
+      title: 'Καλώς ήρθατε',
+      titleRegister: 'Δημιουργία Λογαριασμού',
+      email: 'Email',
+      password: 'Κωδικός',
+      login: 'Σύνδεση',
+      register: 'Εγγραφή',
+      switchToRegister: 'Δεν έχετε λογαριασμό; Εγγραφείτε',
+      switchToLogin: 'Έχετε ήδη λογαριασμό; Συνδεθείτε',
+      error: {
+        invalidEmail: 'Παρακαλώ εισάγετε έγκυρο email',
+        passwordLength: 'Ο κωδικός πρέπει να έχει τουλάχιστον 6 χαρακτήρες',
+        generic: 'Κάτι πήγε στραβά. Παρακαλώ δοκιμάστε ξανά.'
+      }
+    },
+    en: {
+      title: 'Welcome',
+      titleRegister: 'Create Account',
+      email: 'Email',
+      password: 'Password',
+      login: 'Login',
+      register: 'Register',
+      switchToRegister: "Don't have an account? Sign up",
+      switchToLogin: 'Already have an account? Sign in',
+      error: {
+        invalidEmail: 'Please enter a valid email',
+        passwordLength: 'Password must be at least 6 characters long',
+        generic: 'Something went wrong. Please try again.'
+      }
+    }
+  };
+
+  const t = (key) => {
+    const translation = key.split('.').reduce((obj, k) => obj?.[k], translations[language]);
+    return translation || key;
+  };
 
   const validateEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -31,12 +67,12 @@ const Login = ({ language = 'el', onLogin }) => {
 
     // Validation
     if (!validateEmail(email)) {
-      setError(t('auth.error.invalidEmail'));
+      setError(t('error.invalidEmail'));
       return;
     }
 
     if (!validatePassword(password)) {
-      setError(t('auth.error.passwordLength'));
+      setError(t('error.passwordLength'));
       return;
     }
 
@@ -45,24 +81,22 @@ const Login = ({ language = 'el', onLogin }) => {
 
     try {
       if (isNewUser) {
-        // Register
         const result = await googleSheetsService.addUser(email, hashedPassword);
         if (result.success) {
           onLogin(email);
         } else {
-          setError(result.error || t('auth.error.generic'));
+          setError(result.error || t('error.generic'));
         }
       } else {
-        // Login
         const result = await googleSheetsService.verifyUser(email, hashedPassword);
         if (result.success) {
           onLogin(email);
         } else {
-          setError(result.error || t('auth.error.generic'));
+          setError(result.error || t('error.generic'));
         }
       }
     } catch (error) {
-      setError(t('auth.error.generic'));
+      setError(t('error.generic'));
     } finally {
       setIsLoading(false);
     }
@@ -72,13 +106,13 @@ const Login = ({ language = 'el', onLogin }) => {
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md glassmorphic rounded-2xl p-8 backdrop-blur-xl bg-white/10">
         <h1 className="text-2xl font-semibold text-center mb-8">
-          {isNewUser ? t('auth.titleRegister') : t('auth.title')}
+          {isNewUser ? t('titleRegister') : t('title')}
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <label className="block text-sm font-medium">
-              {t('auth.email')}
+              {t('email')}
             </label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
@@ -95,7 +129,7 @@ const Login = ({ language = 'el', onLogin }) => {
 
           <div className="space-y-2">
             <label className="block text-sm font-medium">
-              {t('auth.password')}
+              {t('password')}
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
@@ -126,7 +160,7 @@ const Login = ({ language = 'el', onLogin }) => {
             {isLoading ? (
               <Loader className="w-5 h-5 animate-spin" />
             ) : (
-              isNewUser ? t('auth.register') : t('auth.login')
+              isNewUser ? t('register') : t('login')
             )}
           </button>
 
@@ -135,9 +169,7 @@ const Login = ({ language = 'el', onLogin }) => {
             onClick={() => setIsNewUser(!isNewUser)}
             className="w-full text-sm text-white/70 hover:text-white transition-colors"
           >
-            {isNewUser 
-              ? t('auth.switchToLogin') 
-              : t('auth.switchToRegister')}
+            {isNewUser ? t('switchToLogin') : t('switchToRegister')}
           </button>
         </form>
       </div>
