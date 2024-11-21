@@ -152,7 +152,7 @@ html, body {
 }
 
 /* Mobile-specific fixes */
-@media (max-width: 768px) {
+@media (max-width: auto) {
   /* Enable smooth scrolling */
   html, body {
     -webkit-overflow-scrolling: touch;
