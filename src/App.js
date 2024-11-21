@@ -162,5 +162,48 @@ const App = () => {
     </div>
   );
 };
+// Add to App.js navigation section
+const mobileNav = `
+  @media (max-width: 768px) {
+    .nav-container {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 50;
+    }
+
+    .nav-items {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.5rem;
+    }
+
+    .nav-icon {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    .nav-label {
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+    }
+
+    .main-content {
+      padding-bottom: 5rem;
+    }
+  }
+`;
 
 export default App;
