@@ -160,7 +160,7 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
             touch-manipulation
             aspect-square
             flex items-center justify-center
-            ${isMobile ? 'min-h-[36px] min-w-[36px]' : 'h-12 w-12'}
+            ${isMobile ? 'min-h-[36px] min-w-[36px]' : 'h-18 w-18'}
             ${selectedMood === mood.id ? 'scale-110 ring-2 ring-white/50' : ''}
           `}
           style={{
@@ -170,7 +170,7 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
           title={mood.label}
           data-active={selectedMood === mood.id}
         >
-          <MoodIcon className={isMobile ? 'w-5 h-5' : 'w-6 h-6'} />
+          <MoodIcon className={isMobile ? 'w-5 h-5' : 'w-8 h-8'} />
         </button>
       );
     })}
