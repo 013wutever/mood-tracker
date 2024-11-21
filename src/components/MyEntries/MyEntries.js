@@ -371,4 +371,52 @@ const MyEntries = ({ language = 'el', userEmail }) => {
                 const date = new Date(currentDate);
                 viewType === 'month'
                   ? date.setMonth(date.getMonth() - 1)
-                  : date.setFullYear(date.getFullYear() -
+                  : date.setFullYear(date.getFullYear() -onClick={() => {
+                const date = new Date(currentDate);
+                viewType === 'month'
+                  ? date.setMonth(date.getMonth() - 1)
+                  : date.setFullYear(date.getFullYear() - 1);
+                setCurrentDate(date);
+              }}
+              className="p-2 rounded-full glassmorphic hover:bg-white/20 touch-manipulation"
+              title={t('myEntries.calendar.navigate.previous')}
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => {
+                const date = new Date(currentDate);
+                viewType === 'month'
+                  ? date.setMonth(date.getMonth() + 1)
+                  : date.setFullYear(date.getFullYear() + 1);
+                setCurrentDate(date);
+              }}
+              className="p-2 rounded-full glassmorphic hover:bg-white/20 touch-manipulation"
+              title={t('myEntries.calendar.navigate.next')}
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Calendar */}
+      <div className="glassmorphic rounded-xl p-4 md:p-6">
+        {viewType === 'month' ? renderMonthView() : renderYearView()}
+        {renderSelectedDayEntries()}
+      </div>
+
+      {/* Last Entries */}
+      {lastEntries.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">
+            {t('myEntries.lastEntries')}
+          </h2>
+          {lastEntries.map(entry => renderEntryCard(entry))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default MyEntries;
