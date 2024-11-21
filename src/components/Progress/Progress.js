@@ -1,18 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Heart, 
   LineChart, 
-  Info as InfoIcon,
-  Languages,
-  LogOut,
-  Calendar
+  Line,
+  PieChart, 
+  Pie,
+  Cell,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis
+} from 'recharts';
+import { 
+  Loader,
+  XCircle,
+  Calendar,
+  Activity,
+  Heart,
+  TrendingUp
 } from 'lucide-react';
-import MoodEntry from './components/MoodEntry/MoodEntry';
-import Progress from './components/Progress/Progress';
-import Info from './components/Info/Info';
-import MyEntries from './components/MyEntries/MyEntries';
-import Login from './components/Auth/Login';
-import { getTranslation } from './utils/translations';
+import { getTranslation, emotionTypes } from '../../utils/translations';
+import googleSheetsService from '../../services/googleSheets';
 
 const Progress = ({ language = 'el', userEmail }) => {
   const [timeFilter, setTimeFilter] = useState('week');
