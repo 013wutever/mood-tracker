@@ -4,26 +4,24 @@
 
 /* Root Variables */
 :root {
-  --app-height: 100vh;
-  
-  /* Mood Colors - Using the same colors from mood selection */
-  --mood-very-positive: rgba(72, 187, 255, 0.8);  /* Bright blue */
-  --mood-positive: rgba(100, 223, 223, 0.8);      /* Turquoise */
-  --mood-neutral: rgba(255, 233, 155, 0.8);       /* Warm yellow */
-  --mood-negative: rgba(255, 169, 135, 0.8);      /* Coral */
-  --mood-very-negative: rgba(255, 130, 130, 0.8); /* Soft red */
+  /* Mood Colors - Pastel */
+  --mood-very-positive: rgba(142, 227, 255, 0.8);  /* Light blue */
+  --mood-positive: rgba(179, 255, 179, 0.8);      /* Light green */
+  --mood-neutral: rgba(255, 255, 179, 0.8);       /* Light yellow */
+  --mood-negative: rgba(255, 179, 179, 0.8);      /* Light red */
+  --mood-very-negative: rgba(255, 128, 128, 0.8); /* Darker red */
 
-  /* Chart Colors for consistency */
-  --chart-positive: rgba(144, 238, 144, 0.8);     /* Pastel green */
-  --chart-negative: rgba(255, 178, 107, 0.8);     /* Pastel orange */
+  /* Category Colors - Pastel */
+  --category-personal: rgba(230, 190, 255, 0.8);    /* Light purple */
+  --category-friends: rgba(190, 255, 190, 0.8);     /* Light green */
+  --category-family: rgba(190, 220, 255, 0.8);      /* Light blue */
+  --category-work: rgba(255, 210, 190, 0.8);        /* Light orange */
+  --category-studies: rgba(255, 255, 190, 0.8);     /* Light yellow */
+  --category-health: rgba(255, 190, 210, 0.8);      /* Light pink */
+  --category-finances: rgba(220, 220, 220, 0.8);    /* Light gray */
+  --category-entertainment: rgba(190, 255, 230, 0.8); /* Light teal */
 
-  /* Time of Day Colors - Warm to cool transition */
-  --time-morning: rgba(255, 220, 155, 0.8);       /* Warm yellow */
-  --time-noon: rgba(255, 178, 107, 0.8);          /* Warm orange */
-  --time-afternoon: rgba(255, 155, 155, 0.8);     /* Warm red */
-  --time-evening: rgba(155, 175, 255, 0.8);       /* Cool blue */
-  
-  /* Emotions with 70% transparency */
+  /* Emotion Colors - Pastel with 70% transparency */
   --emotion-χαρά: rgba(255, 223, 186, 0.7);
   --emotion-ενθουσιασμός: rgba(255, 186, 186, 0.7);
   --emotion-αγάπη: rgba(255, 186, 213, 0.7);
@@ -43,6 +41,41 @@
   --emotion-σύγχυση: rgba(255, 255, 186, 0.7);
   --emotion-έκπληξη: rgba(186, 255, 255, 0.7);
   --emotion-ελπίδα: rgba(186, 213, 255, 0.7);
+
+  /* Chart Colors */
+  --chart-positive: rgba(179, 255, 179, 0.8);    /* Pastel green */
+  --chart-negative: rgba(255, 179, 179, 0.8);    /* Pastel red */
+}
+
+/* Enhanced hover effects with persistent active state */
+.glassmorphic-hover:hover {
+  @apply bg-white/15 scale-105;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+              0 4px 6px -2px rgba(0, 0, 0, 0.05),
+              inset 0 0 80px rgba(255, 255, 255, 0.2),
+              0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.glassmorphic-hover[data-active="true"],
+.glassmorphic-hover.active {
+  @apply bg-white/20 scale-110;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.4),
+              inset 0 0 100px rgba(255, 255, 255, 0.3);
+}
+
+/* Emotion Pills */
+.emotion-pill {
+  @apply px-4 py-2 rounded-full text-sm transition-all duration-300;
+}
+
+.emotion-pill:hover {
+  @apply scale-105;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.emotion-pill[data-active="true"] {
+  @apply scale-110;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
 }
 
 /* Base Layout */
