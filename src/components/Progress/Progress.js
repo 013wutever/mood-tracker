@@ -617,5 +617,38 @@ const Progress = ({ language = 'el', userEmail }) => {
     </div>
   );
 };
+// Στα chart components του Progress.js προσθέτουμε mobile προσαρμογές
+
+const MobileResponsiveChart = ({ children }) => {
+  const isMobile = window.innerWidth <= 768;
+  
+  return (
+    <div className="aspect-square w-full">
+      <ResponsiveContainer width="100%" height={isMobile ? 300 : "100%"}>
+        {children}
+      </ResponsiveContainer>
+    </div>
+  );
+};
+
+// Χρήση για κάθε chart component:
+<div className="glassmorphic rounded-xl p-4 md:p-6">
+  <h3 className="text-lg md:text-xl mb-4 md:mb-6">{t('progress.charts.emotions')}</h3>
+  <MobileResponsiveChart>
+    <PieChart>
+      <Pie
+        data={stats.emotions}
+        innerRadius={isMobile ? "50%" : "0%"}
+        outerRadius={isMobile ? "70%" : "90%"}
+        {...otherProps}
+      />
+      <Legend 
+        content={<CustomLegend />}
+        verticalAlign="bottom"
+        height={isMobile ? 60 : 36}
+      />
+    </PieChart>
+  </MobileResponsiveChart>
+</div>
 
 export default Progress;
