@@ -156,7 +156,7 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
                 onClick={() => setSelectedMood(mood.id)}
                 className={`
                   transition-all duration-300
-                  p-3 md:p-4 rounded-full
+                  p-4 md:p-4 rounded-full
                   glassmorphic-hover
                   touch-manipulation
                   min-h-[44px] min-w-[44px]
