@@ -28,6 +28,7 @@ const Progress = ({ language = 'el', userEmail }) => {
   const [timeFilter, setTimeFilter] = useState('week');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [stats, setStats] = useState({
     totalEntries: 0,
     weeklyCompletion: 0,
@@ -42,6 +43,15 @@ const Progress = ({ language = 'el', userEmail }) => {
   });
 
   const t = (path) => getTranslation(language, path);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Chart color schemes with pastel colors
   const moodColors = {
@@ -113,6 +123,38 @@ const Progress = ({ language = 'el', userEmail }) => {
     };
   };
 
+  // Chart components configuration
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="glassmorphic p-3 rounded-lg touch-none">
+          <p className="text-sm font-medium">{label}</p>
+          <p className="text-sm">{`${Math.round(payload[0].value)}%`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const CustomLegend = ({ payload }) => {
+    if (!payload) return null;
+    
+    return (
+      <ul className="flex flex-wrap justify-center gap-4 mt-4 px-2">
+        {payload.map((entry, index) => (
+          <li key={index} className="flex items-center gap-2 touch-manipulation">
+            <div 
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className={`text-sm ${isMobile ? 'text-xs' : ''}`}>{entry.value}</span>
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
+  // Helper functions for calculations
   const calculateWeeklyCompletion = (entries) => {
     const now = new Date();
     const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -217,6 +259,7 @@ const Progress = ({ language = 'el', userEmail }) => {
       value: Math.round((slot.value / total) * 100)
     }));
   };
+
   const calculateEmotionsByCategory = (entries) => {
     const categoryEmotions = {};
     
@@ -320,33 +363,14 @@ const Progress = ({ language = 'el', userEmail }) => {
     ];
   };
 
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="glassmorphic p-3 rounded-lg">
-          <p className="text-sm font-medium">{label}</p>
-          <p className="text-sm">{`${Math.round(payload[0].value)}%`}</p>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  const CustomLegend = ({ payload }) => {
-    return (
-      <ul className="flex flex-wrap justify-center gap-4 mt-4">
-        {payload.map((entry, index) => (
-          <li key={index} className="flex items-center gap-2">
-            <div 
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: entry.color }}
-            />
-            <span className="text-sm">{entry.value}</span>
-          </li>
-        ))}
-      </ul>
-    );
-  };
+  // Mobile-optimized chart wrapper
+  const MobileResponsiveChart = ({ children, height = 300 }) => (
+    <div className={`w-full ${isMobile ? `h-[${height}px]` : 'aspect-square'}`}>
+      <ResponsiveContainer width="100%" height="100%">
+        {children}
+      </ResponsiveContainer>
+    </div>
+  );
 
   if (isLoading) {
     return (
@@ -360,11 +384,10 @@ const Progress = ({ language = 'el', userEmail }) => {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <XCircle className="w-12 h-12 text-red-400" />
-        <p className="text-white/70">{error}</p>
+        <XCircle className="w-12 h-12 text-red-400" /><p className="text-white/70">{error}</p>
         <button
           onClick={fetchStats}
-          className="px-4 py-2 glassmorphic rounded-xl hover:bg-white/20"
+          className="px-4 py-2 glassmorphic rounded-xl hover:bg-white/20 touch-manipulation"
         >
           {t('states.retry')}
         </button>
@@ -373,20 +396,20 @@ const Progress = ({ language = 'el', userEmail }) => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {/* Header with filters */}
-      <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
-        <h1 className="text-2xl font-semibold">
+      <div className="flex flex-wrap justify-between items-center gap-4 mb-6 md:mb-8">
+        <h1 className="text-xl md:text-2xl font-semibold">
           {t('progress.title')}
         </h1>
         
-        <div className="flex gap-2">
+        <div className="flex gap-2 touch-manipulation">
           <div className="flex rounded-xl overflow-hidden glassmorphic">
             {Object.entries(t('progress.filters')).map(([key, value]) => (
               <button
                 key={key}
                 onClick={() => setTimeFilter(key)}
-                className={`px-4 py-2 text-sm transition-colors
+                className={`px-3 py-2 text-sm transition-colors touch-manipulation min-h-[44px]
                   ${timeFilter === key 
                     ? 'bg-white/20 shadow-inner' 
                     : 'bg-white/5 hover:bg-white/10'}`}
@@ -399,201 +422,147 @@ const Progress = ({ language = 'el', userEmail }) => {
       </div>
 
       {/* Quick stats cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <div className="glassmorphic rounded-xl p-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
+        <div className="glassmorphic rounded-xl p-4 md:p-6">
           <div className="flex items-center gap-3 mb-2">
             <Calendar className="w-5 h-5 text-blue-300" />
-            <h3 className="text-lg">{t('progress.stats.totalEntries')}</h3>
+            <h3 className="text-base md:text-lg">{t('progress.stats.totalEntries')}</h3>
           </div>
-          <p className="text-3xl font-semibold">{stats.totalEntries}</p>
+          <p className="text-2xl md:text-3xl font-semibold">{stats.totalEntries}</p>
         </div>
 
-        <div className="glassmorphic rounded-xl p-6">
+        <div className="glassmorphic rounded-xl p-4 md:p-6">
           <div className="flex items-center gap-3 mb-2">
             <Activity className="w-5 h-5 text-green-300" />
-            <h3 className="text-lg">{t('progress.stats.weeklyCompletion')}</h3>
+            <h3 className="text-base md:text-lg">{t('progress.stats.weeklyCompletion')}</h3>
           </div>
-          <p className="text-3xl font-semibold">{stats.weeklyCompletion}%</p>
+          <p className="text-2xl md:text-3xl font-semibold">{stats.weeklyCompletion}%</p>
         </div>
 
-        <div className="glassmorphic rounded-xl p-6">
+        <div className="glassmorphic rounded-xl p-4 md:p-6">
           <div className="flex items-center gap-3 mb-2">
             <Heart className="w-5 h-5 text-pink-300" />
-            <h3 className="text-lg">{t('progress.stats.positivityRatio')}</h3>
+            <h3 className="text-base md:text-lg">{t('progress.stats.positivityRatio')}</h3>
           </div>
-          <p className="text-3xl font-semibold">
+          <p className="text-2xl md:text-3xl font-semibold">
             {stats.positiveVsNegative[0]?.value || 0}%
           </p>
         </div>
       </div>
 
       {/* Main charts grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Emotions Chart */}
-        <div className="glassmorphic rounded-xl p-6">
-          <h3 className="text-xl mb-6">{t('progress.charts.emotions')}</h3>
-          <div className="aspect-square">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={stats.emotions}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius="70%"
-                >
-                  {stats.emotions.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`}
-                      fill={`var(--emotion-${entry.id})`}
-                    />
-                  ))}
-                </Pie>
-                <Legend content={<CustomLegend />} />
-                <Tooltip content={<CustomTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+        {/* Charts */}
+        {[
+          {
+            title: 'emotions',
+            data: stats.emotions,
+            colors: entry => `var(--emotion-${entry.id})`,
+            type: 'pie'
+          },
+          {
+            title: 'mood',
+            data: stats.moodDistribution,
+            colors: entry => moodColors[entry.id],
+            type: 'pie'
+          },
+          {
+            title: 'timeOfDay',
+            data: stats.timeOfDay,
+            colors: entry => timeColors[entry.id],
+            type: 'pie'
+          },
+          {
+            title: 'category',
+            data: stats.categoryBreakdown,
+            colors: entry => categoryColors[entry.id],
+            type: 'pie'
+          },
+          {
+            title: 'positiveVsNegative',
+            data: stats.positiveVsNegative,
+            colors: entry => sentimentColors[entry.id],
+            type: 'bar'
+          },
+          {
+            title: 'negativeByCategory',
+            data: stats.negativeByCategory,
+            colors: entry => categoryColors[entry.id],
+            type: 'bar'
+          }
+        ].map((chart, index) => (
+          <div key={chart.title} className="glassmorphic rounded-xl p-4 md:p-6">
+            <h3 className="text-lg md:text-xl mb-4 md:mb-6">
+              {t(`progress.charts.${chart.title}`)}
+            </h3>
+            <MobileResponsiveChart>
+              {chart.type === 'pie' ? (
+                <PieChart>
+                  <Pie
+                    data={chart.data}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={isMobile ? "60%" : "70%"}
+                  >
+                    {chart.data.map((entry, i) => (
+                      <Cell 
+                        key={`cell-${i}`}
+                        fill={chart.colors(entry)}
+                      />
+                    ))}
+                  </Pie>
+                  <Legend 
+                    content={<CustomLegend />}
+                    verticalAlign="bottom"
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              ) : (
+                <BarChart data={chart.data}>
+                  <XAxis 
+                    dataKey="name" 
+                    tick={{ fontSize: isMobile ? 10 : 12 }}
+                    height={60}
+                    interval={0}
+                    angle={isMobile ? -45 : 0}
+                    textAnchor={isMobile ? "end" : "middle"}
+                  />
+                  <YAxis />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Bar 
+                    dataKey="value" 
+                    radius={[8, 8, 0, 0]}
+                  >
+                    {chart.data.map((entry, i) => (
+                      <Cell 
+                        key={`cell-${i}`}
+                        fill={chart.colors(entry)}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              )}
+            </MobileResponsiveChart>
           </div>
-        </div>
-
-        {/* Mood Distribution */}
-        <div className="glassmorphic rounded-xl p-6">
-          <h3 className="text-xl mb-6">{t('progress.charts.mood')}</h3>
-          <div className="aspect-square">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={stats.moodDistribution}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius="70%"
-                >
-                  {stats.moodDistribution.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`}
-                      fill={moodColors[entry.id]}
-                    />
-                  ))}
-                </Pie>
-                <Legend content={<CustomLegend />} />
-                <Tooltip content={<CustomTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Time of Day */}
-        <div className="glassmorphic rounded-xl p-6">
-          <h3 className="text-xl mb-6">{t('progress.charts.timeOfDay')}</h3>
-          <div className="aspect-square">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={stats.timeOfDay}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius="70%"
-                >
-                  {stats.timeOfDay.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`}
-                      fill={timeColors[entry.id]}
-                    />
-                  ))}
-                </Pie>
-                <Legend content={<CustomLegend />} />
-                <Tooltip content={<CustomTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Category Breakdown */}
-        <div className="glassmorphic rounded-xl p-6">
-          <h3 className="text-xl mb-6">{t('progress.charts.category')}</h3>
-          <div className="aspect-square">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={stats.categoryBreakdown}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius="70%"
-                >
-                  {stats.categoryBreakdown.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`}
-                      fill={categoryColors[entry.id]}
-                    />
-                  ))}
-                </Pie>
-                <Legend content={<CustomLegend />} />
-                <Tooltip content={<CustomTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Positive vs Negative */}
-        <div className="glassmorphic rounded-xl p-6">
-          <h3 className="text-xl mb-6">{t('progress.charts.positiveVsNegative')}</h3>
-          <div className="aspect-square">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats.positiveVsNegative}>
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="value" radius={[8, 8, 0, 0]}>
-                  {stats.positiveVsNegative.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`}
-                      fill={sentimentColors[entry.id]}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Negative by Category */}
-        <div className="glassmorphic rounded-xl p-6">
-          <h3 className="text-xl mb-6">{t('progress.charts.negativeByCategory')}</h3>
-          <div className="aspect-square">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats.negativeByCategory}>
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="value" radius={[8, 8, 0, 0]}>
-                  {stats.negativeByCategory.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`}
-                      fill={categoryColors[entry.id]}
-                      opacity={0.8}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* Monthly Entries */}
-      <div className="glassmorphic rounded-xl p-6 mt-8">
-        <h3 className="text-xl mb-6">{t('progress.charts.monthlyEntries')}</h3>
-        <div className="h-[400px]">
+      <div className="glassmorphic rounded-xl p-4 md:p-6 mt-4 md:mt-8">
+        <h3 className="text-lg md:text-xl mb-4 md:mb-6">{t('progress.charts.monthlyEntries')}</h3>
+        <div className="h-[300px] md:h-[400px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={stats.monthlyEntries}>
-              <XAxis dataKey="name" />
+              <XAxis 
+                dataKey="name" 
+                tick={{ fontSize: isMobile ? 10 : 12 }}
+                height={60}
+                interval={isMobile ? 1 : 0}
+                angle={isMobile ? -45 : 0}
+                textAnchor={isMobile ? "end" : "middle"}
+              />
               <YAxis />
               <Tooltip content={<CustomTooltip />} />
               <Line 
@@ -617,38 +586,5 @@ const Progress = ({ language = 'el', userEmail }) => {
     </div>
   );
 };
-// Στα chart components του Progress.js προσθέτουμε mobile προσαρμογές
-
-const MobileResponsiveChart = ({ children }) => {
-  const isMobile = window.innerWidth <= 768;
-  
-  return (
-    <div className="aspect-square w-full">
-      <ResponsiveContainer width="100%" height={isMobile ? 300 : "100%"}>
-        {children}
-      </ResponsiveContainer>
-    </div>
-  );
-};
-
-// Χρήση για κάθε chart component:
-<div className="glassmorphic rounded-xl p-4 md:p-6">
-  <h3 className="text-lg md:text-xl mb-4 md:mb-6">{t('progress.charts.emotions')}</h3>
-  <MobileResponsiveChart>
-    <PieChart>
-      <Pie
-        data={stats.emotions}
-        innerRadius={isMobile ? "50%" : "0%"}
-        outerRadius={isMobile ? "70%" : "90%"}
-        {...otherProps}
-      />
-      <Legend 
-        content={<CustomLegend />}
-        verticalAlign="bottom"
-        height={isMobile ? 60 : 36}
-      />
-    </PieChart>
-  </MobileResponsiveChart>
-</div>
 
 export default Progress;
