@@ -5,7 +5,8 @@ import {
   ChevronRight,
   Loader,
   XCircle,
-  ArrowLeft
+  ArrowLeft,
+  Clock
 } from 'lucide-react';
 import { getTranslation } from '../../utils/translations';
 import googleSheetsService from '../../services/googleSheets';
@@ -15,9 +16,10 @@ const MyEntries = ({ language = 'el', userEmail }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [viewType, setViewType] = useState('month'); // 'month' or 'year'
+  const [viewType, setViewType] = useState('month');
   const [selectedDate, setSelectedDate] = useState(null);
   const [viewHistory, setViewHistory] = useState([]);
+  const [lastEntries, setLastEntries] = useState([]);
 
   const t = (path) => getTranslation(language, path);
 
@@ -33,6 +35,11 @@ const MyEntries = ({ language = 'el', userEmail }) => {
       
       if (response.success) {
         setEntries(response.data);
+        // Set last 3 entries
+        const sortedEntries = [...response.data].sort(
+          (a, b) => new Date(b.date) - new Date(a.date)
+        ).slice(0, 3);
+        setLastEntries(sortedEntries);
       } else {
         throw new Error('Failed to fetch entries');
       }
@@ -58,45 +65,62 @@ const MyEntries = ({ language = 'el', userEmail }) => {
     }
   };
 
-  const getDaysInMonth = (date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const firstDayOfMonth = new Date(year, month, 1).getDay();
-    
-    return Array.from({ length: daysInMonth }, (_, i) => {
-      const day = i + 1;
-      const currentDay = new Date(year, month, day);
-      const dayEntries = entries.filter(entry => 
-        new Date(entry.date).toDateString() === currentDay.toDateString()
-      );
-      
-      return {
-        date: currentDay,
-        entries: dayEntries,
-        mood: dayEntries[0]?.mood || null,
-        emotions: dayEntries[0]?.emotions || []
-      };
-    });
-  };
+  const renderEntryCard = (entry) => (
+    <div 
+      key={entry.id}
+      className="glassmorphic rounded-xl p-4 space-y-3"
+    >
+      {/* Date and Time */}
+      <div className="flex items-center justify-between text-sm text-white/70">
+        <div className="flex items-center gap-2">
+          <CalendarIcon className="w-4 h-4" />
+          {new Date(entry.date).toLocaleDateString(language === 'el' ? 'el-GR' : 'en-US')}
+        </div>
+        <div className="flex items-center gap-2">
+          <Clock className="w-4 h-4" />
+          {new Date(entry.date).toLocaleTimeString(language === 'el' ? 'el-GR' : 'en-US', {
+            hour: '2-digit',
+            minute: '2-digit'
+          })}
+        </div>
+      </div>
 
-  const getMonthsInYear = (date) => {
-    const year = date.getFullYear();
-    return Array.from({ length: 12 }, (_, i) => {
-      const currentMonth = new Date(year, i, 1);
-      const monthEntries = entries.filter(entry => {
-        const entryDate = new Date(entry.date);
-        return entryDate.getMonth() === i && entryDate.getFullYear() === year;
-      });
-      
-      return {
-        date: currentMonth,
-        entries: monthEntries,
-        mood: monthEntries[0]?.mood || null,
-        emotions: monthEntries.reduce((acc, entry) => [...acc, ...entry.emotions], [])
-      };
-    });
-  };
+      {/* Category */}
+      <div>
+        <span className="text-sm font-medium text-white/70">
+          {t(`moodEntry.categories.${entry.category}`)}
+        </span>
+      </div>
+
+      {/* Notes */}
+      {entry.notes && (
+        <p className="text-white/90">{entry.notes}</p>
+      )}
+
+      {/* Emotions and Mood */}
+      <div className="flex justify-end items-center gap-2 pt-2">
+        {entry.emotions.map((emotion, i) => (
+          <div
+            key={i}
+            className="w-6 h-6 rounded-full"
+            style={{ 
+              backgroundColor: `var(--emotion-${emotion})`,
+              boxShadow: '0 0 10px rgba(255, 255, 255, 0.2)' 
+            }}
+            title={t(`moodEntry.emotions.${emotion}`)}
+          />
+        ))}
+        <div 
+          className="w-6 h-6 rounded-full ml-2"
+          style={{ 
+            backgroundColor: `var(--mood-${entry.mood})`,
+            boxShadow: '0 0 10px rgba(255, 255, 255, 0.2)' 
+          }}
+          title={t(`moodEntry.moods.${entry.mood}`)}
+        />
+      </div>
+    </div>
+  );
 
   const renderMonthView = () => {
     const days = getDaysInMonth(currentDate);
@@ -106,7 +130,9 @@ const MyEntries = ({ language = 'el', userEmail }) => {
       1
     ).getDay();
     
-    const daysOfWeek = ['Κυρ', 'Δευ', 'Τρι', 'Τετ', 'Πεμ', 'Παρ', 'Σαβ'];
+    const daysOfWeek = language === 'el' 
+      ? ['Κυρ', 'Δευ', 'Τρι', 'Τετ', 'Πεμ', 'Παρ', 'Σαβ']
+      : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     return (
       <div>
@@ -121,12 +147,10 @@ const MyEntries = ({ language = 'el', userEmail }) => {
 
         {/* Calendar grid */}
         <div className="grid grid-cols-7 gap-2">
-          {/* Empty cells for days before start of month */}
           {Array.from({ length: firstDayOfMonth }, (_, i) => (
             <div key={`empty-${i}`} className="aspect-square" />
           ))}
 
-          {/* Days with entries */}
           {days.map(({ date, entries, mood, emotions }) => (
             <button
               key={date.toISOString()}
@@ -140,7 +164,7 @@ const MyEntries = ({ language = 'el', userEmail }) => {
               `}
               style={{
                 backgroundColor: entries.length > 0 
-                  ? `var(--mood-${mood || 'neutral'})`
+                  ? `var(--mood-${mood || 'neutral'})` 
                   : 'rgba(255, 255, 255, 0.05)'
               }}
               data-active={selectedDate?.toDateString() === date.toDateString()}
@@ -155,7 +179,8 @@ const MyEntries = ({ language = 'el', userEmail }) => {
                       {emotions.slice(0, 2).map((emotion, i) => (
                         <div
                           key={i}
-                          className={`w-2 h-2 rounded-full emotion-${emotion}`}
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: `var(--emotion-${emotion})` }}
                         />
                       ))}
                     </div>
@@ -169,60 +194,7 @@ const MyEntries = ({ language = 'el', userEmail }) => {
     );
   };
 
-  const renderYearView = () => {
-    const months = getMonthsInYear(currentDate);
-    const monthNames = [
-      'Ιαν', 'Φεβ', 'Μαρ', 'Απρ', 'Μάι', 'Ιουν',
-      'Ιουλ', 'Αυγ', 'Σεπ', 'Οκτ', 'Νοε', 'Δεκ'
-    ];
-
-    return (
-      <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
-        {months.map(({ date, entries, emotions }, index) => (
-          <button
-            key={date.toISOString()}
-            onClick={() => navigateToDate(date, 'month')}
-            className={`
-              aspect-square p-4 rounded-xl
-              glassmorphic-hover
-              transition-all duration-300
-              ${entries.length > 0 ? 'cursor-pointer' : 'cursor-default'}
-            `}
-            style={{
-              backgroundColor: entries.length > 0
-                ? 'rgba(255, 255, 255, 0.15)'
-                : 'rgba(255, 255, 255, 0.05)'
-            }}
-          >
-            <div className="h-full flex flex-col">
-              <span className="text-lg font-medium mb-2">
-                {monthNames[index]}
-              </span>
-              {entries.length > 0 && (
-                <div className="flex-1 flex items-center justify-center">
-                  <div className="flex flex-wrap gap-1 justify-center">
-                    {Array.from(new Set(emotions)).slice(0, 4).map((emotion, i) => (
-                      <div
-                        key={i}
-                        className={`w-3 h-3 rounded-full emotion-${emotion}`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-              {entries.length > 0 && (
-                <div className="text-sm text-white/70 mt-2">
-                  {entries.length} καταχωρήσεις
-                </div>
-              )}
-            </div>
-          </button>
-        ))}
-      </div>
-    );
-  };
-
-  const renderSelectedEntries = () => {
+  const renderSelectedDayEntries = () => {
     if (!selectedDate) return null;
 
     const dayEntries = entries.filter(entry => 
@@ -239,59 +211,12 @@ const MyEntries = ({ language = 'el', userEmail }) => {
 
     return (
       <div className="space-y-4 mt-6">
-        {dayEntries.map((entry) => (
-          <div 
-            key={entry.id}
-            className="glassmorphic rounded-xl p-4"
-          >
-            <div className="flex justify-between items-start mb-2">
-              <div className="flex gap-2">
-                {entry.emotions.map((emotion, i) => (
-                  <div
-                    key={i}
-                    className={`px-3 py-1 rounded-full text-sm emotion-${emotion}`}
-                  >
-                    {t(`moodEntry.emotions.${emotion}`)}
-                  </div>
-                ))}
-              </div>
-              <div 
-                className="w-4 h-4 rounded-full"
-                style={{ backgroundColor: `var(--mood-${entry.mood})` }}
-              />
-            </div>
-            {entry.notes && (
-              <p className="text-white/90">{entry.notes}</p>
-            )}
-          </div>
-        ))}
+        {dayEntries.map(entry => renderEntryCard(entry))}
       </div>
     );
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <Loader className="w-8 h-8 animate-spin text-white/50" />
-        <p className="text-white/70">{t('states.loading')}</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <XCircle className="w-12 h-12 text-red-400" />
-        <p className="text-white/70">{error}</p>
-        <button
-          onClick={fetchEntries}
-          className="px-4 py-2 glassmorphic rounded-xl hover:bg-white/20"
-        >
-          {t('states.retry')}
-        </button>
-      </div>
-    );
-  }
+  // Rest of the component code...
 
   return (
     <div className="space-y-6">
@@ -362,14 +287,18 @@ const MyEntries = ({ language = 'el', userEmail }) => {
       {/* Calendar */}
       <div className="glassmorphic rounded-xl p-6">
         {viewType === 'month' ? renderMonthView() : renderYearView()}
-        {renderSelectedEntries()}
+        {renderSelectedDayEntries()}
       </div>
 
-      {/* Last updated */}
-      <div className="text-center text-sm text-white/50 flex items-center justify-center gap-2">
-        <CalendarIcon className="w-4 h-4" />
-        {new Date().toLocaleDateString(language === 'el' ? 'el-GR' : 'en-US')}
-      </div>
+      {/* Last 3 Entries */}
+      {lastEntries.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">
+            {t('myEntries.lastEntries')}
+          </h2>
+          {lastEntries.map(entry => renderEntryCard(entry))}
+        </div>
+      )}
     </div>
   );
 };
