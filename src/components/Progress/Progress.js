@@ -43,6 +43,126 @@ const Progress = ({ language = 'el', userEmail }) => {
 
   const t = (path) => getTranslation(language, path);
 
+  // Chart color schemes with pastel colors
+  const moodColors = {
+    'very-positive': 'var(--mood-very-positive)',
+    'positive': 'var(--mood-positive)',
+    'neutral': 'var(--mood-neutral)',
+    'negative': 'var(--mood-negative)',
+    'very-negative': 'var(--mood-very-negative)'
+  };
+
+  const timeColors = {
+    'morning': 'var(--time-morning)',
+    'noon': 'var(--time-noon)',
+    'afternoon': 'var(--time-afternoon)',
+    'evening': 'var(--time-evening)'
+  };
+
+  const categoryColors = {
+    'personal': 'var(--category-personal)',
+    'friends': 'var(--category-friends)',
+    'family': 'var(--category-family)',
+    'work': 'var(--category-work)',
+    'studies': 'var(--category-studies)',
+    'health': 'var(--category-health)',
+    'finances': 'var(--category-finances)',
+    'entertainment': 'var(--category-entertainment)'
+  };
+
+  const sentimentColors = {
+    positive: 'var(--chart-positive)',
+    negative: 'var(--chart-negative)'
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, [timeFilter, userEmail]);
+
+  const fetchStats = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const entries = await googleSheetsService.getUserEntries(userEmail, timeFilter);
+      
+      if (entries.success) {
+        const processedStats = processEntries(entries.data);
+        setStats(processedStats);
+      } else {
+        throw new Error('Failed to fetch entries');
+      }
+    } catch (err) {
+      setError(t('states.error'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const processEntries = (entries) => {
+    return {
+      totalEntries: entries.length,
+      weeklyCompletion: calculateWeeklyCompletion(entries),
+      moodDistribution: calculateMoodDistribution(entries),
+      categoryBreakdown: calculateCategoryBreakdown(entries),
+      emotions: calculateEmotionsStats(entries),
+      timeOfDay: calculateTimeOfDayStats(entries),
+      emotionsByCategory: calculateEmotionsByCategory(entries),
+      negativeByCategory: calculateNegativeByCategory(entries),
+      monthlyEntries: calculateMonthlyEntries(entries),
+      positiveVsNegative: calculatePositiveVsNegative(entries)
+    };
+  };
+
+  // Chart components configuration
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="glassmorphic p-3 rounded-lg">
+          <p className="text-sm font-medium">{label}</p>
+          <p className="text-sm">{`${Math.round(payload[0].value)}%`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * Math.PI / 180);
+    const y = cy + radius * Math.sin(-midAngle * Math.PI / 180);
+    
+    return (
+      <text 
+        x={x} 
+        y={y} 
+        fill="white"
+        textAnchor="middle" 
+        dominantBaseline="central"
+      >
+        {`${(percent * 100).toFixed(0)}%`}
+      </text>
+    );
+  };
+
+  // Custom legend renderer for better translations
+  const CustomLegend = ({ payload }) => {
+    return (
+      <ul className="flex flex-wrap justify-center gap-4 mt-4">
+        {payload.map((entry, index) => (
+          <li key={index} className="flex items-center gap-2">
+            <div 
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="text-sm">{entry.value}</span>
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
+  const t = (path) => getTranslation(language, path);
+
   useEffect(() => {
     fetchStats();
   }, [timeFilter, userEmail]);
@@ -270,6 +390,8 @@ const Progress = ({ language = 'el', userEmail }) => {
     return null;
   };
 
+ // ... previous code remains the same ...
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
@@ -320,7 +442,7 @@ const Progress = ({ language = 'el', userEmail }) => {
         </div>
       </div>
 
-      {/* Quick stats cards */}
+      {/* Quick stats cards with margin bottom for separation */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <div className="glassmorphic rounded-xl p-6">
           <div className="flex items-center gap-3 mb-2">
@@ -373,10 +495,8 @@ const Progress = ({ language = 'el', userEmail }) => {
                   ))}
                 </Pie>
                 <Legend 
-                  verticalAlign="bottom" 
-                  align="center"
-                  layout="horizontal"
-                  wrapperStyle={{ paddingTop: "20px" }}
+                  content={<CustomLegend />}
+                  verticalAlign="bottom"
                 />
                 <Tooltip content={<CustomTooltip />} />
               </PieChart>
@@ -401,48 +521,13 @@ const Progress = ({ language = 'el', userEmail }) => {
                   {stats.moodDistribution.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`}
-                      fill={`var(--mood-${entry.id})`}
+                      fill={moodColors[entry.id]}
                     />
                   ))}
                 </Pie>
                 <Legend 
-                  verticalAlign="bottom" 
-                  align="center"
-                  layout="horizontal"
-                  wrapperStyle={{ paddingTop: "20px" }}
-                />
-                <Tooltip content={<CustomTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Categories Breakdown */}
-        <div className="glassmorphic rounded-xl p-6">
-          <h3 className="text-xl mb-6">{t('progress.charts.category')}</h3>
-          <div className="aspect-square">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={stats.categoryBreakdown}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius="70%"
-                >
-                  {stats.categoryBreakdown.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`}
-                      fill={`var(--emotion-${entry.id})`}
-                    />
-                  ))}
-                </Pie>
-                <Legend 
-                  verticalAlign="bottom" 
-                  align="center"
-                  layout="horizontal"
-                  wrapperStyle={{ paddingTop: "20px" }}
+                  content={<CustomLegend />}
+                  verticalAlign="bottom"
                 />
                 <Tooltip content={<CustomTooltip />} />
               </PieChart>
@@ -467,15 +552,13 @@ const Progress = ({ language = 'el', userEmail }) => {
                   {stats.timeOfDay.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`}
-                      fill={`var(--time-${entry.id})`}
+                      fill={timeColors[entry.id]}
                     />
                   ))}
                 </Pie>
                 <Legend 
-                  verticalAlign="bottom" 
-                  align="center"
-                  layout="horizontal"
-                  wrapperStyle={{ paddingTop: "20px" }}
+                  content={<CustomLegend />}
+                  verticalAlign="bottom"
                 />
                 <Tooltip content={<CustomTooltip />} />
               </PieChart>
@@ -483,7 +566,38 @@ const Progress = ({ language = 'el', userEmail }) => {
           </div>
         </div>
 
-        {/* Positive vs Negative */}
+        {/* Category Breakdown */}
+        <div className="glassmorphic rounded-xl p-6">
+          <h3 className="text-xl mb-6">{t('progress.charts.category')}</h3>
+          <div className="aspect-square">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={stats.categoryBreakdown}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius="70%"
+                >
+                  {stats.categoryBreakdown.map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`}
+                      fill={categoryColors[entry.id]}
+                    />
+                  ))}
+                </Pie>
+                <Legend 
+                  content={<CustomLegend />}
+                  verticalAlign="bottom"
+                />
+                <Tooltip content={<CustomTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Positive vs Negative Emotions */}
         <div className="glassmorphic rounded-xl p-6">
           <h3 className="text-xl mb-6">{t('progress.charts.positiveVsNegative')}</h3>
           <div className="aspect-square">
@@ -496,7 +610,7 @@ const Progress = ({ language = 'el', userEmail }) => {
                   {stats.positiveVsNegative.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`}
-                      fill={entry.id === 'positive' ? 'var(--chart-positive)' : 'var(--chart-negative)'}
+                      fill={sentimentColors[entry.id]}
                     />
                   ))}
                 </Bar>
@@ -518,7 +632,7 @@ const Progress = ({ language = 'el', userEmail }) => {
                   {stats.negativeByCategory.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`}
-                      fill={`var(--emotion-${entry.id})`}
+                      fill={categoryColors[entry.id]}
                       opacity={0.8}
                     />
                   ))}
@@ -529,7 +643,7 @@ const Progress = ({ language = 'el', userEmail }) => {
         </div>
       </div>
 
-      {/* Monthly Entries */}
+      {/* Monthly Entries at the bottom */}
       <div className="glassmorphic rounded-xl p-6 mt-8">
         <h3 className="text-xl mb-6">{t('progress.charts.monthlyEntries')}</h3>
         <div className="h-[400px]">
@@ -541,14 +655,20 @@ const Progress = ({ language = 'el', userEmail }) => {
               <Line 
                 type="monotone" 
                 dataKey="value" 
-                stroke="#8884d8" 
+                stroke={timeColors.morning}
                 strokeWidth={2}
-                dot={{ fill: '#8884d8', strokeWidth: 2 }}
+                dot={{ fill: timeColors.morning, strokeWidth: 2 }}
                 activeDot={{ r: 8 }}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
+      </div>
+
+      {/* Last updated timestamp */}
+      <div className="text-center text-sm text-white/50 flex items-center justify-center gap-2">
+        <Calendar className="w-4 h-4" />
+        {new Date().toLocaleDateString(language === 'el' ? 'el-GR' : 'en-US')}
       </div>
     </div>
   );
