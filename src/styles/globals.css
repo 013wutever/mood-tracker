@@ -153,7 +153,7 @@ html, body {
 @media (max-width: 600px) {
   /* Enable smooth scrolling */
   html, body {
-    overscroll-behavior-y: auto
+    overscroll-behavior-y: auto;
     -webkit-overflow-scrolling: touch;
   }
 
