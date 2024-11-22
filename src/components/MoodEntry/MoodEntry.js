@@ -273,7 +273,7 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
       {/* Submit Button - Fixed at bottom */}
       <div className={`
         ${isMobile 
-          ? 'fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-purple-300/80 via-purple-300/80 to-transparent' 
+          ? 'sticky bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-purple-300/80 via-purple-300/80 to-transparent' 
           : 'mt-6'}
       `}>
         <GlassmorphicContainer
