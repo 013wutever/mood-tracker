@@ -18,17 +18,20 @@ const GlassmorphicContainer = ({
   }, []);
 
   const getStyles = () => {
-    const mobileStyles = {
-      backgroundColor: style.backgroundColor || 'rgba(255, 255, 255, 0.1)',
-      ...style
-    };
+    const mobileDefaultBackground = 'rgba(255, 255, 255, 0.15)';
+    
+    if (isMobile) {
+      return {
+        backgroundColor: style.backgroundColor || mobileDefaultBackground,
+        boxShadow: 'inset 0 0 20px rgba(255, 255, 255, 0.1)',
+        ...style
+      };
+    }
 
-    const desktopStyles = {
+    return {
       ...style,
       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), inset 0 0 80px rgba(255, 255, 255, 0.1)'
     };
-
-    return isMobile ? mobileStyles : desktopStyles;
   };
 
   const getClassName = () => {
@@ -41,7 +44,7 @@ const GlassmorphicContainer = ({
       return `
         ${baseClasses}
         ${hover ? 'active:scale-95' : ''}
-        ${active ? 'bg-opacity-20' : 'bg-opacity-10'}
+        ${active ? 'bg-opacity-90' : 'bg-opacity-70'}
         backdrop-blur-sm
       `;
     }
