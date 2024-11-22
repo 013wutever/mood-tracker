@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { getTranslation } from '../../utils/translations';
 import googleSheetsService from '../../services/googleSheets';
+import GlassmorphicContainer from '../../components/ui/GlassmorphicContainer';
 
 const MoodEntry = ({ language = 'el', userEmail }) => {
   const [selectedMood, setSelectedMood] = useState(null);
@@ -127,8 +128,10 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
     <div className="space-y-6 md:space-y-8 content-wrapper scroll-container">
       {/* Status Messages */}
       {submitStatus && (
-        <div className={`fixed top-4 right-4 p-4 rounded-xl flex items-center gap-2
-          ${submitStatus === 'success' ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
+        <GlassmorphicContainer 
+          className={`fixed top-4 right-4 p-4 rounded-xl flex items-center gap-2
+            ${submitStatus === 'success' ? 'bg-green-500/20' : 'bg-red-500/20'}`}
+        >
           {submitStatus === 'success' ? (
             <CheckCircle className="w-5 h-5" />
           ) : (
@@ -139,43 +142,44 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
               t('moodEntry.success') : 
               t('moodEntry.error')}
           </span>
-        </div>
+        </GlassmorphicContainer>
       )}
 
       {/* Moods */}
       <div className="mood-section">
-  <h2 className="text-lg md:text-xl mb-4">
-    {t('moodEntry.title')}
-  </h2>
-  <div className="grid grid-cols-5 gap-3 md:gap-4 px-4 md:px-20">
-    {moods.map((mood) => {
-      const MoodIcon = mood.icon;
-      return (
-        <button
-          key={mood.id}
-          onClick={() => setSelectedMood(mood.id)}
-          className={`
-            transition-all duration-300
-            rounded-full
-            touch-manipulation
-            aspect-square
-            flex items-center justify-center
-            ${isMobile ? 'min-h-[36px] min-w-[36px]' : 'h-18 w-18'}
-            ${selectedMood === mood.id ? 'scale-110 ring-2 ring-white/50' : ''}
-          `}
-          style={{
-            backgroundColor: mood.color,
-            opacity: selectedMood === mood.id ? 1 : 0.8
-          }}
-          title={mood.label}
-          data-active={selectedMood === mood.id}
-        >
-          <MoodIcon className={isMobile ? 'w-5 h-5' : 'w-8 h-8'} />
-        </button>
-      );
-    })}
-  </div>
-</div>
+        <h2 className="text-lg md:text-xl mb-4">
+          {t('moodEntry.title')}
+        </h2>
+        <div className="grid grid-cols-5 gap-3 md:gap-4 px-4 md:px-20">
+          {moods.map((mood) => {
+            const MoodIcon = mood.icon;
+            return (
+              <GlassmorphicContainer
+                key={mood.id}
+                as="button"
+                onClick={() => setSelectedMood(mood.id)}
+                className={`
+                  transition-all duration-300
+                  rounded-full
+                  touch-manipulation
+                  aspect-square
+                  flex items-center justify-center
+                  ${isMobile ? 'min-h-[36px] min-w-[36px]' : 'h-18 w-18'}
+                `}
+                hover={true}
+                active={selectedMood === mood.id}
+                style={{
+                  backgroundColor: mood.color,
+                  opacity: selectedMood === mood.id ? 1 : 0.8
+                }}
+                title={mood.label}
+              >
+                <MoodIcon className={isMobile ? 'w-5 h-5' : 'w-8 h-8'} />
+              </GlassmorphicContainer>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Categories */}
       <div className="category-section">
@@ -184,24 +188,24 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {categories.map((category) => (
-            <button
+            <GlassmorphicContainer
               key={category.id}
+              as="button"
               onClick={() => setSelectedCategory(category.id)}
               className={`
                 p-3 rounded-xl text-sm 
                 touch-manipulation
                 min-h-[44px]
                 transition-all duration-300
-                ${isMobile ? 'bg-white/20' : 'glassmorphic'}
-                ${selectedCategory === category.id ? 'active scale-105' : ''}
               `}
+              hover={true}
+              active={selectedCategory === category.id}
               style={{
                 backgroundColor: selectedCategory === category.id ? category.color : undefined
               }}
-              data-active={selectedCategory === category.id}
             >
               {category.name}
-            </button>
+            </GlassmorphicContainer>
           ))}
         </div>
       </div>
@@ -213,8 +217,9 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
         </h2>
         <div className="flex flex-wrap gap-2">
           {emotions.map((emotion) => (
-            <button
+            <GlassmorphicContainer
               key={emotion.value}
+              as="button"
               onClick={() => {
                 if (selectedEmotions.includes(emotion.value)) {
                   setSelectedEmotions(prev => prev.filter(e => e !== emotion.value));
@@ -226,23 +231,22 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
               style={{
                 backgroundColor: selectedEmotions.includes(emotion.value) 
                   ? emotion.color 
-                  : isMobile ? 'rgba(255, 255, 255, 0.2)' : undefined
+                  : undefined
               }}
               className={`
                 px-4 py-2 rounded-full text-sm
                 touch-manipulation
                 min-h-[44px]
                 transition-all duration-300
-                ${!isMobile && 'glassmorphic'}
-                ${selectedEmotions.includes(emotion.value) ? 'active scale-105' : ''}
                 ${selectedEmotions.length >= 3 && !selectedEmotions.includes(emotion.value)
                   ? 'opacity-50 cursor-not-allowed'
                   : ''}
               `}
-              data-active={selectedEmotions.includes(emotion.value)}
+              hover={true}
+              active={selectedEmotions.includes(emotion.value)}
             >
               {emotion.name}
-            </button>
+            </GlassmorphicContainer>
           ))}
         </div>
       </div>
@@ -252,27 +256,29 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
         <h2 className="text-lg md:text-xl mb-4">
           {t('moodEntry.notes.title')}
         </h2>
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder={t('moodEntry.notes.placeholder')}
-          className={`
-            w-full min-h-[120px] rounded-xl p-4 
-            placeholder-white/50 resize-none focus:ring-2 
-            focus:ring-white/30 focus:outline-none
-            text-base
-            ${isMobile ? 'bg-white/20' : 'glassmorphic bg-white/10'}
-          `}
-          style={{ fontSize: '16px' }}
-          maxLength={500}
-        />
+        <GlassmorphicContainer as="div" className="relative">
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder={t('moodEntry.notes.placeholder')}
+            className={`
+              w-full min-h-[120px] rounded-xl p-4 
+              placeholder-white/50 resize-none focus:ring-2 
+              focus:ring-white/30 focus:outline-none
+              text-base bg-transparent
+            `}
+            style={{ fontSize: '16px' }}
+            maxLength={500}
+          />
+        </GlassmorphicContainer>
         <div className="text-right text-sm text-white/50 mt-2">
           {`${notes.length}/500 ${t('moodEntry.notes.charCount')}`}
         </div>
       </div>
 
       {/* Submit Button */}
-      <button
+      <GlassmorphicContainer
+        as="button"
         onClick={handleSubmit}
         disabled={isSubmitting}
         className={`
@@ -280,9 +286,9 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
           touch-manipulation
           min-h-[44px]
           transition-all duration-300
-          ${isMobile ? 'bg-white/20' : 'glassmorphic hover:bg-white/30'}
           ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}
         `}
+        hover={true}
       >
         {isSubmitting ? (
           <div className="flex items-center justify-center gap-2">
@@ -292,7 +298,7 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
         ) : (
           t('moodEntry.submit')
         )}
-      </button>
+      </GlassmorphicContainer>
 
       {/* Timestamp */}
       <div className="text-center text-sm text-white/50 flex items-center justify-center gap-2">
