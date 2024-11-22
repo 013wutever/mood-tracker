@@ -71,10 +71,8 @@ html, body {
 
 /* Glassmorphic Effects */
 .glassmorphic {
-  @apply bg-white/10 backdrop-blur-lg border border-white/20;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-              0 2px 4px -1px rgba(0, 0, 0, 0.06),
-              inset 0 0 80px rgba(255, 255, 255, 0.1);
+  @apply bg-white/10 border border-white/20;
+  /* box-shadow αφαιρέθηκε για δοκιμή */
 }
 
 /* Enhanced Hover Effects */
