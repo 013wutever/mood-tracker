@@ -1,7 +1,21 @@
 /* Βασικό container για scroll */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: fixed;
+  -webkit-tap-highlight-color: transparent;
+}
+
 #root {
-  min-height: 100vh;
-  overflow-y: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
   background: linear-gradient(135deg, 
     rgba(252,182,218,0.95) 0%, 
@@ -9,19 +23,10 @@
   );
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  height: auto !important;
-  overflow: hidden !important;
-  position: fixed;
-  width: 100%;
-  -webkit-tap-highlight-color: transparent;
-}
-
 .content-wrapper {
   height: auto;
-  overflow-y: auto !important;
+  min-height: 100%;
+  overflow-y: visible !important;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -40,20 +45,23 @@ body {
 @media (max-width: 768px) {
   #root {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    overflow-y: auto;
+    height: 100%;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
   }
 
   .content-wrapper {
-    height: auto;
-    overflow-y: auto !important;
+    min-height: 100%;
     padding-bottom: env(safe-area-inset-bottom);
-    -webkit-overflow-scrolling: touch;
     position: relative;
     z-index: 1;
+  }
+
+  /* Main container */
+  main {
+    min-height: 100%;
+    position: relative;
   }
   
   /* Βελτίωση εμφάνισης εικονιδίων στο mobile */
@@ -65,13 +73,19 @@ body {
 
   /* Διόρθωση για το landscape mode */
   @media (orientation: landscape) {
-    .content-wrapper {
-      height: auto;
-      min-height: auto;
+    #root {
+      position: fixed;
+      height: 100%;
+      overflow-y: scroll !important;
     }
 
-    #root {
-      overflow-y: auto !important;
+    .content-wrapper {
+      height: auto;
+      min-height: 100%;
+    }
+
+    main {
+      min-height: 100%;
     }
   }
 }
@@ -105,4 +119,11 @@ button:hover::before {
 /* Βελτιωμένο active state για κουμπιά */
 button:active {
   transform: scale(0.98);
+}
+
+/* iOS specific fixes */
+@supports (-webkit-touch-callout: none) {
+  #root {
+    height: -webkit-fill-available;
+  }
 }
