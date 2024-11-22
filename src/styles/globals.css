@@ -152,6 +152,7 @@ html, body {
 }
 
 /* Mobile Optimizations */
+/* Mobile Optimizations */
 @media (max-width: 768px) {
   /* Reset fixed heights and overflows */
   .content-wrapper {
@@ -205,7 +206,7 @@ html, body {
 
   /* Optimize lists and grids */
   .grid {
-    gap: 3;
+    gap: 0.75rem;
   }
 
   /* Better scrolling experience */
@@ -217,36 +218,25 @@ html, body {
 
   /* Optimize charts */
   .recharts-wrapper {
-    touch-none;
+    touch-action: none;
   }
 
   /* Prevent text selection on buttons */
   button,
   [role="button"] {
+    -webkit-user-select: none;
     user-select: none;
   }
 
   /* Better form inputs */
   input,
   textarea {
-    font-size: 16px !important; /* Prevents iOS zoom on focus */
+    font-size: 16px !important;
   }
 
   /* Fix iOS height issues */
   .min-h-screen {
     min-height: -webkit-fill-available;
-  }
-
-  /* Prevent elastic scroll */
-  html {
-    overflow: hidden;
-    height: 100%;
-  }
-
-  body {
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    height: 100%;
   }
 
   /* Panel container adjustments */
