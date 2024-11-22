@@ -151,63 +151,149 @@ html, body {
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
-/* Mobile-specific fixes */
-@media (max-width: 600px) {
-  /* Enable smooth scrolling */
-  html, body {
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Fix content height */
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  /* Reset fixed heights and overflows */
   .content-wrapper {
+    max-height: none !important;
+    overflow: visible !important;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: auto;
     touch-action: pan-y pinch-zoom;
   }
 
-  /* Better touch targets */
+  /* Enable scrolling on body */
+  body {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y pinch-zoom;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+
+  /* Remove panel scrolling */
+  .glassmorphic {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  /* Main content area */
+  .container {
+    min-height: auto;
+    padding-bottom: 2rem;
+  }
+
+  main {
+    position: relative;
+    min-height: calc(100vh - 4rem);
+    padding-top: 5rem;
+  }
+
+  /* Optimize touch targets */
   button,
-  .emotion-pill,
-  .calendar-day {
+  [role="button"] {
     min-height: 44px;
     min-width: 44px;
-    padding: 12px;
+    touch-action: manipulation;
   }
 
-  /* Improved grid layouts */
-  .mood-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
+  /* Fix content overflow */
+  .content-wrapper {
+    overflow-x: hidden;
   }
 
-  .category-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+  /* Optimize lists and grids */
+  .grid {
+    gap: 3;
   }
 
-  /* Chart responsiveness */
-  .chart-container {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1;
-    margin-bottom: 2rem;
-  }
-
-  /* Better scroll handling */
-  .content-scrollable {
+  /* Better scrolling experience */
+  .scroll-container {
+    overflow-y: visible;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
+    overscroll-behavior-y: auto;
   }
-/* Disable pull-to-refresh */
+
+  /* Optimize charts */
+  .recharts-wrapper {
+    touch-none;
+  }
+
+  /* Prevent text selection on buttons */
+  button,
+  [role="button"] {
+    user-select: none;
+  }
+
+  /* Better form inputs */
+  input,
+  textarea {
+    font-size: 16px !important; /* Prevents iOS zoom on focus */
+  }
+
+  /* Fix iOS height issues */
+  .min-h-screen {
+    min-height: -webkit-fill-available;
+  }
+
+  /* Prevent elastic scroll */
+  html {
+    overflow: hidden;
+    height: 100%;
+  }
+
   body {
-    overscroll-behavior-y: none;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    height: 100%;
+  }
+
+  /* Panel container adjustments */
+  .glassmorphic {
+    margin-bottom: 1rem;
+  }
+
+  /* Navigation adjustments */
+  .nav-container {
+    position: fixed;
+    z-index: 50;
+  }
+
+  /* Content spacing */
+  .content-section {
+    margin-bottom: 1rem;
   }
 
   /* Fix iOS momentum scrolling */
   .scroll-container {
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: auto;
-    touch-action: pan-y pinch-zoom;
+    height: auto;
+  }
+
+  /* Safe area insets */
+  .content-wrapper {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Content padding */
+  .main-content {
+    padding-bottom: 5rem;
+  }
+
+  /* Landscape optimizations */
+  @media (orientation: landscape) {
+    .content-wrapper {
+      height: auto;
+      min-height: calc(var(--app-height) - 4rem);
+    }
+  }
+
+  /* Handle notches and safe areas */
+  @supports (padding-top: env(safe-area-inset-top)) {
+    .nav-container {
+      padding-top: env(safe-area-inset-top);
+    }
   }
 }
 
@@ -220,23 +306,9 @@ html, body {
   .h-screen {
     height: -webkit-fill-available;
   }
-}
 
-/* Scrollbar Styling */
-::-webkit-scrollbar {
-  @apply w-1.5;
+  /* Fix keyboard issues */
+  .keyboard-open {
+    min-height: -webkit-fill-available;
+  }
 }
-
-::-webkit-scrollbar-track {
-  @apply bg-transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-white/20 rounded-full;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-white/30;
-}
-
-  
