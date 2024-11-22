@@ -272,18 +272,28 @@ html, body {
   }
 
   /* Landscape optimizations */
-  @media (orientation: landscape) {
-    .content-wrapper {
-      height: auto;
-      min-height: calc(var(--app-height) - 4rem);
-    }
+  @media (max-width: 768px) and (orientation: landscape) {
+  .glassmorphic {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
   }
 
-  /* Handle notches and safe areas */
-  @supports (padding-top: env(safe-area-inset-top)) {
-    .nav-container {
-      padding-top: env(safe-area-inset-top);
-    }
+  button,
+  [role="button"] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .content-wrapper {
+    height: auto !important;
+    min-height: auto !important;
+  }
+
+  main {
+    padding-top: 4rem;
+    min-height: auto;
   }
 }
 
