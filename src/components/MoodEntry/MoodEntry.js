@@ -124,12 +124,12 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
     }
   };
 
-  return (
-    <div className="space-y-6 md:space-y-8 content-wrapper scroll-container">
+   return (
+    <div className="flex flex-col min-h-full w-full">
       {/* Status Messages */}
       {submitStatus && (
         <GlassmorphicContainer 
-          className={`fixed top-4 right-4 p-4 rounded-xl flex items-center gap-2
+          className={`fixed top-4 right-4 p-4 rounded-xl flex items-center gap-2 z-50
             ${submitStatus === 'success' ? 'bg-green-500/20' : 'bg-red-500/20'}`}
         >
           {submitStatus === 'success' ? (
@@ -145,165 +145,156 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
         </GlassmorphicContainer>
       )}
 
-      {/* Moods */}
-      <div className="mood-section">
-        <h2 className="text-lg md:text-xl mb-4">
-          {t('moodEntry.title')}
-        </h2>
-        <div className="grid grid-cols-5 gap-3 md:gap-4 px-4 md:px-20">
-          {moods.map((mood) => {
-            const MoodIcon = mood.icon;
-            return (
+      {/* Main content with proper spacing */}
+      <div className="flex-1 space-y-6 md:space-y-8 pb-20">
+        {/* Moods */}
+        <div className="mood-section">
+          <h2 className="text-lg md:text-xl mb-4">
+            {t('moodEntry.title')}
+          </h2>
+          <div className="grid grid-cols-5 gap-3 md:gap-4 px-4 md:px-20">
+            {moods.map((mood) => {
+              const MoodIcon = mood.icon;
+              return (
+                <GlassmorphicContainer
+                  key={mood.id}
+                  as="button"
+                  onClick={() => setSelectedMood(mood.id)}
+                  className={`
+                    rounded-full
+                    aspect-square
+                    flex items-center justify-center
+                    ${isMobile ? 'min-h-[36px] min-w-[36px]' : 'h-18 w-18'}
+                  `}
+                  hover={true}
+                  active={selectedMood === mood.id}
+                  style={{
+                    backgroundColor: mood.color,
+                    opacity: selectedMood === mood.id ? 1 : 0.8
+                  }}
+                  title={mood.label}
+                  isButton={true}
+                >
+                  <MoodIcon className={isMobile ? 'w-5 h-5' : 'w-8 h-8'} />
+                </GlassmorphicContainer>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Categories */}
+        <div className="category-section">
+          <h2 className="text-lg md:text-xl mb-4">
+            {t('moodEntry.categories.title')}
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {categories.map((category) => (
               <GlassmorphicContainer
-                key={mood.id}
+                key={category.id}
                 as="button"
-                onClick={() => setSelectedMood(mood.id)}
+                onClick={() => setSelectedCategory(category.id)}
+                className="p-3 rounded-xl text-sm min-h-[44px]"
+                hover={true}
+                active={selectedCategory === category.id}
+                style={{
+                  backgroundColor: selectedCategory === category.id ? category.color : undefined
+                }}
+                isButton={true}
+              >
+                {category.name}
+              </GlassmorphicContainer>
+            ))}
+          </div>
+        </div>
+
+        {/* Emotions */}
+        <div className="emotions-section">
+          <h2 className="text-lg md:text-xl mb-4">
+            {t('moodEntry.emotions.title')}
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {emotions.map((emotion) => (
+              <GlassmorphicContainer
+                key={emotion.value}
+                as="button"
+                onClick={() => {
+                  if (selectedEmotions.includes(emotion.value)) {
+                    setSelectedEmotions(prev => prev.filter(e => e !== emotion.value));
+                  } else if (selectedEmotions.length < 3) {
+                    setSelectedEmotions(prev => [...prev, emotion.value]);
+                  }
+                }}
+                disabled={selectedEmotions.length >= 3 && !selectedEmotions.includes(emotion.value)}
                 className={`
-                  transition-all duration-300
-                  rounded-full
-                  touch-manipulation
-                  aspect-square
-                  flex items-center justify-center
-                  ${isMobile ? 'min-h-[36px] min-w-[36px]' : 'h-18 w-18'}
+                  px-4 py-2 rounded-full text-sm min-h-[44px]
+                  ${selectedEmotions.length >= 3 && !selectedEmotions.includes(emotion.value)
+                    ? 'opacity-50 cursor-not-allowed'
+                    : ''}
                 `}
                 hover={true}
-                active={selectedMood === mood.id}
+                active={selectedEmotions.includes(emotion.value)}
                 style={{
-                  backgroundColor: mood.color,
-                  opacity: selectedMood === mood.id ? 1 : 0.8
+                  backgroundColor: selectedEmotions.includes(emotion.value) 
+                    ? emotion.color 
+                    : undefined
                 }}
-                title={mood.label}
+                isButton={true}
               >
-                <MoodIcon className={isMobile ? 'w-5 h-5' : 'w-8 h-8'} />
+                {emotion.name}
               </GlassmorphicContainer>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Categories */}
-      <div className="category-section">
-        <h2 className="text-lg md:text-xl mb-4">
-          {t('moodEntry.categories.title')}
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {categories.map((category) => (
-            <GlassmorphicContainer
-              key={category.id}
-              as="button"
-              onClick={() => setSelectedCategory(category.id)}
-              className={`
-                p-3 rounded-xl text-sm 
-                touch-manipulation
-                min-h-[44px]
-                transition-all duration-300
-              `}
-              hover={true}
-              active={selectedCategory === category.id}
-              style={{
-                backgroundColor: selectedCategory === category.id ? category.color : undefined
-              }}
-            >
-              {category.name}
-            </GlassmorphicContainer>
-          ))}
-        </div>
-      </div>
-
-      {/* Emotions */}
-      <div className="emotions-section">
-        <h2 className="text-lg md:text-xl mb-4">
-          {t('moodEntry.emotions.title')}
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          {emotions.map((emotion) => (
-            <GlassmorphicContainer
-              key={emotion.value}
-              as="button"
-              onClick={() => {
-                if (selectedEmotions.includes(emotion.value)) {
-                  setSelectedEmotions(prev => prev.filter(e => e !== emotion.value));
-                } else if (selectedEmotions.length < 3) {
-                  setSelectedEmotions(prev => [...prev, emotion.value]);
-                }
-              }}
-              disabled={selectedEmotions.length >= 3 && !selectedEmotions.includes(emotion.value)}
-              style={{
-                backgroundColor: selectedEmotions.includes(emotion.value) 
-                  ? emotion.color 
-                  : undefined
-              }}
-              className={`
-                px-4 py-2 rounded-full text-sm
-                touch-manipulation
-                min-h-[44px]
-                transition-all duration-300
-                ${selectedEmotions.length >= 3 && !selectedEmotions.includes(emotion.value)
-                  ? 'opacity-50 cursor-not-allowed'
-                  : ''}
-              `}
-              hover={true}
-              active={selectedEmotions.includes(emotion.value)}
-            >
-              {emotion.name}
-            </GlassmorphicContainer>
-          ))}
-        </div>
-      </div>
-
-      {/* Notes */}
-      <div className="notes-section">
-        <h2 className="text-lg md:text-xl mb-4">
-          {t('moodEntry.notes.title')}
-        </h2>
-        <GlassmorphicContainer as="div" className="relative">
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder={t('moodEntry.notes.placeholder')}
-            className={`
-              w-full min-h-[120px] rounded-xl p-4 
-              placeholder-white/50 resize-none focus:ring-2 
-              focus:ring-white/30 focus:outline-none
-              text-base bg-transparent
-            `}
-            style={{ fontSize: '16px' }}
-            maxLength={500}
-          />
-        </GlassmorphicContainer>
-        <div className="text-right text-sm text-white/50 mt-2">
-          {`${notes.length}/500 ${t('moodEntry.notes.charCount')}`}
-        </div>
-      </div>
-
-      {/* Submit Button */}
-      <GlassmorphicContainer
-        as="button"
-        onClick={handleSubmit}
-        disabled={isSubmitting}
-        className={`
-          w-full py-4 md:py-3 rounded-xl 
-          touch-manipulation
-          min-h-[44px]
-          transition-all duration-300
-          ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}
-        `}
-        hover={true}
-      >
-        {isSubmitting ? (
-          <div className="flex items-center justify-center gap-2">
-            <Loader className="w-5 h-5 animate-spin" />
-            <span>{t('moodEntry.submitting')}</span>
+            ))}
           </div>
-        ) : (
-          t('moodEntry.submit')
-        )}
-      </GlassmorphicContainer>
+        </div>
 
-      {/* Timestamp */}
-      <div className="text-center text-sm text-white/50 flex items-center justify-center gap-2">
-        <Clock className="w-4 h-4" />
-        {new Date().toLocaleTimeString(language === 'el' ? 'el-GR' : 'en-US')}
+        {/* Notes */}
+        <div className="notes-section">
+          <h2 className="text-lg md:text-xl mb-4">
+            {t('moodEntry.notes.title')}
+          </h2>
+          <GlassmorphicContainer as="div" className="rounded-xl bg-white/10">
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder={t('moodEntry.notes.placeholder')}
+              className="w-full min-h-[120px] p-4 
+                placeholder-white/50 resize-none
+                focus:ring-2 focus:ring-white/30 focus:outline-none
+                text-base bg-transparent rounded-xl"
+              style={{ fontSize: '16px' }}
+              maxLength={500}
+            />
+          </GlassmorphicContainer>
+          <div className="text-right text-sm text-white/50 mt-2">
+            {`${notes.length}/500 ${t('moodEntry.notes.charCount')}`}
+          </div>
+        </div>
+
+        {/* Submit Button */}
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-purple-300/80 to-transparent md:relative md:p-0 md:bg-none">
+          <GlassmorphicContainer
+            as="button"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="w-full py-4 md:py-3 rounded-xl min-h-[44px]"
+            hover={true}
+            isButton={true}
+          >
+            {isSubmitting ? (
+              <div className="flex items-center justify-center gap-2">
+                <Loader className="w-5 h-5 animate-spin" />
+                <span>{t('moodEntry.submitting')}</span>
+              </div>
+            ) : (
+              t('moodEntry.submit')
+            )}
+          </GlassmorphicContainer>
+
+          {/* Timestamp */}
+          <div className="text-center text-sm text-white/50 flex items-center justify-center gap-2 mt-2">
+            <Clock className="w-4 h-4" />
+            {new Date().toLocaleTimeString(language === 'el' ? 'el-GR' : 'en-US')}
+          </div>
+        </div>
       </div>
     </div>
   );
