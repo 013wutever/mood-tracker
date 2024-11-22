@@ -129,7 +129,7 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
       {/* Status Messages */}
       {submitStatus && (
         <GlassmorphicContainer 
-          className={`fixed top-4 right-4 p-4 rounded-xl flex items-center gap-2 z-50
+          className={`relative top-4 right-4 p-4 rounded-xl flex items-center gap-2 z-50
             ${submitStatus === 'success' ? 'bg-green-500/20' : 'bg-red-500/20'}`}
         >
           {submitStatus === 'success' ? (
