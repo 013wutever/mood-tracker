@@ -4,7 +4,7 @@
 
 /* Root Variables */
 :root {
-  --app-height: 100vh;
+  --app-height: auto;
   
   /* Mood Colors - Pastel */
   --mood-very-positive: rgba(142, 227, 255, 0.8);  /* Light blue */
