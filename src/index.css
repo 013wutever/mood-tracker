@@ -1,5 +1,6 @@
 .content-wrapper {
-  @apply max-h-[calc(100vh-4rem)] overflow-y-auto;
+  height: auto;
+  overflow-y: auto !important;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -17,10 +18,11 @@
 /* Mobile optimizations */
 @media (max-width: 768px) {
   .content-wrapper {
-    height: calc(var(--app-height) - 4rem);
+    height: auto;
+    overflow-y: auto !important;
     padding-bottom: env(safe-area-inset-bottom);
   }
-  
+
   /* Βελτίωση εμφάνισης εικονιδίων στο mobile */
   .icon-wrapper {
     @apply relative inline-flex items-center justify-center;
@@ -32,20 +34,26 @@
   @media (orientation: landscape) {
     .content-wrapper {
       height: auto;
-      min-height: calc(var(--app-height) - 4rem);
+      min-height: auto;
     }
   }
 }
 
 /* Βελτιωμένο glassmorphic effect */
 .glassmorphic {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-              0 2px 4px -1px rgba(0, 0, 0, 0.06),
-              inset 0 0 80px rgba(255, 255, 255, 0.1);
+              0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 /* Πιο σκούρο background */
 body {
+  margin: 0;
+  padding: 0;
+  height: auto !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
   background: linear-gradient(135deg, 
     rgba(252,182,218,0.95) 0%, 
     rgba(187,154,247,0.95) 100%
