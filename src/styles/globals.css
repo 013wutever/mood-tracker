@@ -56,22 +56,17 @@
 }
 
 /* Base Styles */
-html, 
-body {
+html, body {
   margin: 0;
   padding: 0;
-  height: 100%;
-  min-height: 100vh;
-  min-height: -webkit-fill-available;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: auto;
-  touch-action: manipulation;
+  height: auto;
+  min-height: 100%;  /* Αποφεύγουμε το 100vh λόγω προβλημάτων σε κινητά */
+  overflow-x: hidden;
+  overflow-y: auto;  /* Για να γίνεται κύλιση όλου του περιεχομένου */
+  -webkit-overflow-scrolling: touch; /* Για καλύτερη κύλιση σε κινητά */
   background: linear-gradient(135deg, 
     rgba(147, 112, 219, 0.95) 0%,
     rgba(103, 58, 183, 0.95) 100%);
-  @apply antialiased text-white overflow-x-hidden;
-  -webkit-tap-highlight-color: transparent;
 }
 
 /* Glassmorphic Effects - Default (Desktop) */
