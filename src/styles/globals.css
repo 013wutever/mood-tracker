@@ -81,22 +81,20 @@ body {
 /* Mobile Optimizations */
 @media (max-width: 768px) {
   /* Reset fixed heights and overflows */
-  .content-wrapper {
-    max-height: none !important;
-    overflow: visible !important;
+  .content-wrapper @media (max-width: 768px) {
+  body {
+    overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: auto;
-    touch-action: pan-y pinch-zoom;
+    height: auto !important;
+    min-height: 100vh;
   }
 
-  /* Enable scrolling on body */
-  body {
-    overflow-y: auto;
+  .content-wrapper {
+    min-height: 100%;
+    overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-y pinch-zoom;
-    min-height: 100vh;
-    min-height: -webkit-fill-available;
   }
+}
 
   /* Remove panel scrolling */
   .glassmorphic {
