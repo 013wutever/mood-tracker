@@ -73,7 +73,17 @@ body {
     rgba(103, 58, 183, 0.95) 100%);
   @apply antialiased text-white overflow-x-hidden;
   -webkit-tap-highlight-color: transparent;
+   background-attachment: fixed;
 }
+
+.content-wrapper {
+  min-height: 100%;
+  height: auto;
+  overflow-y: auto; /* Για να είναι το περιεχόμενο scrollable */
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: env(safe-area-inset-bottom); /* Για να καλύψει τυχόν κενά σε κινητά */
+}
+
 
 /* Glassmorphic Effects - Default (Desktop) */
 .glassmorphic {
@@ -85,36 +95,29 @@ body {
 
 /* Mobile Optimizations */
 @media (max-width: 768px) {
-  /* Enable smooth scrolling */
-  body,
-  #root,
-  .App {
-    min-height: 100vh;
+  html, body {
     height: auto;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .content-wrapper {
+    height: auto;
+    min-height: 100%;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: auto;
-    touch-action: pan-y pinch-zoom;
-    position: relative;
   }
 
-  /* Content container */
-  .content-wrapper {
-    height: auto !important;
-    min-height: auto !important;
-    overflow: visible !important;
-    position: relative;
-  }
-
-  /* Simplified mobile glassmorphic style */
   .glassmorphic {
-    background-color: rgba(255, 255, 255, 0.2) !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    box-shadow: none !important;
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    background-color: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: none;
   }
-
+}
   /* Main content area */
   .container {
     min-height: auto;
