@@ -96,15 +96,19 @@ const App = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen w-full overflow-y-auto bg-gradient-to-br from-purple-300/80 to-indigo-400/80">
+      <div className="min-h-screen w-full bg-gradient-to-br from-purple-300/80 to-indigo-400/80">
         {renderContent()}
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-purple-300/80 to-indigo-400/80 overflow-y-auto">
-      {/* Top navigation */}
+    <div className={`
+      w-full min-h-screen 
+      bg-gradient-to-br from-purple-300/80 to-indigo-400/80
+      ${isMobile ? 'pb-20' : ''}
+    `}>
+      {/* Top navigation - Fixed */}
       <GlassmorphicContainer 
         className="fixed top-0 left-0 right-0 h-16 z-50 flex items-center justify-between px-4"
         hover={false}
@@ -122,7 +126,7 @@ const App = () => {
                 as="button"
                 onClick={() => setActiveTab(item.id)}
                 className={`
-                  p-2 rounded-full 
+                  p-2 rounded-full
                   ${isMobile ? 'touch-manipulation' : ''}
                 `}
                 hover={true}
@@ -130,7 +134,9 @@ const App = () => {
                 isButton={true}
               >
                 <ItemIcon className="w-6 h-6" />
-                <span className="sr-only">{getTranslation(language, `nav.${item.id}`)}</span>
+                <span className="sr-only">
+                  {getTranslation(language, `nav.${item.id}`)}
+                </span>
               </GlassmorphicContainer>
             );
           })}
@@ -167,15 +173,13 @@ const App = () => {
 
       {/* Main content area */}
       <main className={`
-        container mx-auto px-4 
-        ${isMobile ? 'pt-20 pb-16' : 'pt-24 pb-8'} 
-        min-h-screen
+        w-full mx-auto px-4
+        ${isMobile ? 'pt-20' : 'pt-24 pb-8'}
       `}>
         <GlassmorphicContainer 
           className={`
-            rounded-2xl p-6 mx-auto 
+            rounded-2xl p-6 mx-auto
             ${getContentMaxWidth()}
-            ${isMobile ? 'h-auto overflow-visible' : ''}
           `}
         >
           {renderContent()}
