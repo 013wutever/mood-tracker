@@ -160,9 +160,9 @@ html, body {
 
   /* Fix content height */
   .content-wrapper {
-    min-height: calc(100vh - 4rem);
-    height: auto;
-    padding-bottom: env(safe-area-inset-bottom);
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: auto;
+    touch-action: pan-y pinch-zoom;
   }
 
   /* Better touch targets */
@@ -195,7 +195,6 @@ html, body {
 
   /* Better scroll handling */
   .content-scrollable {
-    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
   }
@@ -207,8 +206,8 @@ html, body {
   /* Fix iOS momentum scrolling */
   .scroll-container {
     -webkit-overflow-scrolling: touch;
-    overflow-y: auto;
-    height: 100%;
+    overscroll-behavior-y: auto;
+    touch-action: pan-y pinch-zoom;
   }
 }
 
