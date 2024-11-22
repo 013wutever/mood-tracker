@@ -61,8 +61,12 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: auto;
+  touch-action: manipulation;
   background: linear-gradient(135deg, 
     rgba(147, 112, 219, 0.95) 0%,
     rgba(103, 58, 183, 0.95) 100%);
@@ -70,7 +74,7 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Glassmorphic Effects */
+/* Glassmorphic Effects - Default (Desktop) */
 .glassmorphic {
   @apply bg-white/10 backdrop-blur-lg border border-white/20;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
@@ -80,110 +84,102 @@ body {
 
 /* Mobile Optimizations */
 @media (max-width: 768px) {
-  body {
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch;
-    height: auto !important;
+  /* Enable smooth scrolling */
+  body,
+  #root,
+  .App {
     min-height: 100vh;
-  }
-
-  .content-wrapper {
-    min-height: 100%;
+    height: auto;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: auto;
+    touch-action: pan-y pinch-zoom;
+    position: relative;
   }
 
-  /* Remove panel scrolling */
-  .glassmorphic {
-    overflow: visible !important;
+  /* Content container */
+  .content-wrapper {
     height: auto !important;
-    max-height: none !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    position: relative;
+  }
+
+  /* Simplified mobile glassmorphic style */
+  .glassmorphic {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   /* Main content area */
   .container {
     min-height: auto;
-    padding-bottom: 2rem;
+    height: auto;
+    position: relative;
   }
 
   main {
     position: relative;
-    min-height: calc(100vh - 4rem);
-    padding-top: 5rem;
+    height: auto;
+    min-height: auto;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
-  /* Optimize touch targets */
+  /* Touch optimizations */
   button,
   [role="button"] {
     min-height: 44px;
     min-width: 44px;
     touch-action: manipulation;
-  }
-
-  /* Fix content overflow */
-  .content-wrapper {
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch;
-    height: auto;
-  }
-
-  /* Optimize lists and grids */
-  .grid {
-    gap: 0.75rem;
-  }
-
-  /* Better scrolling experience */
-  .scroll-container {
-    overflow-y: visible;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: auto;
-  }
-
-  /* Optimize charts */
-  .recharts-wrapper {
-    touch-action: none;
-  }
-
-  /* Prevent text selection on buttons */
-  button,
-  [role="button"] {
     -webkit-user-select: none;
     user-select: none;
+    background-color: rgba(255, 255, 255, 0.2);
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 
-  /* Better form inputs */
+  /* Form elements */
   input,
   textarea {
     font-size: 16px !important;
   }
 
-  /* Panel container adjustments */
-  .glassmorphic {
-    margin-bottom: 1rem;
-    background-color: rgba(255, 255, 255, 0.2);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    box-shadow: none;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+  /* Grid layouts */
+  .grid {
+    gap: 0.75rem;
   }
 
-  /* Navigation adjustments */
+  /* Charts */
+  .recharts-wrapper {
+    touch-action: pan-y pinch-zoom;
+  }
+
+  /* Scroll containers */
+  .scroll-container {
+    height: auto !important;
+    overflow: visible !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: auto;
+  }
+
+  /* Navigation */
   .nav-container {
     position: fixed;
     z-index: 50;
+    background-color: rgba(255, 255, 255, 0.2);
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 
-  /* Content spacing */
+  /* Content sections */
   .content-section {
     margin-bottom: 1rem;
   }
 
-  /* Safe area insets */
-  .content-wrapper {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-
-  /* Content padding */
+  /* Main content padding */
   .main-content {
     padding-bottom: 5rem;
   }
@@ -191,19 +187,6 @@ body {
 
 /* Landscape mode fixes */
 @media (max-width: 768px) and (orientation: landscape) {
-  .glassmorphic {
-    background-color: rgba(255, 255, 255, 0.2) !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    box-shadow: none !important;
-  }
-
-  button,
-  [role="button"] {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
-
   .content-wrapper {
     height: auto !important;
     min-height: auto !important;
@@ -213,21 +196,35 @@ body {
     padding-top: 4rem;
     min-height: auto;
   }
+
+  /* Full mobile style for landscape */
+  .glassmorphic,
+  button,
+  [role="button"] {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
 }
 
 /* iOS-specific fixes */
 @supports (-webkit-touch-callout: none) {
+  html {
+    height: -webkit-fill-available;
+  }
+
+  body {
+    min-height: -webkit-fill-available;
+  }
+
   .min-h-screen {
     min-height: -webkit-fill-available;
   }
 
   .h-screen {
     height: -webkit-fill-available;
-  }
-
-  /* Fix keyboard issues */
-  .keyboard-open {
-    min-height: -webkit-fill-available;
   }
 }
 
