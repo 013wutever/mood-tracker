@@ -151,7 +151,7 @@ html, body {
 }
 
 /* Mobile-specific fixes */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   /* Enable smooth scrolling */
   html, body {
     overscroll-behavior-y: auto;
@@ -200,7 +200,7 @@ html, body {
   }
 /* Disable pull-to-refresh */
   body {
-    overscroll-behavior-y: none;
+    overscroll-behavior-y: auto;
   }
 
   /* Fix iOS momentum scrolling */
