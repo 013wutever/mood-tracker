@@ -22,7 +22,7 @@
     overflow-y: auto !important;
     padding-bottom: env(safe-area-inset-bottom);
   }
-
+  
   /* Βελτίωση εμφάνισης εικονιδίων στο mobile */
   .icon-wrapper {
     @apply relative inline-flex items-center justify-center;
