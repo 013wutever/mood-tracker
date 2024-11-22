@@ -150,13 +150,13 @@ const App = () => {
       </GlassmorphicContainer>
 
       {/* Main content area */}
-      <main className="container mx-auto pt-20 px-4 pb-4 min-h-screen">
-        <GlassmorphicContainer 
-          className={`rounded-2xl p-6 mx-auto ${getContentMaxWidth()}`}
-        >
-          {renderContent()}
-        </GlassmorphicContainer>
-      </main>
+      <main className="mx-auto pt-20 px-4 pb-4 relative">
+  <GlassmorphicContainer 
+    className={`rounded-2xl p-6 mx-auto ${getContentMaxWidth()}`}
+  >
+    {renderContent()}
+  </GlassmorphicContainer>
+</main>
     </div>
   );
 };
