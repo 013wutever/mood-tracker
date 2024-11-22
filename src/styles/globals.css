@@ -80,56 +80,142 @@ body {
 
 /* Mobile Optimizations */
 @media (max-width: 768px) {
-  /* Fix content visibility and scrolling */
-  main {
-    min-height: 100%;
-    height: auto;
-    padding-bottom: 6rem; /* Extra padding for full content visibility */
+  /* Reset fixed heights and overflows */
+  .content-wrapper {
+    max-height: none !important;
+    overflow: visible !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: auto;
+    touch-action: pan-y pinch-zoom;
   }
 
+  /* Enable scrolling on body */
+  body {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y pinch-zoom;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+
+  /* Remove panel scrolling */
   .glassmorphic {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  /* Main content area */
+  .container {
+    min-height: auto;
+    padding-bottom: 2rem;
+  }
+
+  main {
+    position: relative;
+    min-height: calc(100vh - 4rem);
+    padding-top: 5rem;
+  }
+
+  /* Optimize touch targets */
+  button,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+
+  /* Fix content overflow */
+  .content-wrapper {
+    overflow-x: hidden;
+  }
+
+  /* Optimize lists and grids */
+  .grid {
+    gap: 0.75rem;
+  }
+
+  /* Better scrolling experience */
+  .scroll-container {
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: auto;
+  }
+
+  /* Optimize charts */
+  .recharts-wrapper {
+    touch-action: none;
+  }
+
+  /* Prevent text selection on buttons */
+  button,
+  [role="button"] {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Better form inputs */
+  input,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* Panel container adjustments */
+  .glassmorphic {
+    margin-bottom: 1rem;
+    background-color: rgba(255, 255, 255, 0.2);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Navigation adjustments */
+  .nav-container {
+    position: fixed;
+    z-index: 50;
+  }
+
+  /* Content spacing */
+  .content-section {
+    margin-bottom: 1rem;
+  }
+
+  /* Safe area insets */
+  .content-wrapper {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Content padding */
+  .main-content {
+    padding-bottom: 5rem;
+  }
+}
+
+/* Landscape mode fixes */
+@media (max-width: 768px) and (orientation: landscape) {
+  .glassmorphic {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+  }
+
+  button,
+  [role="button"] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .content-wrapper {
     height: auto !important;
     min-height: auto !important;
   }
 
-  body {
-    height: auto;
-    min-height: 100vh;
-    overflow-y: auto;
+  main {
+    padding-top: 4rem;
+    min-height: auto;
   }
-
-  /* Fix panel scrolling */
-  .content-wrapper {
-    height: auto !important;
-    overflow: visible !important;
-    padding-bottom: 4rem;
-  }
-
-  /* Fix landscape mode icons and content */
-  @media (orientation: landscape) {
-    .mood-section button svg,
-    .nav-container button svg {
-      width: 24px !important;
-      height: 24px !important;
-      color: white !important;
-    }
-
-    main {
-      padding-top: 4rem;
-      padding-bottom: 4rem;
-    }
-
-    .content-wrapper {
-      padding-bottom: 2rem;
-    }
-  }
-}
-
-/* Ensure content visibility */
-.main-content {
-  min-height: calc(100vh - 4rem);
-  display: flex;
-  flex-direction: column;
 }
 
 /* iOS-specific fixes */
