@@ -1,13 +1,22 @@
-/* Βασικό container για scroll */
+/* Base styles */
+html {
+  background: linear-gradient(135deg, 
+    rgba(252,182,218,0.95) 0%, 
+    rgba(187,154,247,0.95) 100%
+  ) fixed;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
 #root {
   width: 100%;
   min-height: 100vh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  background: linear-gradient(135deg, 
-    rgba(252,182,218,0.95) 0%, 
-    rgba(187,154,247,0.95) 100%
-  );
 }
 
 .content-wrapper {
@@ -29,28 +38,9 @@
 
 /* Mobile optimizations */
 @media (max-width: 768px) {
-  body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow-y: hidden;
-    touch-action: manipulation;
-  }
-
-  #root {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
-  }
-
   .content-wrapper {
-    min-height: 100%;
+    height: auto;
+    overflow-y: auto !important;
     padding-bottom: env(safe-area-inset-bottom);
   }
   
@@ -99,11 +89,4 @@ button:hover::before {
 /* Βελτιωμένο active state για κουμπιά */
 button:active {
   transform: scale(0.98);
-}
-
-/* iOS specific fixes */
-@supports (-webkit-touch-callout: none) {
-  #root {
-    min-height: -webkit-fill-available;
-  }
 }
