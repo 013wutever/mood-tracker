@@ -12,9 +12,11 @@
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
   </body>
-  <script>
-  window.addEventListener('resize', () => {
+ <script>
+  function setAppHeight() {
     document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
-  });
+  }
+  window.addEventListener('resize', setAppHeight);
+  setAppHeight();
 </script>
 </html>
