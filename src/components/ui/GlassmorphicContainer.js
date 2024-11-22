@@ -18,16 +18,18 @@ const GlassmorphicContainer = ({
   }, []);
 
   const getStyles = () => {
-    const mobileDefaultBackground = 'rgba(255, 255, 255, 0.15)';
-    
+    // Mobile styles - simplified with solid background
     if (isMobile) {
+      // If a custom background color is provided, use it, otherwise use default
+      const defaultBg = 'rgba(255, 255, 255, 0.2)';
       return {
-        backgroundColor: style.backgroundColor || mobileDefaultBackground,
-        boxShadow: 'inset 0 0 20px rgba(255, 255, 255, 0.1)',
-        ...style
+        backgroundColor: style.backgroundColor || defaultBg,
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        ...style,
       };
     }
 
+    // Desktop styles - full glassmorphic effect
     return {
       ...style,
       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), inset 0 0 80px rgba(255, 255, 255, 0.1)'
@@ -44,8 +46,7 @@ const GlassmorphicContainer = ({
       return `
         ${baseClasses}
         ${hover ? 'active:scale-95' : ''}
-        ${active ? 'bg-opacity-90' : 'bg-opacity-70'}
-        backdrop-blur-sm
+        ${active ? 'bg-opacity-100' : 'bg-opacity-80'}
       `;
     }
 
