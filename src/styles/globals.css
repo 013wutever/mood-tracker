@@ -5,7 +5,7 @@
 /* Root Variables */
 :root {
   --app-height: 100vh;
-  
+
   /* Mood Colors - Pastel */
   --mood-very-positive: rgba(142, 227, 255, 0.8);  /* Light blue */
   --mood-positive: rgba(179, 255, 179, 0.8);      /* Light green */
@@ -60,13 +60,14 @@ html,
 body {
   margin: 0;
   padding: 0;
-  height: auto !important; /* Αλλάξαμε το height από `min-height: 100vh` σε `height: auto` */
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background: linear-gradient(135deg, 
     rgba(147, 112, 219, 0.95) 0%,
     rgba(103, 58, 183, 0.95) 100%);
   @apply antialiased text-white overflow-x-hidden;
   -webkit-tap-highlight-color: transparent;
-  overflow-y: auto !important; /* Προσθέσαμε overflow-y για σωστό scrolling */
 }
 
 /* Glassmorphic Effects */
@@ -79,8 +80,6 @@ body {
 
 /* Mobile Optimizations */
 @media (max-width: 768px) {
-  /* Reset fixed heights and overflows */
-  .content-wrapper @media (max-width: 768px) {
   body {
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
@@ -93,7 +92,6 @@ body {
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
   }
-}
 
   /* Remove panel scrolling */
   .glassmorphic {
@@ -124,10 +122,10 @@ body {
 
   /* Fix content overflow */
   .content-wrapper {
-  overflow-y: auto !important; /* Προσθέσαμε αυτό το σημείο για να εξασφαλίσουμε ότι το περιεχόμενο μπορεί να γίνει scroll */
-  -webkit-overflow-scrolling: touch; /* Βελτίωση για το scrolling σε κινητά */
-  height: auto; /* Αφαίρεση του `max-height` περιορισμού */
-}
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    height: auto;
+  }
 
   /* Optimize lists and grids */
   .grid {
