@@ -19,6 +19,13 @@ const App = () => {
   const [activeTab, setActiveTab] = useState('mood-entry');
   const [language, setLanguage] = useState('el');
   const [user, setUser] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('moodTrackerUser');
@@ -89,16 +96,19 @@ const App = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen w-full overflow-hidden bg-gradient-to-br from-purple-300/80 to-indigo-400/80">
+      <div className="min-h-screen w-full overflow-y-auto bg-gradient-to-br from-purple-300/80 to-indigo-400/80">
         {renderContent()}
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-full overflow-hidden bg-gradient-to-br from-purple-300/80 to-indigo-400/80">
+    <div className="min-h-screen w-full bg-gradient-to-br from-purple-300/80 to-indigo-400/80 overflow-y-auto">
       {/* Top navigation */}
-      <GlassmorphicContainer className="fixed top-0 left-0 right-0 h-16 z-50 flex items-center justify-between px-4">
+      <GlassmorphicContainer 
+        className="fixed top-0 left-0 right-0 h-16 z-50 flex items-center justify-between px-4"
+        hover={false}
+      >
         <div className="flex items-center space-x-1">
           <span className="text-white/70 text-sm mr-4">
             {getTranslation(language, 'nav.welcomeBack')}, {user.split('@')[0]}
@@ -111,9 +121,13 @@ const App = () => {
                 key={item.id}
                 as="button"
                 onClick={() => setActiveTab(item.id)}
-                className="p-2 rounded-full"
+                className={`
+                  p-2 rounded-full 
+                  ${isMobile ? 'touch-manipulation' : ''}
+                `}
                 hover={true}
                 active={activeTab === item.id}
+                isButton={true}
               >
                 <ItemIcon className="w-6 h-6" />
                 <span className="sr-only">{getTranslation(language, `nav.${item.id}`)}</span>
@@ -127,8 +141,9 @@ const App = () => {
           <GlassmorphicContainer
             as="button"
             onClick={handleLanguageChange}
-            className="p-2 rounded-full"
+            className={`p-2 rounded-full ${isMobile ? 'touch-manipulation' : ''}`}
             hover={true}
+            isButton={true}
           >
             <Languages className="w-6 h-6" />
             <span className="sr-only">
@@ -140,8 +155,9 @@ const App = () => {
           <GlassmorphicContainer
             as="button"
             onClick={handleLogout}
-            className="p-2 rounded-full"
+            className={`p-2 rounded-full ${isMobile ? 'touch-manipulation' : ''}`}
             hover={true}
+            isButton={true}
           >
             <LogOut className="w-6 h-6" />
             <span className="sr-only">{getTranslation(language, 'nav.logout')}</span>
@@ -150,13 +166,21 @@ const App = () => {
       </GlassmorphicContainer>
 
       {/* Main content area */}
-      <main className="mx-auto pt-20 px-4 pb-4 relative">
-  <GlassmorphicContainer 
-    className={`rounded-2xl p-6 mx-auto ${getContentMaxWidth()}`}
-  >
-    {renderContent()}
-  </GlassmorphicContainer>
-</main>
+      <main className={`
+        container mx-auto px-4 
+        ${isMobile ? 'pt-20 pb-16' : 'pt-24 pb-8'} 
+        min-h-screen
+      `}>
+        <GlassmorphicContainer 
+          className={`
+            rounded-2xl p-6 mx-auto 
+            ${getContentMaxWidth()}
+            ${isMobile ? 'h-auto overflow-visible' : ''}
+          `}
+        >
+          {renderContent()}
+        </GlassmorphicContainer>
+      </main>
     </div>
   );
 };
