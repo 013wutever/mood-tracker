@@ -7,7 +7,8 @@ const GlassmorphicContainer = ({
   active = false,
   onClick = null,
   as = 'div',
-  style = {}
+  style = {},
+  isButton = false
 }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
@@ -18,18 +19,21 @@ const GlassmorphicContainer = ({
   }, []);
 
   const getStyles = () => {
-    // Mobile styles - simplified with solid background
     if (isMobile) {
-      // If a custom background color is provided, use it, otherwise use default
       const defaultBg = 'rgba(255, 255, 255, 0.2)';
       return {
         backgroundColor: style.backgroundColor || defaultBg,
         border: '1px solid rgba(255, 255, 255, 0.1)',
         ...style,
+        // Add elevation for buttons on mobile
+        ...(isButton && {
+          boxShadow: active 
+            ? 'inset 0 2px 4px rgba(0,0,0,0.1)' 
+            : '0 2px 4px rgba(0,0,0,0.1), 0 1px 2px rgba(255,255,255,0.1)'
+        })
       };
     }
 
-    // Desktop styles - full glassmorphic effect
     return {
       ...style,
       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), inset 0 0 80px rgba(255, 255, 255, 0.1)'
@@ -47,6 +51,7 @@ const GlassmorphicContainer = ({
         ${baseClasses}
         ${hover ? 'active:scale-95' : ''}
         ${active ? 'bg-opacity-100' : 'bg-opacity-80'}
+        ${isButton ? 'active:translate-y-0.5' : ''}
       `;
     }
 
