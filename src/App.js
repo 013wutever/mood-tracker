@@ -166,7 +166,11 @@ const App = () => {
       </GlassmorphicContainer>
 
       {/* Main content area */}
-      <main className="container mx-auto px-4 pb-4 min-h-screen overflow-y-auto">
+      <main className={`
+        container mx-auto px-4 
+        ${isMobile ? 'pt-20 pb-16' : 'pt-24 pb-8'} 
+        min-h-screen
+      `}>
         <GlassmorphicContainer 
           className={`
             rounded-2xl p-6 mx-auto 
