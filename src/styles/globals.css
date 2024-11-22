@@ -4,7 +4,7 @@
 
 /* Root Variables */
 :root {
-  --app-height: 100vh;
+  --app-height: auto;
   
   /* Mood Colors - Pastel */
   --mood-very-positive: rgba(142, 227, 255, 0.8);  /* Light blue */
@@ -59,7 +59,6 @@
 html, body {
   margin: 0;
   padding: 0;
-  min-height: 100vh;
   min-height: var(--app-height);
   background: linear-gradient(135deg, 
     rgba(147,112,219,0.95) 0%,
@@ -195,11 +194,11 @@ html, body {
   /* Better scroll handling */
   .content-scrollable {
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
+    overscroll-behavior-y: auto;
   }
 /* Disable pull-to-refresh */
   body {
-    overscroll-behavior-y: none;
+    overscroll-behavior-y: auto;
   }
 
   /* Fix iOS momentum scrolling */
