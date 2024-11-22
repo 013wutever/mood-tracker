@@ -124,8 +124,8 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
     }
   };
 
-   return (
-    <div className="flex flex-col min-h-full w-full">
+  return (
+    <div className="w-full">
       {/* Status Messages */}
       {submitStatus && (
         <GlassmorphicContainer 
@@ -145,8 +145,8 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
         </GlassmorphicContainer>
       )}
 
-      {/* Main content with proper spacing */}
-      <div className="flex-1 space-y-6 md:space-y-8 pb-20">
+      {/* Main content with scroll */}
+      <div className="space-y-6 md:space-y-8 pb-32">
         {/* Moods */}
         <div className="mood-section">
           <h2 className="text-lg md:text-xl mb-4">
@@ -268,32 +268,36 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
             {`${notes.length}/500 ${t('moodEntry.notes.charCount')}`}
           </div>
         </div>
+      </div>
 
-        {/* Submit Button */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-purple-300/80 to-transparent md:relative md:p-0 md:bg-none">
-          <GlassmorphicContainer
-            as="button"
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="w-full py-4 md:py-3 rounded-xl min-h-[44px]"
-            hover={true}
-            isButton={true}
-          >
-            {isSubmitting ? (
-              <div className="flex items-center justify-center gap-2">
-                <Loader className="w-5 h-5 animate-spin" />
-                <span>{t('moodEntry.submitting')}</span>
-              </div>
-            ) : (
-              t('moodEntry.submit')
-            )}
-          </GlassmorphicContainer>
+      {/* Submit Button - Fixed at bottom */}
+      <div className={`
+        ${isMobile 
+          ? 'fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-purple-300/80 via-purple-300/80 to-transparent' 
+          : 'mt-6'}
+      `}>
+        <GlassmorphicContainer
+          as="button"
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className="w-full py-4 md:py-3 rounded-xl min-h-[44px]"
+          hover={true}
+          isButton={true}
+        >
+          {isSubmitting ? (
+            <div className="flex items-center justify-center gap-2">
+              <Loader className="w-5 h-5 animate-spin" />
+              <span>{t('moodEntry.submitting')}</span>
+            </div>
+          ) : (
+            t('moodEntry.submit')
+          )}
+        </GlassmorphicContainer>
 
-          {/* Timestamp */}
-          <div className="text-center text-sm text-white/50 flex items-center justify-center gap-2 mt-2">
-            <Clock className="w-4 h-4" />
-            {new Date().toLocaleTimeString(language === 'el' ? 'el-GR' : 'en-US')}
-          </div>
+        {/* Timestamp */}
+        <div className="text-center text-sm text-white/50 flex items-center justify-center gap-2 mt-2">
+          <Clock className="w-4 h-4" />
+          {new Date().toLocaleTimeString(language === 'el' ? 'el-GR' : 'en-US')}
         </div>
       </div>
     </div>
