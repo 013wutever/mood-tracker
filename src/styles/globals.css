@@ -78,99 +78,80 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Glassmorphic Effects */
-.glassmorphic {
-  @apply bg-white/10 border border-white/20;
-  /* box-shadow αφαιρέθηκε για δοκιμή */
+#root {
+  width: 100%;
+  min-height: 100vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Enhanced Hover Effects */
+.content-wrapper {
+  height: auto;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
 .glassmorphic-hover {
   @apply transition-all duration-300;
 }
 
 .glassmorphic-hover:hover {
-  @apply bg-white/15 scale-105;
+  @apply bg-white/15;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
               0 4px 6px -2px rgba(0, 0, 0, 0.05),
-              inset 0 0 80px rgba(255, 255, 255, 0.2),
-              0 0 20px rgba(255, 255, 255, 0.3);
+              inset 0 0 80px rgba(255, 255, 255, 0.2);
 }
 
-/* Active State with Glow */
-.glassmorphic-hover:active,
-.glassmorphic-hover[data-active="true"] {
-  @apply bg-white/20 scale-110;
-  box-shadow: 0 0 30px rgba(255, 255, 255, 0.4),
-              inset 0 0 100px rgba(255, 255, 255, 0.3);
-}
-
-/* Category Buttons */
-.category-button {
-  @apply p-3 rounded-xl text-sm glassmorphic-hover transition-all duration-300;
-}
-
-.category-button[data-active="true"] {
-  @apply scale-110;
-  box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
-}
-
-/* Emotion Pills */
-.emotion-pill {
-  @apply px-4 py-2 rounded-full text-sm transition-all duration-300;
-  background-color: var(--emotion-default);
-}
-
-.emotion-pill:hover {
-  @apply scale-105;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-}
-
-.emotion-pill[data-active="true"] {
-  @apply scale-110;
-  box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
-}
-
-/* Chart Customizations */
-.recharts-wrapper {
-  @apply mx-auto;
-}
-
-.recharts-legend-wrapper {
-  @apply !bottom-0 !left-1/2 -translate-x-1/2 !text-center;
-}
-
-.recharts-pie-label-text {
-  @apply fill-white font-medium;
-}
-
-.recharts-text {
-  @apply fill-white/90;
-}
-
-/* Calendar Styles */
-.calendar-day {
-  @apply aspect-square rounded-lg glassmorphic p-2 transition-all duration-300;
-}
-
-.calendar-day:hover {
-  @apply bg-white/20 scale-105;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-}
-
-/* Mobile-specific fixes */
+/* Mobile optimizations */
 @media (max-width: 768px) {
-  /* Enable smooth scrolling */
   html, body {
-    overscroll-behavior-y: auto;
-    -webkit-overflow-scrolling: touch;
+    position: fixed;
+    width: 100%;
+    height: 100%;
   }
 
-  /* Fix content height */
   .content-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto !important;
+    padding-bottom: env(safe-area-inset-bottom);
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: auto;
-    touch-action: pan-y pinch-zoom;
+  }
+  
+  /* Βελτίωση εμφάνισης εικονιδίων στο mobile */
+  .icon-wrapper {
+    @apply relative inline-flex items-center justify-center;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+
+  /* Διόρθωση για το landscape mode */
+  @media (orientation: landscape) {
+    .content-wrapper {
+      height: auto;
+      min-height: auto;
+    }
+
+    .glassmorphic {
+      @apply bg-opacity-50;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    /* Απλοποιημένο glassmorphic effect για καλύτερο performance */
+    .glassmorphic-hover {
+      @apply transition-colors;
+      box-shadow: none;
+    }
+
+    .glassmorphic-hover:hover {
+      @apply bg-white/20;
+      transform: none;
+      box-shadow: none;
+    }
   }
 
   /* Better touch targets */
@@ -206,61 +187,38 @@ body {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
   }
-/* Disable pull-to-refresh */
-  body {
-    overscroll-behavior-y: auto;
-  }
-
-  /* Fix iOS momentum scrolling */
-  .scroll-container {
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: auto;
-    touch-action: pan-y pinch-zoom;
-  }
-  }
-
-  @media (orientation: landscape) {
-    .glassmorphic {
-      @apply bg-opacity-50;
-      backdrop-filter: none;
-      -webkit-backdrop-filter: none;
-    }
-
-    /* Απλοποιημένο glassmorphic effect για καλύτερο performance */
-    .glassmorphic-hover {
-      @apply transition-colors;
-      box-shadow: none;
-    }
-
-    .glassmorphic-hover:hover {
-      @apply bg-white/20;
-      transform: none;
-      box-shadow: none;
-    }
-  }
-
-  /* Enable smooth scrolling */
-  .content-wrapper {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: auto;
-  }
-
-  /* Better touch targets */
-  button,
-  .emotion-pill,
-  .calendar-day {
-    min-height: 44px;
-    min-width: 44px;
-    padding: 12px;
-  }
 }
-    
+
+/* Βελτιωμένο glassmorphic effect */
+.glassmorphic {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Βελτίωση εμφάνισης κουμπιών */
+button {
+  @apply relative overflow-hidden;
+}
+
+button::before {
+  content: '';
+  @apply absolute inset-0 opacity-0 transition-opacity duration-300;
+  background: radial-gradient(circle at center, 
+    rgba(255,255,255,0.2) 0%, 
+    transparent 70%
+  );
+}
+
+button:hover::before {
+  @apply opacity-100;
+}
+
+/* Βελτιωμένο active state για κουμπιά */
+button:active {
+  transform: scale(0.98);
+}
 
 /* iOS-specific fixes */
 @supports (-webkit-touch-callout: none) {
@@ -289,5 +247,3 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-white/30;
 }
-
-  
