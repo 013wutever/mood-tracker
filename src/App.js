@@ -104,10 +104,11 @@ const App = () => {
 
   return (
     <div className={`
-      w-full min-h-screen 
-      bg-gradient-to-br from-purple-300/80 to-indigo-400/80
-      ${isMobile ? 'pb-20' : ''}
-    `}>
+  w-full min-h-screen h-full
+  bg-gradient-to-br from-purple-300/80 to-indigo-400/80
+  ${isMobile ? 'pb-20' : ''}
+  overflow-y-auto
+`}>
       {/* Top navigation - Fixed */}
       <GlassmorphicContainer 
         className="fixed top-0 left-0 right-0 h-16 z-50 flex items-center justify-between px-4"
