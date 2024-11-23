@@ -85,6 +85,27 @@ const App = () => {
     }
   };
 
+  const getContainerStyles = (isButton = false) => {
+    if (isLandscape) {
+      return {
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'none',
+        WebkitBackdropFilter: 'none'
+      };
+    }
+    
+    if (isMobile) {
+      return {
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        boxShadow: isButton ? '0 2px 4px rgba(0,0,0,0.1)' : undefined,
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)'
+      };
+    }
+
+    return {};
+  };
+
   const renderContent = () => {
     if (!user) {
       return <Login language={language} onLogin={handleLogin} />;
@@ -119,11 +140,7 @@ const App = () => {
         className="fixed top-0 left-0 right-0 h-16 z-50 flex items-center justify-between px-4"
         hover={false}
         simplified={isMobile && isLandscape}
-        style={{
-          backgroundColor: isLandscape ? 'rgba(255, 255, 255, 0.1)' : undefined,
-          backdropFilter: isLandscape ? 'none' : undefined,
-          WebkitBackdropFilter: isLandscape ? 'none' : undefined,
-        }}
+        style={getContainerStyles()}
       >
         <div className="flex items-center space-x-1">
           <span className={`text-white/70 text-sm mr-4 ${isLandscape ? 'opacity-100' : ''}`}>
@@ -141,15 +158,14 @@ const App = () => {
                   p-2 rounded-full flex items-center justify-center
                   ${isMobile ? 'touch-manipulation' : ''}
                   ${isLandscape ? 'bg-white/10' : ''}
+                  ${(!isLandscape && isMobile) ? 'hover:bg-white/20' : ''}
                 `}
-                hover={!isLandscape}
+                hover={!isLandscape && !isMobile}
                 active={activeTab === item.id}
                 isButton={true}
                 simplified={isMobile && isLandscape}
                 style={{
-                  backgroundColor: isLandscape ? 'rgba(255, 255, 255, 0.1)' : undefined,
-                  backdropFilter: isLandscape ? 'none' : undefined,
-                  WebkitBackdropFilter: isLandscape ? 'none' : undefined,
+                  ...getContainerStyles(true),
                   opacity: activeTab === item.id || isLandscape ? 1 : undefined
                 }}
               >
@@ -171,15 +187,12 @@ const App = () => {
               p-2 rounded-full flex items-center justify-center
               ${isMobile ? 'touch-manipulation' : ''}
               ${isLandscape ? 'bg-white/10' : ''}
+              ${(!isLandscape && isMobile) ? 'hover:bg-white/20' : ''}
             `}
-            hover={!isLandscape}
+            hover={!isLandscape && !isMobile}
             isButton={true}
             simplified={isMobile && isLandscape}
-            style={{
-              backgroundColor: isLandscape ? 'rgba(255, 255, 255, 0.1)' : undefined,
-              backdropFilter: isLandscape ? 'none' : undefined,
-              WebkitBackdropFilter: isLandscape ? 'none' : undefined
-            }}
+            style={getContainerStyles(true)}
           >
             <Languages className={`w-6 h-6 ${isLandscape ? 'opacity-100' : ''}`} />
             <span className="sr-only">
@@ -195,15 +208,12 @@ const App = () => {
               p-2 rounded-full flex items-center justify-center
               ${isMobile ? 'touch-manipulation' : ''}
               ${isLandscape ? 'bg-white/10' : ''}
+              ${(!isLandscape && isMobile) ? 'hover:bg-white/20' : ''}
             `}
-            hover={!isLandscape}
+            hover={!isLandscape && !isMobile}
             isButton={true}
             simplified={isMobile && isLandscape}
-            style={{
-              backgroundColor: isLandscape ? 'rgba(255, 255, 255, 0.1)' : undefined,
-              backdropFilter: isLandscape ? 'none' : undefined,
-              WebkitBackdropFilter: isLandscape ? 'none' : undefined
-            }}
+            style={getContainerStyles(true)}
           >
             <LogOut className={`w-6 h-6 ${isLandscape ? 'opacity-100' : ''}`} />
             <span className="sr-only">{getTranslation(language, 'nav.logout')}</span>
@@ -223,11 +233,7 @@ const App = () => {
             ${isLandscape ? 'bg-white/10' : ''}
           `}
           simplified={isMobile && isLandscape}
-          style={{
-            backgroundColor: isLandscape ? 'rgba(255, 255, 255, 0.1)' : undefined,
-            backdropFilter: isLandscape ? 'none' : undefined,
-            WebkitBackdropFilter: isLandscape ? 'none' : undefined
-          }}
+          style={getContainerStyles()}
         >
           {renderContent()}
         </GlassmorphicContainer>
