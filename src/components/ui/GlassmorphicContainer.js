@@ -9,7 +9,7 @@ const GlassmorphicContainer = ({
   as = 'div',
   style = {},
   isButton = false,
-  simplified = false // Νέο prop για απλοποιημένη έκδοση
+  simplified = false
 }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isLandscape, setIsLandscape] = useState(window.innerHeight < window.innerWidth);
@@ -30,16 +30,17 @@ const GlassmorphicContainer = ({
   }, []);
 
   const getStyles = () => {
-    if (simplified) {
-      // Απλοποιημένο style για καλύτερο performance σε landscape
-      const defaultBg = 'rgba(255, 255, 255, 0.1)';
+    // Ultra simplified style for landscape
+    if (isMobile && isLandscape) {
       return {
-        backgroundColor: style.backgroundColor || defaultBg,
-        ...style,
+        backgroundColor: active 
+          ? 'rgba(255, 255, 255, 0.2)' 
+          : 'rgba(255, 255, 255, 0.1)',
+        ...style
       };
     }
 
-    if (isMobile) {
+    if (simplified || isMobile) {
       const defaultBg = 'rgba(255, 255, 255, 0.2)';
       return {
         backgroundColor: style.backgroundColor || defaultBg,
@@ -62,24 +63,25 @@ const GlassmorphicContainer = ({
   const getClassName = () => {
     const baseClasses = `
       ${className}
-      transition-all duration-300
+      ${isMobile && isLandscape ? '' : 'transition-all duration-300'}
     `;
 
-    if (simplified) {
+    // Ultra simplified classes for landscape
+    if (isMobile && isLandscape) {
       return `
         ${baseClasses}
-        ${hover ? 'active:opacity-80' : ''}
-        ${active ? 'bg-opacity-100' : 'bg-opacity-80'}
-      `;
+        ${active ? 'bg-white/20' : 'bg-white/10'}
+        ${hover ? 'active:bg-white/30' : ''}
+      `.trim();
     }
 
-    if (isMobile) {
+    if (simplified || isMobile) {
       return `
         ${baseClasses}
         ${hover ? 'active:scale-95' : ''}
         ${active ? 'bg-opacity-100' : 'bg-opacity-80'}
         ${isButton ? 'active:translate-y-0.5' : ''}
-      `;
+      `.trim();
     }
 
     return `
@@ -88,7 +90,7 @@ const GlassmorphicContainer = ({
       ${active ? 'bg-white/20 scale-105' : 'bg-white/10'}
       backdrop-blur-lg border border-white/20
       ${hover ? 'hover:shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-2px_rgba(0,0,0,0.05),inset_0_0_80px_rgba(255,255,255,0.2)]' : ''}
-    `;
+    `.trim();
   };
 
   const Component = as;
