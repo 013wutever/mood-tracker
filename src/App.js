@@ -119,9 +119,14 @@ const App = () => {
         className="fixed top-0 left-0 right-0 h-16 z-50 flex items-center justify-between px-4"
         hover={false}
         simplified={isMobile && isLandscape}
+        style={{
+          backgroundColor: isLandscape ? 'rgba(255, 255, 255, 0.1)' : undefined,
+          backdropFilter: isLandscape ? 'none' : undefined,
+          WebkitBackdropFilter: isLandscape ? 'none' : undefined,
+        }}
       >
         <div className="flex items-center space-x-1">
-          <span className="text-white/70 text-sm mr-4">
+          <span className={`text-white/70 text-sm mr-4 ${isLandscape ? 'opacity-100' : ''}`}>
             {getTranslation(language, 'nav.welcomeBack')}, {user.split('@')[0]}
           </span>
           
@@ -133,15 +138,22 @@ const App = () => {
                 as="button"
                 onClick={() => setActiveTab(item.id)}
                 className={`
-                  p-2 rounded-full
+                  p-2 rounded-full flex items-center justify-center
                   ${isMobile ? 'touch-manipulation' : ''}
+                  ${isLandscape ? 'bg-white/10' : ''}
                 `}
-                hover={true}
+                hover={!isLandscape}
                 active={activeTab === item.id}
                 isButton={true}
                 simplified={isMobile && isLandscape}
+                style={{
+                  backgroundColor: isLandscape ? 'rgba(255, 255, 255, 0.1)' : undefined,
+                  backdropFilter: isLandscape ? 'none' : undefined,
+                  WebkitBackdropFilter: isLandscape ? 'none' : undefined,
+                  opacity: activeTab === item.id || isLandscape ? 1 : undefined
+                }}
               >
-                <ItemIcon className="w-6 h-6" />
+                <ItemIcon className={`w-6 h-6 ${isLandscape ? 'opacity-100' : ''}`} />
                 <span className="sr-only">
                   {getTranslation(language, `nav.${item.id}`)}
                 </span>
@@ -155,12 +167,21 @@ const App = () => {
           <GlassmorphicContainer
             as="button"
             onClick={handleLanguageChange}
-            className={`p-2 rounded-full ${isMobile ? 'touch-manipulation' : ''}`}
-            hover={true}
+            className={`
+              p-2 rounded-full flex items-center justify-center
+              ${isMobile ? 'touch-manipulation' : ''}
+              ${isLandscape ? 'bg-white/10' : ''}
+            `}
+            hover={!isLandscape}
             isButton={true}
             simplified={isMobile && isLandscape}
+            style={{
+              backgroundColor: isLandscape ? 'rgba(255, 255, 255, 0.1)' : undefined,
+              backdropFilter: isLandscape ? 'none' : undefined,
+              WebkitBackdropFilter: isLandscape ? 'none' : undefined
+            }}
           >
-            <Languages className="w-6 h-6" />
+            <Languages className={`w-6 h-6 ${isLandscape ? 'opacity-100' : ''}`} />
             <span className="sr-only">
               {language === 'el' ? 'Switch to English' : 'Αλλαγή σε Ελληνικά'}
             </span>
@@ -170,12 +191,21 @@ const App = () => {
           <GlassmorphicContainer
             as="button"
             onClick={handleLogout}
-            className={`p-2 rounded-full ${isMobile ? 'touch-manipulation' : ''}`}
-            hover={true}
+            className={`
+              p-2 rounded-full flex items-center justify-center
+              ${isMobile ? 'touch-manipulation' : ''}
+              ${isLandscape ? 'bg-white/10' : ''}
+            `}
+            hover={!isLandscape}
             isButton={true}
             simplified={isMobile && isLandscape}
+            style={{
+              backgroundColor: isLandscape ? 'rgba(255, 255, 255, 0.1)' : undefined,
+              backdropFilter: isLandscape ? 'none' : undefined,
+              WebkitBackdropFilter: isLandscape ? 'none' : undefined
+            }}
           >
-            <LogOut className="w-6 h-6" />
+            <LogOut className={`w-6 h-6 ${isLandscape ? 'opacity-100' : ''}`} />
             <span className="sr-only">{getTranslation(language, 'nav.logout')}</span>
           </GlassmorphicContainer>
         </div>
@@ -190,8 +220,14 @@ const App = () => {
           className={`
             rounded-2xl p-6 mx-auto
             ${getContentMaxWidth()}
+            ${isLandscape ? 'bg-white/10' : ''}
           `}
           simplified={isMobile && isLandscape}
+          style={{
+            backgroundColor: isLandscape ? 'rgba(255, 255, 255, 0.1)' : undefined,
+            backdropFilter: isLandscape ? 'none' : undefined,
+            WebkitBackdropFilter: isLandscape ? 'none' : undefined
+          }}
         >
           {renderContent()}
         </GlassmorphicContainer>
