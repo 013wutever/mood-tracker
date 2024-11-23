@@ -22,11 +22,21 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isLandscape, setIsLandscape] = useState(window.innerHeight < window.innerWidth);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+      setIsLandscape(window.innerHeight < window.innerWidth);
+    };
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', () => {
+      setTimeout(handleResize, 100);
+    });
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
   }, []);
 
   const t = (path) => getTranslation(language, path);
@@ -131,17 +141,9 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
         <GlassmorphicContainer 
           className={`relative top-4 right-4 p-4 rounded-xl flex items-center gap-2 z-50
             ${submitStatus === 'success' ? 'bg-green-500/20' : 'bg-red-500/20'}`}
+          simplified={isMobile && isLandscape}
         >
-          {submitStatus === 'success' ? (
-            <CheckCircle className="w-5 h-5" />
-          ) : (
-            <XCircle className="w-5 h-5" />
-          )}
-          <span>
-            {submitStatus === 'success' ? 
-              t('moodEntry.success') : 
-              t('moodEntry.error')}
-          </span>
+          {/* ... */}
         </GlassmorphicContainer>
       )}
 
@@ -174,6 +176,7 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
                   }}
                   title={mood.label}
                   isButton={true}
+                  simplified={isMobile && isLandscape}
                 >
                   <MoodIcon className={isMobile ? 'w-5 h-5' : 'w-8 h-8'} />
                 </GlassmorphicContainer>
@@ -200,6 +203,7 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
                   backgroundColor: selectedCategory === category.id ? category.color : undefined
                 }}
                 isButton={true}
+                simplified={isMobile && isLandscape}
               >
                 {category.name}
               </GlassmorphicContainer>
@@ -239,6 +243,7 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
                     : undefined
                 }}
                 isButton={true}
+                simplified={isMobile && isLandscape}
               >
                 {emotion.name}
               </GlassmorphicContainer>
@@ -251,7 +256,11 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
           <h2 className="text-lg md:text-xl mb-4">
             {t('moodEntry.notes.title')}
           </h2>
-          <GlassmorphicContainer as="div" className="rounded-xl bg-white/10">
+          <GlassmorphicContainer 
+            as="div" 
+            className="rounded-xl bg-white/10"
+            simplified={isMobile && isLandscape}
+          >
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -283,6 +292,7 @@ const MoodEntry = ({ language = 'el', userEmail }) => {
           className="w-full py-4 md:py-3 rounded-xl min-h-[44px]"
           hover={true}
           isButton={true}
+          simplified={isMobile && isLandscape}
         >
           {isSubmitting ? (
             <div className="flex items-center justify-center gap-2">
