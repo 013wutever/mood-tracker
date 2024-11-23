@@ -20,11 +20,21 @@ const App = () => {
   const [language, setLanguage] = useState('el');
   const [user, setUser] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isLandscape, setIsLandscape] = useState(window.innerHeight < window.innerWidth);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+      setIsLandscape(window.innerHeight < window.innerWidth);
+    };
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', () => {
+      setTimeout(handleResize, 100);
+    });
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
   }, []);
 
   useEffect(() => {
@@ -96,23 +106,19 @@ const App = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen w-full bg-gradient-to-br from-purple-300/80 to-indigo-400/80">
+      <div className="content-wrapper">
         {renderContent()}
       </div>
     );
   }
 
   return (
-    <div className={`
-  w-full min-h-screen h-full
-  bg-gradient-to-br from-purple-300/80 to-indigo-400/80
-  ${isMobile ? 'pb-20' : ''}
-  overflow-y-auto
-`}>
+    <div className="content-wrapper">
       {/* Top navigation - Fixed */}
       <GlassmorphicContainer 
         className="fixed top-0 left-0 right-0 h-16 z-50 flex items-center justify-between px-4"
         hover={false}
+        simplified={isMobile && isLandscape}
       >
         <div className="flex items-center space-x-1">
           <span className="text-white/70 text-sm mr-4">
@@ -133,6 +139,7 @@ const App = () => {
                 hover={true}
                 active={activeTab === item.id}
                 isButton={true}
+                simplified={isMobile && isLandscape}
               >
                 <ItemIcon className="w-6 h-6" />
                 <span className="sr-only">
@@ -151,6 +158,7 @@ const App = () => {
             className={`p-2 rounded-full ${isMobile ? 'touch-manipulation' : ''}`}
             hover={true}
             isButton={true}
+            simplified={isMobile && isLandscape}
           >
             <Languages className="w-6 h-6" />
             <span className="sr-only">
@@ -165,6 +173,7 @@ const App = () => {
             className={`p-2 rounded-full ${isMobile ? 'touch-manipulation' : ''}`}
             hover={true}
             isButton={true}
+            simplified={isMobile && isLandscape}
           >
             <LogOut className="w-6 h-6" />
             <span className="sr-only">{getTranslation(language, 'nav.logout')}</span>
@@ -182,6 +191,7 @@ const App = () => {
             rounded-2xl p-6 mx-auto
             ${getContentMaxWidth()}
           `}
+          simplified={isMobile && isLandscape}
         >
           {renderContent()}
         </GlassmorphicContainer>
