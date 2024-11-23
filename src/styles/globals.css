@@ -74,7 +74,10 @@ body {
   min-height: var(--app-height);
   width: 100vw;
   overflow-x: hidden;
-  @apply antialiased text-white;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: white;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -92,11 +95,11 @@ body {
 }
 
 .glassmorphic-hover {
-  @apply transition-all duration-300;
+  transition: all 0.3s ease;
 }
 
 .glassmorphic-hover:hover {
-  @apply bg-white/15;
+  background-color: rgba(255, 255, 255, 0.15);
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
               0 4px 6px -2px rgba(0, 0, 0, 0.05),
               inset 0 0 80px rgba(255, 255, 255, 0.2);
@@ -123,7 +126,10 @@ body {
   
   /* Βελτίωση εμφάνισης εικονιδίων στο mobile */
   .icon-wrapper {
-    @apply relative inline-flex items-center justify-center;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
   }
@@ -245,12 +251,16 @@ body {
 
 /* Βελτίωση εμφάνισης κουμπιών */
 button {
-  @apply relative overflow-hidden;
+  position: relative;
+  overflow: hidden;
 }
 
 button::before {
   content: '';
-  @apply absolute inset-0 opacity-0 transition-opacity duration-300;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
   background: radial-gradient(circle at center, 
     rgba(255,255,255,0.2) 0%, 
     transparent 70%
@@ -258,7 +268,7 @@ button::before {
 }
 
 button:hover::before {
-  @apply opacity-100;
+  opacity: 1;
 }
 
 /* Βελτιωμένο active state για κουμπιά */
@@ -279,44 +289,54 @@ button:active {
 
 /* Chart Customizations */
 .recharts-wrapper {
-  @apply mx-auto;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .recharts-legend-wrapper {
-  @apply !bottom-0 !left-1/2 -translate-x-1/2 !text-center;
+  bottom: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%);
+  text-align: center !important;
 }
 
 .recharts-pie-label-text {
-  @apply fill-white font-medium;
+  fill: white;
+  font-weight: 500;
 }
 
 .recharts-text {
-  @apply fill-white/90;
+  fill: rgba(255, 255, 255, 0.9);
 }
 
 /* Calendar Styles */
 .calendar-day {
-  @apply aspect-square rounded-lg glassmorphic p-2 transition-all duration-300;
+  aspect-ratio: 1;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  transition: all 0.3s ease;
 }
 
 .calendar-day:hover {
-  @apply bg-white/20 scale-105;
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
 /* Scrollbar Styling */
 ::-webkit-scrollbar {
-  @apply w-1.5;
+  width: 0.375rem;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-transparent;
+  background-color: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-white/20 rounded-full;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-white/30;
+  background-color: rgba(255, 255, 255, 0.3);
 }
