@@ -135,145 +135,123 @@ body {
   }
 
   /* Ultra-simplified landscape mode */
-  @media (orientation: landscape) {
+ @media (orientation: landscape) {
+    /* Reset all transitions and effects */
+    * {
+      transition: none !important;
+      animation: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      box-shadow: none !important;
+      text-shadow: none !important;
+    }
+
+    /* Basic container styles */
     .content-wrapper {
       height: auto;
       min-height: auto;
+      background: transparent;
     }
 
-    /* Base glassmorphic effect - ultra simplified */
+    /* Ultra simplified glassmorphic */
     .glassmorphic {
       background-color: rgba(255, 255, 255, 0.1) !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
       border: none !important;
       box-shadow: none !important;
       transform: none !important;
-      transition: background-color 0.2s ease !important;
+      -webkit-transform: none !important;
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
+      backface-visibility: hidden;
+      perspective: 1000;
+      will-change: transform;
     }
 
-    /* Ultra simplified hover effects */
+    /* Ultra simplified hover states */
     .glassmorphic-hover {
-      transition: background-color 0.2s ease !important;
+      background-color: rgba(255, 255, 255, 0.1) !important;
+      transition: none !important;
       transform: none !important;
+      -webkit-transform: none !important;
       box-shadow: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
+      backface-visibility: hidden;
+      perspective: 1000;
+      will-change: transform;
     }
 
     .glassmorphic-hover:hover,
-    .glassmorphic-hover[data-active="true"],
-    .glassmorphic-hover:active {
+    .glassmorphic-hover:active,
+    .glassmorphic-hover[data-active="true"] {
       background-color: rgba(255, 255, 255, 0.2) !important;
-      transform: none !important;
-      box-shadow: none !important;
-      -webkit-transform: translateZ(0);
-      transform: translateZ(0);
     }
 
-    /* Remove all complex effects */
+    /* Force hardware acceleration for icons and buttons */
+    button,
+    .icon-wrapper,
+    .lucide-icon {
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      perspective: 1000;
+      will-change: transform;
+      opacity: 1 !important;
+    }
+
+    /* Remove all decorative effects */
+    button::before,
+    button::after,
     .glassmorphic-hover::before,
     .glassmorphic-hover::after {
       display: none !important;
     }
 
-    /* Simplify button effects */
-    button::before {
-      display: none !important;
-    }
-
-    button:active {
+    /* Simplify active states */
+    button:active,
+    .glassmorphic:active,
+    .glassmorphic-hover:active {
       transform: none !important;
+      -webkit-transform: none !important;
     }
 
-    /* Ensure icons are visible */
-    .lucide-icon {
+    /* Ensure correct rendering for mood icons */
+    .mood-icon {
       opacity: 1 !important;
       transform: none !important;
-      filter: none !important;
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
+      will-change: transform;
     }
 
-    /* Fix chart rendering */
-    .recharts-wrapper {
-      transform: translateZ(0);
-      -webkit-transform: translateZ(0);
+    /* Override any complex animations */
+    .animate-spin,
+    .animate-pulse,
+    .animate-bounce {
+      animation: none !important;
+    }
+
+    /* Ensure text is visible */
+    h1, h2, h3, p, span, button {
+      opacity: 1 !important;
+      transform: none !important;
+      text-shadow: none !important;
+    }
+
+    /* Fix for emotion pills */
+    .emotion-pill {
+      background-color: rgba(255, 255, 255, 0.1) !important;
+      transform: none !important;
+      transition: none !important;
+      box-shadow: none !important;
+    }
+
+    .emotion-pill:hover,
+    .emotion-pill:active,
+    .emotion-pill[data-active="true"] {
+      background-color: rgba(255, 255, 255, 0.2) !important;
     }
   }
-
-  /* Better touch targets */
-  button,
-  .emotion-pill,
-  .calendar-day {
-    min-height: 44px;
-    min-width: 44px;
-    padding: 12px;
-  }
-
-  /* Improved grid layouts */
-  .mood-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-  }
-
-  .category-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-  }
-
-  /* Chart responsiveness */
-  .chart-container {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1;
-    margin-bottom: 2rem;
-  }
-
-  /* Better scroll handling */
-  .content-scrollable {
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
-  }
-}
-
-/* Βελτιωμένο glassmorphic effect */
-.glassmorphic {
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-              0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-/* Βελτίωση εμφάνισης κουμπιών */
-button {
-  position: relative;
-  overflow: hidden;
-}
-
-button::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  background: radial-gradient(circle at center, 
-    rgba(255,255,255,0.2) 0%, 
-    transparent 70%
-  );
-}
-
-button:hover::before {
-  opacity: 1;
-}
-
-/* Βελτιωμένο active state για κουμπιά */
-button:active {
-  transform: scale(0.98);
 }
 
 /* iOS-specific fixes */
