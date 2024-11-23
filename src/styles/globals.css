@@ -128,7 +128,7 @@ body {
     transform: translateZ(0);
   }
 
-  /* Διόρθωση για το landscape mode */
+  /* Ultra-simplified landscape mode */
   @media (orientation: landscape) {
     .content-wrapper {
       height: auto;
@@ -144,6 +144,8 @@ body {
       box-shadow: none !important;
       transform: none !important;
       transition: background-color 0.2s ease !important;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
     }
 
     /* Ultra simplified hover effects */
@@ -153,6 +155,8 @@ body {
       box-shadow: none !important;
       backdrop-filter: none !important;
       -webkit-backdrop-filter: none !important;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
     }
 
     .glassmorphic-hover:hover,
@@ -161,6 +165,8 @@ body {
       background-color: rgba(255, 255, 255, 0.2) !important;
       transform: none !important;
       box-shadow: none !important;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
     }
 
     /* Remove all complex effects */
@@ -183,8 +189,82 @@ body {
       opacity: 1 !important;
       transform: none !important;
       filter: none !important;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+    }
+
+    /* Fix chart rendering */
+    .recharts-wrapper {
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
     }
   }
+
+  /* Better touch targets */
+  button,
+  .emotion-pill,
+  .calendar-day {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px;
+  }
+
+  /* Improved grid layouts */
+  .mood-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  /* Chart responsiveness */
+  .chart-container {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    margin-bottom: 2rem;
+  }
+
+  /* Better scroll handling */
+  .content-scrollable {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+}
+
+/* Βελτιωμένο glassmorphic effect */
+.glassmorphic {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Βελτίωση εμφάνισης κουμπιών */
+button {
+  @apply relative overflow-hidden;
+}
+
+button::before {
+  content: '';
+  @apply absolute inset-0 opacity-0 transition-opacity duration-300;
+  background: radial-gradient(circle at center, 
+    rgba(255,255,255,0.2) 0%, 
+    transparent 70%
+  );
+}
+
+button:hover::before {
+  @apply opacity-100;
+}
+
+/* Βελτιωμένο active state για κουμπιά */
+button:active {
+  transform: scale(0.98);
+}
 
 /* iOS-specific fixes */
 @supports (-webkit-touch-callout: none) {
@@ -195,6 +275,33 @@ body {
   .h-screen {
     height: -webkit-fill-available;
   }
+}
+
+/* Chart Customizations */
+.recharts-wrapper {
+  @apply mx-auto;
+}
+
+.recharts-legend-wrapper {
+  @apply !bottom-0 !left-1/2 -translate-x-1/2 !text-center;
+}
+
+.recharts-pie-label-text {
+  @apply fill-white font-medium;
+}
+
+.recharts-text {
+  @apply fill-white/90;
+}
+
+/* Calendar Styles */
+.calendar-day {
+  @apply aspect-square rounded-lg glassmorphic p-2 transition-all duration-300;
+}
+
+.calendar-day:hover {
+  @apply bg-white/20 scale-105;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
 /* Scrollbar Styling */
