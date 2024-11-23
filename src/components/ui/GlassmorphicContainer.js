@@ -8,24 +8,43 @@ const GlassmorphicContainer = ({
   onClick = null,
   as = 'div',
   style = {},
-  isButton = false
+  isButton = false,
+  simplified = false // Νέο prop για απλοποιημένη έκδοση
 }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isLandscape, setIsLandscape] = useState(window.innerHeight < window.innerWidth);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+      setIsLandscape(window.innerHeight < window.innerWidth);
+    };
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', () => {
+      setTimeout(handleResize, 100);
+    });
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
   }, []);
 
   const getStyles = () => {
+    if (simplified) {
+      // Απλοποιημένο style για καλύτερο performance σε landscape
+      const defaultBg = 'rgba(255, 255, 255, 0.1)';
+      return {
+        backgroundColor: style.backgroundColor || defaultBg,
+        ...style,
+      };
+    }
+
     if (isMobile) {
       const defaultBg = 'rgba(255, 255, 255, 0.2)';
       return {
         backgroundColor: style.backgroundColor || defaultBg,
         border: '1px solid rgba(255, 255, 255, 0.1)',
         ...style,
-        // Add elevation for buttons on mobile
         ...(isButton && {
           boxShadow: active 
             ? 'inset 0 2px 4px rgba(0,0,0,0.1)' 
@@ -45,6 +64,14 @@ const GlassmorphicContainer = ({
       ${className}
       transition-all duration-300
     `;
+
+    if (simplified) {
+      return `
+        ${baseClasses}
+        ${hover ? 'active:opacity-80' : ''}
+        ${active ? 'bg-opacity-100' : 'bg-opacity-80'}
+      `;
+    }
 
     if (isMobile) {
       return `
