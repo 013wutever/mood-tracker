@@ -134,75 +134,64 @@ body {
     transform: translateZ(0);
   }
 
-  /* Ultra-simplified landscape mode */
+  /* Simplified mode for both landscape and horizontal */
   @media (orientation: landscape) {
     .content-wrapper {
       height: auto;
       min-height: auto;
     }
 
-    /* Base glassmorphic effect - ultra simplified */
     .glassmorphic {
-      background-color: rgba(255, 255, 255, 0.1) !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      border: none !important;
-      box-shadow: none !important;
-      transform: none !important;
-      transition: background-color 0.2s ease !important;
-      -webkit-transform: translateZ(0);
-      transform: translateZ(0);
+      background-color: rgba(255, 255, 255, 0.1);
+      border: none;
+      box-shadow: none;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
     }
 
-    /* Ultra simplified hover effects */
-    .glassmorphic-hover {
-      transition: background-color 0.2s ease !important;
-      transform: none !important;
-      box-shadow: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
+    .glassmorphic-hover,
+    button,
+    .icon-wrapper {
+      transition: background-color 0.2s ease;
+      transform: none;
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
+      box-shadow: none;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
     }
 
     .glassmorphic-hover:hover,
-    .glassmorphic-hover[data-active="true"],
-    .glassmorphic-hover:active {
-      background-color: rgba(255, 255, 255, 0.2) !important;
-      transform: none !important;
-      box-shadow: none !important;
-      -webkit-transform: translateZ(0);
-      transform: translateZ(0);
+    .glassmorphic-hover:active,
+    .glassmorphic-hover[data-active="true"] {
+      background-color: rgba(255, 255, 255, 0.2);
+      transform: none;
+      box-shadow: none;
     }
 
-    /* Remove all complex effects */
-    .glassmorphic-hover::before,
-    .glassmorphic-hover::after {
-      display: none !important;
+    button::before,
+    button::after {
+      display: none;
     }
 
-    /* Simplify button effects */
-    button::before {
-      display: none !important;
-    }
-
-    button:active {
-      transform: none !important;
-    }
-
-    /* Ensure icons are visible */
     .lucide-icon {
-      opacity: 1 !important;
-      transform: none !important;
-      filter: none !important;
+      opacity: 1;
+      transform: none;
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
     }
 
-    /* Fix chart rendering */
-    .recharts-wrapper {
-      transform: translateZ(0);
-      -webkit-transform: translateZ(0);
+    .emotion-pill {
+      background-color: rgba(255, 255, 255, 0.1);
+      transition: background-color 0.2s ease;
+    }
+
+    .emotion-pill:hover,
+    .emotion-pill:active,
+    .emotion-pill[data-active="true"] {
+      background-color: rgba(255, 255, 255, 0.2);
+      transform: none;
+      box-shadow: none;
     }
   }
 
